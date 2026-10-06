@@ -51,13 +51,6 @@
             <div class="card">
                 <div class="card-body">
                     <table id="dataTables1" class="table table-bordered table-striped table-hover">
-                        <section class="content-header">
-                            <a class="btn btn-warning btn-social pull-right" href="modules/ciudad/print.php"
-                                target="_blank">
-                                <i class="cil-print"></i> Imprimir
-                            </a>
-                        </section>
-
                         <h2>Lista de ciudad</h2>
                         <thead>
                             <tr>
@@ -69,38 +62,40 @@
                         </thead>
                         <tbody>
                             <?php
-                            $nro = 1;
+                            // Obtener datos de la tabla ciudad con su departamento
                             $query = mysqli_query($mysqli, "SELECT ciu.cod_ciudad, ciu.descrip_ciudad, dep.id_departamento, dep.dep_descripcion 
-                            FROM ciudad ciu
-                            JOIN departamento dep ON ciu.id_departamento = dep.id_departamento")
-                                or die("Error" . mysqli_error($mysqli));
+    FROM ciudad ciu
+    JOIN departamento dep ON ciu.id_departamento = dep.id_departamento
+    ORDER BY ciu.cod_ciudad ASC")
+                                or die("Error: " . mysqli_error($mysqli));
+
                             while ($data = mysqli_fetch_assoc($query)) {
                                 $cod_ciudad = $data['cod_ciudad'];
                                 $descrip_ciudad = $data['descrip_ciudad'];
                                 $dep_descripcion = $data['dep_descripcion'];
-                                ?>
-                                <tr>
-                                    <td class="text-center"><?php echo $cod_ciudad; ?></td>
-                                    <td class="text-center"><?php echo $descrip_ciudad; ?></td>
-                                    <td class="text-center"><?php echo $dep_descripcion; ?></td>
-                                    <td class="text-center" width="80">
-                                        <div class="btn-group">
-                                            <a data-toggle="tooltip" data-placement="top" title="Modificar datos de Ciudad"
-                                                style="margin-right:5px" class="btn btn-primary btn-sm"
-                                                href="?module=form_ciudad&form=edit&id=<?php echo $data['cod_ciudad']; ?>">
-                                                <i class="cil-pencil"></i>
+
+                                echo "<tr>
+                                        <td class='text-center'>$cod_ciudad</td>
+                                        <td class='text-center'>$descrip_ciudad</td>
+                                        <td class='text-center'>$dep_descripcion</td>
+                                        <td class='text-center'>
+                                            <a class='btn btn-primary btn-sm me-2' 
+                                            href='?module=form_ciudad&form=edit&id=$cod_ciudad' 
+                                            title='Modificar datos de Ciudad' data-bs-toggle='tooltip'>
+                                            <i class='cil-pencil'></i>
                                             </a>
-                                            <a data-toggle="tooltip" data-placement="top" title="Eliminar datos"
-                                                class="btn btn-danger btn-sm"
-                                                href="modules/ciudad/proses.php?act=delete&cod_ciudad=<?php echo $data['cod_ciudad']; ?>"
-                                                onclick="return confirm('¿Estás seguro/a de eliminar <?php echo $data['descrip_ciudad']; ?>?')">
-                                                <i class="cil-trash"></i>
+                                            <a class='btn btn-danger btn-sm' 
+                                            href='modules/ciudad/proses.php?act=delete&cod_ciudad=$cod_ciudad' 
+                                            title='Eliminar datos' data-bs-toggle='tooltip'
+                                            onclick=\"return confirm('¿Estás seguro/a de eliminar " . htmlspecialchars(addslashes($descrip_ciudad)) . "?');\">
+                                            <i class='cil-trash'></i>
                                             </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                            <?php } ?>
+                                        </td>
+                                    </tr>";
+                            }
+                            ?>
                         </tbody>
+
                     </table>
                 </div>
             </div>

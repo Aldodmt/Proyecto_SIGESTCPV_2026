@@ -3,13 +3,12 @@ require_once '../config/database.php';
 $action = (isset($_REQUEST['action']) && $_REQUEST['action'] != NULL) ? $_REQUEST['action'] : '';
 if ($action == 'ajax') {
     $x = mysqli_real_escape_string($mysqli, (strip_tags($_REQUEST['x'], ENT_QUOTES)));
-    $aColumns = array('id_presupuesto', 'id_pedido', 'razon_social', 'fecha_presu', 'fecha_vencimiento', 'p_descrip', 'cantidad', 'precio_unit', 'estado');
-    $sTable = "v_presu";
-    $sWhere = "WHERE estado = 'aprobado' "; // Filtro por defecto para estado aprobado
+    $aColumns = array('cod_compra', 'razon_social', 'fecha', 'hora', 'p_descrip', 'cantidad', 'estado', 'con_sin_remision');
+    $sTable = "v_compras";
+    $sWhere = "WHERE estado = 'ACTIVO' and con_sin_remision = 'con' and cod_compra not in (select cod_compra from notaR_compra) ORDER BY cod_compra "; // Filtro por defecto para estado aprobado
 
-
-    // Excluir presupuestos que ya existan en la tabla de orden compra
-    $sWhere .= "AND id_presupuesto NOT IN (SELECT id_presupuesto FROM orden_compra) ";
+    // Excluir ordenes de compra que ya existan en la tabla de compra
+    //$sWhere .= "AND cod_compra NOT IN (SELECT cod_compra FROM nota_credito_debito) ";
 
     if (!empty($_GET['x'])) {
         $sWhere .= "AND ("; // Añadir búsqueda dinámica
@@ -41,15 +40,11 @@ if ($action == 'ajax') {
             <table class="table table-striped table-hover align-middle">
                 <thead class="table-primary">
                     <tr>
-                        <th class="text-center">ID presupuesto</th>
-                        <th class="text-center">ID pedido</th>
+                        <th class="text-center">ID compra</th>
                         <th class="text-center">Proveedor</th>
-                        <th class="text-center">Fecha Emitida</th>
-                        <th class="text-center">Fecha de Vencimiento</th>
+                        <th class="text-center">Fecha</th>
                         <th class="text-center">Producto</th>
                         <th class="text-center">Cantidad</th>
-                        <th class="text-center">Precio Unitario</th>
-                        <th class="text-center">Total</th>
                         <th class="text-center">Estado</th>
                         <th style="width:36px;">Seleccion</th>
                     </tr>
@@ -57,29 +52,21 @@ if ($action == 'ajax') {
                 <tbody>
                     <?php
                     while ($data = mysqli_fetch_assoc($query)) {
-                        $cod = $data['id_presupuesto'];
-                        $cod_p = $data['id_pedido'];
+                        $cod = $data['cod_compra'];
                         $razon = $data['razon_social'];
-                        $fecha = $data['fecha_presu'];
-                        $fecha_v = $data['fecha_vencimiento'];
+                        $fecha = $data['fecha'];
                         $prod = $data['p_descrip'];
                         $cantidad = $data['cantidad'];
-                        $precio = $data['precio_unit'];
-                        $total = ($data['cantidad'] * $data['precio_unit']);
                         $estado = $data['estado']; ?>
                         <tr>
                             <td><?php echo $cod; ?></td>
-                            <td><?php echo $cod_p; ?></td>
                             <td><?php echo $razon; ?></td>
                             <td><?php echo $fecha; ?></td>
-                            <td><?php echo $fecha_v; ?></td>
                             <td><?php echo $prod; ?></td>
                             <td><?php echo $cantidad; ?></td>
-                            <td><?php echo $precio; ?></td>
-                            <td><?php echo $total; ?></td>
                             <td><?php echo $estado; ?></td>
                             <td>
-                                <button class="btn btn-success btn-sm" onclick="agregar('<?php echo $cod; ?>')">
+                                <button class="btn btn-success btn-sm" onclick="seleccionarCompra('<?php echo $cod; ?>')">
                                     <i class="cil-plus"></i>
                                 </button>
                             </td>

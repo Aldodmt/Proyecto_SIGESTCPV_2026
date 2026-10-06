@@ -64,7 +64,6 @@
                                 <th class="text-center">Usuario</th>
                                 <th class="text-center">Fecha</th>
                                 <th class="text-center">Producto</th>
-                                <th class="text-center">Deposito</th>
                                 <th class="text-center">Cantidad Anterior</th>
                                 <th class="text-center">Cantidad Ajustada</th>
                                 <th class="text-center">Cantidad Final</th>
@@ -84,7 +83,6 @@
                                 $usuario = $data['name_user'];
                                 $fecha = $data['fecha_ajuste'];
                                 $prod = $data['p_descrip'];
-                                $depo = $data['descrip'];
                                 $cant_aj = $data['cantidad_ajustada'];
                                 $cant_an = $data['cantidad_anterior'];
                                 $cant_f = ($data['cantidad_anterior'] - $data['cantidad_ajustada']);
@@ -95,7 +93,6 @@
                                     <td class='text-center'>$usuario</td>
                                     <td class='text-center'>$fecha</td>
                                     <td class='text-center'>$prod</td>
-                                    <td class='text-center'>$depo</td>
                                     <td class='text-center'>$cant_an</td>
                                     <td class='text-center'>$cant_aj</td>
                                     <td class='text-center'>$cant_f</td>
@@ -103,11 +100,6 @@
                                     <td class='text-center'>$estado</td>
                                     <td class='text-center' width='80'>
                                         <div class='btn-group' role='group'>
-                                            <a data-coreui-toggle='tooltip' title='Activar ajuste' class='btn btn-success btn-sm'
-                                                href='modules/ajuste/proses.php?act=aprobar&id_ajuste=$cod'
-                                                onclick='return confirm(\"¿Estás seguro/a de aprobar el ajuste $cod?\");'>
-                                                <i class='cil-check'></i>
-                                            </a>
                                             <a data-coreui-toggle='tooltip' title='Anular ajuste' class='btn btn-danger btn-sm'
                                                 href='modules/ajuste/proses.php?act=anular&id_ajuste=$cod'
                                                 onclick='return confirm(\"¿Estás seguro/a de anular el ajuste $cod?\");'>

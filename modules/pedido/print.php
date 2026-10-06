@@ -5,7 +5,7 @@ use Spipu\Html2Pdf\Html2Pdf;
 
 ob_start();
 require 'printview.php';
-$nombre_archivo = 'factura_pedido.pdf';
+$nombre_archivo = 'pedido_compra.pdf';
 $html = ob_get_clean();
 
 $html2pdf = new Html2Pdf('P', 'A4', 'es', true);

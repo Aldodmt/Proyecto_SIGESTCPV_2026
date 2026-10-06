@@ -19,79 +19,64 @@
         </div>
     </div>
 </section>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<div class="card">
+    <div class="card-body">
+        <h2>Lista del stock de productos</h2>
+        <div class="table-responsive">
+            <table id="dataTables1" class="table table-bordered table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th class="text-center">Codigo</th>
+                        <th class="text-center">Producto</th>
+                        <th class="text-center">Tip. Producto</th>
+                        <th class="text-center">Unid. Medida</th>
+                        <th class="text-center">Cantidad</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    $query = mysqli_query($mysqli, "SELECT * FROM v_stock ORDER BY cod_producto ASC")
+                        or die('error' . mysqli_error($mysqli));
 
-<section class="container-fluid">
-    <div class="row">
-        <div class="col">
-            <div class="card">
-                <div class="card-body">
-                    <form method="POST" class="row g-3">
-                        <div class="col-md-4">
-                            <label for="cod_deposito" class="form-label">Depósito</label>
-                            <select class="form-select" name="cod_deposito" id="cod_deposito" required>
-                                <option value="" disabled selected>--Seleccione un depósito--</option>
-                                <?php
-                                $query_dep = mysqli_query($mysqli, "SELECT cod_deposito, descrip FROM deposito ORDER BY cod_deposito ASC")
-                                    or die("error" . mysqli_error($mysqli));
-                                while ($data_dep = mysqli_fetch_assoc($query_dep)) {
-                                    echo "<option value=\"$data_dep[cod_deposito]\">$data_dep[cod_deposito] | $data_dep[descrip]</option>";
-                                }
-                                ?>
-                            </select>
-                        </div>
-                        <div class="col-md-4 align-self-end">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="cil-magnifying-glass"></i> Buscar depósito
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <?php
-            $cod_deposito = $_POST['cod_deposito'] ?? 1;
-            $query = mysqli_query($mysqli, "SELECT * FROM v_stock WHERE cod_deposito=$cod_deposito;")
-                or die('error' . mysqli_error($mysqli));
-
-            $deposito = "";
-            if ($data = mysqli_fetch_assoc($query)) {
-                $deposito = $data['descrip'];
-            }
-            ?>
-            <div class="card mt-4">
-                <div class="card-header">
-                    <h2 class="h4">Lista de productos en Stock: <?php echo $deposito; ?></h2>
-                </div>
-                <div class="card-body">
-                    <table class="table table-striped table-hover">
-                        <thead>
-                            <tr>
-                                <th class="text-center">Depósito</th>
-                                <th class="text-center">Tip. Producto</th>
-                                <th class="text-center">Producto</th>
-                                <th class="text-center">Unid. Medida</th>
-                                <th class="text-center">Cantidad</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php
-                            $query = mysqli_query($mysqli, "SELECT * FROM v_stock WHERE cod_deposito=$cod_deposito;")
-                                or die('error' . mysqli_error($mysqli));
-
-                            while ($data = mysqli_fetch_assoc($query)) {
-                                echo "<tr>
-                                        <td class='text-center'>{$data['descrip']}</td>
-                                        <td class='text-center'>{$data['t_p_descrip']}</td>
+                    while ($data = mysqli_fetch_assoc($query)) {
+                        echo "<tr>
+                                        <td class='text-center'>{$data['cod_producto']}</td>
                                         <td class='text-center'>{$data['p_descrip']}</td>
+                                        <td class='text-center'>{$data['t_p_descrip']}</td>
                                         <td class='text-center'>{$data['u_descrip']}</td>
                                         <td class='text-center'>{$data['cantidad']}</td>
                                     </tr>";
-                            }
-                            ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                    }
+                    ?>
+                </tbody>
+            </table>
         </div>
     </div>
+</div>
+</div>
+<script>
+    $(document).ready(function () {
+        var table = $('#dataTables1').DataTable({
+            language: {
+                url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
+            },
+            pageLength: 10,
+            ordering: true
+        });
+
+        // Filtro personalizado
+        $('#buscarCompra').on('keyup', function () {
+            var value = this.value;
+
+            // Filtrar por varias columnas: 0=codigo, 1=producto, 2=tipo, 3=unidad
+            table.columns([0, 1, 2, 3]).search(value).draw();
+        });
+    });
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </section>

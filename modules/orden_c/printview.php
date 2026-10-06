@@ -2,6 +2,7 @@
 require_once "../../config/database.php";
 if ($_GET['act'] == 'imprimir') {
     if (isset($_GET['id_orden'])) {
+
         $codigo = $_GET['id_orden'];
         // Cabecera de compra
         $cabecera_compra = mysqli_query($mysqli, "SELECT * FROM v_orden_comp WHERE id_orden_comp = $codigo")
@@ -26,7 +27,7 @@ if ($_GET['act'] == 'imprimir') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Factura de orden de compra</title>
+    <title>Orden de compra</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -107,7 +108,7 @@ if ($_GET['act'] == 'imprimir') {
             <img src="../../images/asuncion.jpg" alt="Logo">
         </div>
         <div class="details">
-            <h2>Registro de factura de orden de compra</h2>
+            <h2>Registro de orden de compra</h2>
             <p><strong>ID orden de compra:</strong> <?php echo $cod; ?></p>
             <p><strong>ID presupuesto:</strong> <?php echo $cod_p; ?></p>
             <p><strong>Fecha:</strong> <?php echo $fecha; ?></p>
@@ -131,7 +132,7 @@ if ($_GET['act'] == 'imprimir') {
                     $tp = $data2['t_p_descrip'];
                     $u = $data2['u_descrip'];
                     $p_descrip = $data2['p_descrip'];
-                    $cantidad = $data2['cantidad_aprobada'];
+                    $cantidad = $data2['cantidad'];
                     $precio = $data2['precio_unit'];
                     echo "<tr>
                             <td>$tp</td>

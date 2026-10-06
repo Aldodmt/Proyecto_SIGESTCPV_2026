@@ -8,7 +8,7 @@
     <hr>
     <h1>
         <i class="fa fa-folder icon-title"></i> Datos de Compras
-        <a class="btn btn-primary btn-sm float-end" href="?module=form_compras&form=add" title="Agregar"
+        <a class="btn btn-primary btn-sm float-end" href="?module=form_compra&form=add" title="Agregar"
             data-coreui-toggle="tooltip">
             <i class="fa fa-plus"></i> Agregar
         </a>
@@ -47,90 +47,107 @@
                 }
             }
             ?>
-
+            <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+            <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+            <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
             <div class="card">
                 <div class="card-body">
                     <h2>Lista de Compras</h2>
-                    <table id="dataTables1" class="table table-bordered table-striped table-hover">
-                        <thead>
-                            <tr>
-                                <th class="text-center">ID</th>
-                                <th class="text-center">ID orden de compra</th>
-                                <th class="text-center">Usuario</th>
-                                <th class="text-center">Fecha</th>
-                                <th class="text-center">Hora</th>
-                                <th class="text-center">Proveedor</th>
-                                <th class="text-center">Depósito</th>
-                                <th class="text-center">Nro. Factura</th>
-                                <th class="text-center">Nro. Timbrado</th>
-                                <th class="text-center">Timbrado Vencimiento</th>
-                                <th class="text-center">Producto</th>
-                                <th class="text-center">Cantidad</th>
-                                <th class="text-center">Precio</th>
-                                <th class="text-center">Total</th>
-                                <th class="text-center">Estado</th>
-                                <th class="text-center">Acción</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php
-                            $nro = 1;
-                            $query = mysqli_query($mysqli, "SELECT * FROM v_compras WHERE estado = 'activo'")
-                                or die("Error" . mysqli_error($mysqli));
-                            while ($data = mysqli_fetch_assoc($query)) {
-                                $cod = $data['cod_compra'];
-                                $cod_orden = $data['id_orden_comp'];
-                                $proveedor = $data['razon_social'];
-                                $deposito = $data['descrip'];
-                                $nro_factura = $data['nro_factura'];
-                                $formato_factura = "000-000-" . str_pad($nro_factura, 3, "0", STR_PAD_LEFT);
-                                $fecha = $data['fecha'];
-                                $hora = $data['hora'];
-                                $prod = $data['p_descrip'];
-                                $cantidad = $data['cantidad'];
-                                $precio = $data['precio'];
-                                $total = ($data['cantidad'] * $data['precio']);
-                                $estado = $data['estado'];
-                                $usuario = $data['name_user'];
-                                $nro_timbrado = $data['nro_timbrado'];
-                                $timbri_vencimiento = $data['timbrado_vencimiento'];
+                    <div class="mb-3">
+                        <label>Buscar Compra:</label>
+                        <input type="text" id="buscarCompra" class="form-control"
+                            placeholder="Filtrar por código o producto">
+                    </div>
+                    <div class="table-responsive">
+                        <table id="dataTables1" class="table table-bordered table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">ID</th>
+                                    <th class="text-center">ID orden de compra</th>
+                                    <th class="text-center">Nro. Factura</th>
+                                    <th class="text-center">Fecha</th>
+                                    <th class="text-center">Proveedor</th>
+                                    <th class="text-center">Producto</th>
+                                    <th class="text-center">Cantidad</th>
+                                    <th class="text-center">Precio</th>
+                                    <th class="text-center">Estado</th>
+                                    <th class="text-center">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                $nro = 1;
+                                $query = mysqli_query($mysqli, "SELECT * FROM v_compras ORDER BY cod_compra ASC")
+                                    or die("Error" . mysqli_error($mysqli));
+                                while ($data = mysqli_fetch_assoc($query)) {
+                                    $cod = $data['cod_compra'];
+                                    $cod_orden = $data['id_orden_comp'];
+                                    $fac_nro = $data['fac_numero'];
+                                    $proveedor = $data['razon_social'];
+                                    $fecha = $data['fecha'];
+                                    $hora = $data['hora'];
+                                    $prod = $data['p_descrip'];
+                                    $cantidad = $data['cantidad'];
+                                    $precio = $data['precio'];
+                                    $estado = $data['estado'];
 
-                                echo "<tr>
+                                    echo "<tr>
                                     <td class='text-center'>$cod</td>
                                     <td class='text-center'>$cod_orden</td> 
-                                    <td class='text-center'>$usuario</td>
                                     <td class='text-center'>$fecha</td>
-                                    <td class='text-center'>$hora</td>
+                                    <td class='text-center'>$fac_nro</td>
                                     <td class='text-center'>$proveedor</td>
-                                    <td class='text-center'>$deposito</td>
-                                    <td class='text-center'>$nro_factura</td>
-                                    <td class='text-center'>$nro_timbrado</td>
-                                    <td class='text-center'>$timbri_vencimiento</td>
                                     <td class='text-center'>$prod</td>
                                     <td class='text-center'>$cantidad</td>
                                     <td class='text-center'>$precio</td>
-                                    <td class='text-center'>$total</td>
                                     <td class='text-center'>$estado</td>
                                     <td class='text-center' width='80'>
                                         <div class='btn-group' role='group'>
-                                            <a data-coreui-toggle='tooltip' title='Anular compra' class='btn btn-danger btn-sm'
-                                                href='modules/compras/proses.php?act=anular&cod_compra=$cod'
-                                                onclick='return confirm(\"¿Estás seguro/a de anular la factura $nro_factura?\");'>
-                                                <i class='cil-trash'></i>
-                                            </a>
-                                            <a data-coreui-toggle='tooltip' title='Imprimir factura de compra' class='btn btn-warning btn-sm'
-                                                href='modules/compras/print.php?act=imprimir&cod_compra=$cod' target='_blank'>
-                                                <i class='cil-print'></i>
+                                            <a data-coreui-toggle='tooltip' title='Detalles de compra' class='btn btn-success btn-sm'
+                                                href='?module=form_compra&form=detalle&cod_compra=$cod'
+                                                onclick='return confirm(\"¿Estás seguro/a de ver los detalles de la compra?\");'>
+                                                <i class='cil-description'></i>
                                             </a>
                                         </div>
                                     </td>
                                 </tr>";
-                            }
-                            ?>
-                        </tbody>
-                    </table>
+                                }
+                                ?>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+    <script>
+        $(document).ready(function () {
+            var table = $('#dataTables1').DataTable({
+                language: {
+                    url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
+                },
+                pageLength: 10,
+                ordering: true
+            });
+
+            // Filtro personalizado
+            $('#buscarCompra').on('keyup', function () {
+                var value = this.value.toLowerCase();
+
+                table.rows().every(function () {
+                    var id = this.data()[0].toString().toLowerCase();      // Columna ID
+                    var prod = this.data()[4].toString().toLowerCase();    // Columna Producto
+
+                    if (id.includes(value) || prod.includes(value)) {
+                        $(this.node()).show();
+                    } else {
+                        $(this.node()).hide();
+                    }
+                });
+            });
+        });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </section>

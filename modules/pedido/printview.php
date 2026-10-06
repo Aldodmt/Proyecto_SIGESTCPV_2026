@@ -9,7 +9,6 @@ if ($_GET['act'] == 'imprimir') {
 
         while ($data = mysqli_fetch_assoc($cabecera_compra)) {
             $cod = $data['id_pedido'];
-            $deposito = $data['descrip'];
             $fecha = $data['fecha'];
             $hora = $data['hora'];
             $usuario = $data['name_user'];
@@ -26,7 +25,7 @@ if ($_GET['act'] == 'imprimir') {
 
 <head>
     <meta charset="UTF-8">
-    <title>Factura de pedido de compra</title>
+    <title>Pedido de compra</title>
 </head>
 
 <body>
@@ -37,7 +36,6 @@ if ($_GET['act'] == 'imprimir') {
         <strong>Registro de pedido de compra</strong> <br>
         <label><strong>ID pedido: </strong><?php echo $cod; ?></label><br>
         <label><strong>usuario: </strong><?php echo $usuario; ?></label><br>
-        <label><strong>Deposito: </strong><?php echo $deposito; ?></label><br>
         <label><strong>Fecha: </strong><?php echo $fecha; ?></label><br>
         <label><strong>Hora: </strong><?php echo $hora; ?></label><br>
     </div>

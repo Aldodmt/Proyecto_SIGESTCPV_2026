@@ -8,7 +8,7 @@ session_start();
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=yes">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="descripcion" content="sysweb">
-    <meta name="autor" content="Carlos Ortiz">
+    <meta name="autor" content="Aldo Marin">
     <title>Proyecto</title>
 
     <link rel="shortcut icon" href="images/favicon.ico">
@@ -67,8 +67,8 @@ session_start();
 
                                 <?php
                                 // Verificar los permisos del usuario desde la sesión
-                                $current_access = $_SESSION['permisos_acceso']; // Asumiendo que 'permisos_acceso' contiene el rol
-                                
+                                $current_access = $_SESSION['permisos_acceso'];
+
                                 // Mostrar el menú de "Referenciales Compras" solo si el usuario es 'Compras' o 'Super Admin'
                                 if ($current_access == 'Super Admin' || $current_access == 'Compras') {
                                     ?>
@@ -81,8 +81,24 @@ session_start();
                                             <li><a class="dropdown-item" href="?module=deposito">Deposito</a></li>
                                             <li><a class="dropdown-item" href="?module=proveedor">Proveedor</a></li>
                                             <li><a class="dropdown-item" href="?module=producto">Producto</a></li>
-                                            <li><a class="dropdown-item" href="?module=unidad_medida">Unidad de medida</a>
+                                            <li><a class="dropdown-item" href="?module=u_medida">Unidad de medida</a>
                                             <li><a class="dropdown-item" href="?module=tipo_producto">Tipo producto</a>
+                                            </li>
+                                            <li>
+                                                <hr class="dropdown-divider">
+                                            </li>
+                                        </ul>
+                                    </li>
+                                    <li class="nav-item dropdown">
+                                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                                            aria-expanded="false">
+                                            Informes de Referencial de Compra
+                                        </a>
+                                        <ul class="dropdown-menu dropdown-menu-dark">
+                                            <li><a class="dropdown-item" href="?module=info_producto">Productos</a></li>
+                                            <li><a class="dropdown-item" href="?module=info_proveedores">Proveedores</a>
+                                            </li>
+                                            <li><a class="dropdown-item" href="?module=info_u_medida">Unidad de Medida</a>
                                             </li>
                                             <li>
                                                 <hr class="dropdown-divider">
@@ -98,10 +114,14 @@ session_start();
                                             <li><a class="dropdown-item" href="?module=info_pedido">Pedidos</a></li>
                                             <li><a class="dropdown-item" href="?module=info_presu">Presupuesto</a></li>
                                             <li><a class="dropdown-item" href="?module=info_orden">Orden de compra</a></li>
-                                            <li><a class="dropdown-item" href="?module=info_nota">Nota Credito o Debito</a>
+                                            <li><a class="dropdown-item" href="?module=info_facturacion_compra">Compras</a>
                                             </li>
-                                            <li><a class="dropdown-item" href="?module=info_ajuste">Ajuste de Inventario</a>
+                                            <li><a class="dropdown-item" href="?module=info_nota_cd">Nota Credito o
+                                                    Debito</a>
                                             </li>
+                                            <li><a class="dropdown-item" href="?module=info_ajuste">Ajuste</a>
+                                            </li>
+                                            <li><a class="dropdown-item" href="?module=info_notaR">Nota de Remision</a></li>
                                             <li>
                                                 <hr class="dropdown-divider">
                                             </li>
@@ -111,9 +131,9 @@ session_start();
 
                                 <?php
                                 // Mostrar el menú de "Referenciales Ventas" solo si el usuario es 'Ventas' o 'Super Admin'
-                                if ($current_access == 'Super Admin' || $current_access == 'Ventas') {
-                                    ?>
-                                    <li class="nav-item dropdown">
+                                // if ($current_access == 'Super Admin' || $current_access == 'Ventas') {
+                                ?>
+                                <!-- <li class="nav-item dropdown">
                                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
                                             aria-expanded="false">
                                             Referenciales Ventas
@@ -137,8 +157,8 @@ session_start();
                                                 <hr class="dropdown-divider">
                                             </li>
                                         </ul>
-                                    </li>
-                                <?php } ?>
+                                    </li> -->
+                                <?php //} ?>
 
                                 <li class="nav-item">
                                     <a class="nav-link" href="?module=password">Cambiar Contraseña</a>

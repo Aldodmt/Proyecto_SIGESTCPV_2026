@@ -45,7 +45,6 @@ if ($_GET['form'] == 'add') { ?>
                                 </div>
                             </div>
 
-                            <!-- Combo buscador -->
                             <div class="form-group">
                                 <label class="col-sm-2 col-form-label">Tipo de producto</label>
                                 <div class="col-sm-5">
@@ -62,7 +61,6 @@ if ($_GET['form'] == 'add') { ?>
                                 </div>
                             </div>
 
-                            <!-- Combo buscador -->
                             <div class="form-group">
                                 <label class="col-sm-2 col-form-label">Unidad de medida</label>
                                 <div class="col-sm-5">
@@ -79,11 +77,16 @@ if ($_GET['form'] == 'add') { ?>
                                 </div>
                             </div>
 
-                            <div class="form-group ">
-                                <label class="col-sm-2 col-form-label">Precio</label>
+                            <div class="form-group">
+                                <label class="col-sm-2 col-form-label">Tipo de Impuesto</label>
                                 <div class="col-sm-5">
-                                    <input type="text" class="form-control" name="precio"
-                                        placeholder="Ingrese el precio del producto" required>
+                                    <select class="form-control" name="tipo_impuesto"
+                                        data-placeholder="--Seleccione el tipo de impuesto--" autocomplete="off" required>
+                                        <option value=""></option>
+                                        <option value="10%">10</option>
+                                        <option value="5%">5</option>
+                                        <option value="EXENTA">Exenta</option>
+                                    </select>
                                 </div>
                             </div>
 
@@ -103,7 +106,7 @@ if ($_GET['form'] == 'add') { ?>
     </section>
 <?php } elseif ($_GET['form'] == 'edit') {
     if (isset($_GET['id'])) {
-        $query = mysqli_query($mysqli, "SELECT *FROM producto WHERE cod_producto = '$_GET[id]'") or die('error' . mysqli_error($mysqli));
+        $query = mysqli_query($mysqli, "SELECT *FROM v_producto WHERE cod_producto = '$_GET[id]'") or die('error' . mysqli_error($mysqli));
         $data = mysqli_fetch_assoc($query);
     } ?>
     <section class="content-header">
@@ -124,7 +127,7 @@ if ($_GET['form'] == 'add') { ?>
                     <div class="card-body">
                         <form role="form" class="form-horizontal" action="modules/producto/process.php?act=update"
                             method="POST">
-                            <div class="form-group row">
+                            <div class="form-group">
                                 <label class="col-sm-2 col-form-label">Código</label>
                                 <div class="col-sm-5">
                                     <input type="text" class="form-control" name="codigo"
@@ -144,15 +147,13 @@ if ($_GET['form'] == 'add') { ?>
                             <div class="form-group">
                                 <label class="col-sm-2 col-form-label">Tipo de producto</label>
                                 <div class="col-sm-5">
-                                    <select class="form-control" name="tipo_producto"
-                                        data-placeholder="--Seleccione un tipo de producto--" autocomplete="off" required>
-                                        <option value="<?php echo $data['cod_tipo_prod']; ?>">
-                                            <?php echo $data['t_p_descrip']; ?>
-                                        </option>
+                                    <select class="form-control" name="tipo_producto" required>
+                                        <option value="">--Seleccione un tipo de producto--</option>
                                         <?php
-                                        $query_tp = mysqli_query($mysqli, "SELECT *FROM tipo_producto") or die('error' . mysqli_error($mysqli));
+                                        $query_tp = mysqli_query($mysqli, "SELECT * FROM tipo_producto") or die('error' . mysqli_error($mysqli));
                                         while ($data_tp = mysqli_fetch_assoc($query_tp)) {
-                                            echo "<option value=\"$data_tp[cod_tipo_prod]\">$data_tp[t_p_descrip]</option>";
+                                            $selected = ($data_tp['cod_tipo_prod'] == $data['cod_tipo_prod']) ? 'selected' : '';
+                                            echo "<option value='{$data_tp['cod_tipo_prod']}' $selected>{$data_tp['t_p_descrip']}</option>";
                                         }
                                         ?>
                                     </select>
@@ -163,15 +164,13 @@ if ($_GET['form'] == 'add') { ?>
                             <div class="form-group">
                                 <label class="col-sm-2 col-form-label">Unidad de medida</label>
                                 <div class="col-sm-5">
-                                    <select class="form-control" name="u_medida"
-                                        data-placeholder="--Seleccione un tipo de producto--" required>
-                                        <option value="<?php echo $data['id_u_medida']; ?>">
-                                            <?php echo $data['u_descrip']; ?>
-                                        </option>
+                                    <select class="form-control" name="u_medida" required>
+                                        <option value="">--Seleccione una unidad de medida--</option>
                                         <?php
                                         $query_um = mysqli_query($mysqli, "SELECT * FROM u_medida") or die('error' . mysqli_error($mysqli));
                                         while ($data_um = mysqli_fetch_assoc($query_um)) {
-                                            echo "<option value=\"$data_um[id_u_medida]\">$data_um[u_descrip]</option>";
+                                            $selected = ($data_um['id_u_medida'] == $data['id_u_medida']) ? 'selected' : '';
+                                            echo "<option value='{$data_um['id_u_medida']}' $selected>{$data_um['u_descrip']}</option>";
                                         }
                                         ?>
                                     </select>
@@ -179,10 +178,15 @@ if ($_GET['form'] == 'add') { ?>
                             </div>
 
                             <div class="form-group">
-                                <label class="col-sm-2 col-form-label">Precio</label>
+                                <label class="col-sm-2 col-form-label">Tipo de Impuesto</label>
                                 <div class="col-sm-5">
-                                    <input type="text" class="form-control" name="precio"
-                                        value="<?php echo $data['precio']; ?>" required>
+                                    <select class="form-control" name="tipo_impuesto"
+                                        data-placeholder="--Seleccione el tipo de impuesto--" required>
+                                        <option value="">--Seleccione el tipo de impuesto--</option>
+                                        <option value="10%" <?= (isset($data['tipo_impuesto']) && $data['tipo_impuesto'] == '10%') ? 'selected' : '' ?>>10%</option>
+                                        <option value="5%" <?= (isset($data['tipo_impuesto']) && $data['tipo_impuesto'] == '5%') ? 'selected' : '' ?>>5%</option>
+                                        <option value="EXENTA" <?= (isset($data['tipo_impuesto']) && $data['tipo_impuesto'] == 'EXENTA') ? 'selected' : '' ?>>Exenta</option>
+                                    </select>
                                 </div>
                             </div>
 

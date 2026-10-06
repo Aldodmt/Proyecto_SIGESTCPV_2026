@@ -3,13 +3,12 @@ require_once '../config/database.php';
 $action = (isset($_REQUEST['action']) && $_REQUEST['action'] != NULL) ? $_REQUEST['action'] : '';
 if ($action == 'ajax') {
     $x = mysqli_real_escape_string($mysqli, (strip_tags($_REQUEST['x'], ENT_QUOTES)));
-    $aColumns = array('id_orden_comp', 'id_presupuesto', 'name_user', 'fecha', 'hora', 'p_descrip', 'cantidad_aprobada', 'precio_unit', 'estado');
-    $sTable = "v_orden_comp";
-    $sWhere = "WHERE estado = 'aprobado' "; // Filtro por defecto para estado aprobado
-
+    $aColumns = array('cod_compra', 'fac_numero', 'razon_social', 'fecha', 'hora', 'p_descrip', 'cantidad', 'precio', 'tipo_iva', 'estado, cap_estado');
+    $sTable = "v_compras";
+    $sWhere = "WHERE estado = 'ACTIVO'  and cod_compra not in (select cod_compra from nota_credito_debito)"; // Filtro por defecto para estado aprobado
 
     // Excluir ordenes de compra que ya existan en la tabla de compra
-    $sWhere .= "AND id_orden_comp NOT IN (SELECT id_orden_comp FROM compra) ";
+    //$sWhere .= "AND cod_compra NOT IN (SELECT cod_compra FROM nota_credito_debito) ";
 
     if (!empty($_GET['x'])) {
         $sWhere .= "AND ("; // Añadir búsqueda dinámica
@@ -41,15 +40,15 @@ if ($action == 'ajax') {
             <table class="table table-striped table-hover align-middle">
                 <thead class="table-primary">
                     <tr>
-                        <th class="text-center">ID</th>
-                        <th class="text-center">ID presupuesto</th>
-                        <th class="text-center">Usuario</th>
+                        <th class="text-center">ID compra</th>
+                        <th class="text-center">Nro. Factura</th>
+                        <th class="text-center">Proveedor</th>
                         <th class="text-center">Fecha</th>
                         <th class="text-center">Hora</th>
                         <th class="text-center">Producto</th>
                         <th class="text-center">Cantidad</th>
                         <th class="text-center">Precio Unitario</th>
-                        <th class="text-center">Total</th>
+                        <th class="text-center">Tipo Impuesto</th>
                         <th class="text-center">Estado</th>
                         <th style="width:36px;">Seleccion</th>
                     </tr>
@@ -57,29 +56,29 @@ if ($action == 'ajax') {
                 <tbody>
                     <?php
                     while ($data = mysqli_fetch_assoc($query)) {
-                        $cod = $data['id_orden_comp'];
-                        $cod_p = $data['id_presupuesto'];
-                        $usuario = $data['name_user'];
+                        $cod = $data['cod_compra'];
+                        $cod_f = $data['fac_numero'];
+                        $razon = $data['razon_social'];
                         $fecha = $data['fecha'];
                         $hora = $data['hora'];
                         $prod = $data['p_descrip'];
-                        $cantidad = $data['cantidad_aprobada'];
-                        $precio = $data['precio_unit'];
-                        $total = ($data['cantidad_aprobada'] * $data['precio_unit']);
+                        $cantidad = $data['cantidad'];
+                        $precio = $data['precio'];
+                        $tipo_iva = $data['tipo_iva'];
                         $estado = $data['estado']; ?>
                         <tr>
                             <td><?php echo $cod; ?></td>
-                            <td><?php echo $cod_p; ?></td>
-                            <td><?php echo $usuario; ?></td>
+                            <td><?php echo $cod_f; ?></td>
+                            <td><?php echo $razon; ?></td>
                             <td><?php echo $fecha; ?></td>
                             <td><?php echo $hora; ?></td>
                             <td><?php echo $prod; ?></td>
                             <td><?php echo $cantidad; ?></td>
                             <td><?php echo $precio; ?></td>
-                            <td><?php echo $total; ?></td>
+                            <td><?php echo $tipo_iva; ?></td>
                             <td><?php echo $estado; ?></td>
                             <td>
-                                <button class="btn btn-success btn-sm" onclick="agregar('<?php echo $cod; ?>')">
+                                <button class="btn btn-success btn-sm" onclick="seleccionarCompra('<?php echo $cod; ?>')">
                                     <i class="cil-plus"></i>
                                 </button>
                             </td>

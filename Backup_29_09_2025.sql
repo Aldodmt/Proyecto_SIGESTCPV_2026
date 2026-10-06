@@ -16,11 +16,11 @@ CREATE DATABASE /*!32312 IF NOT EXISTS*/`sysweb` /*!40100 DEFAULT CHARACTER SET 
 
 USE `sysweb`;
 
-/*Table structure for table `ajuste_inventario` */
+/*Table structure for table `ajuste_com` */
 
-DROP TABLE IF EXISTS `ajuste_inventario`;
+DROP TABLE IF EXISTS `ajuste_com`;
 
-CREATE TABLE `ajuste_inventario` (
+CREATE TABLE `ajuste_com` (
   `id_ajuste` int NOT NULL,
   `fecha_ajuste` date NOT NULL,
   `motivo` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
@@ -28,7 +28,7 @@ CREATE TABLE `ajuste_inventario` (
   PRIMARY KEY (`id_ajuste`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-/*Data for the table `ajuste_inventario` */
+/*Data for the table `ajuste_com` */
 
 /*Table structure for table `ciudad` */
 
@@ -81,23 +81,17 @@ DROP TABLE IF EXISTS `compra`;
 CREATE TABLE `compra` (
   `cod_compra` int NOT NULL,
   `cod_proveedor` int NOT NULL,
-  `nro_factura` varchar(25) NOT NULL,
   `fecha` date NOT NULL,
   `estado` varchar(15) NOT NULL,
   `hora` time NOT NULL,
   `id_user` int NOT NULL,
   `id_orden_comp` int NOT NULL,
-  `id_timbrado` int NOT NULL,
   PRIMARY KEY (`cod_compra`),
   KEY `cod_proveedor` (`cod_proveedor`),
-  KEY `id_orden_compra_compra_fk` (`id_orden_comp`),
-  KEY `timbrado_comp_fk` (`id_timbrado`)
+  KEY `id_orden_compra_compra_fk` (`id_orden_comp`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /*Data for the table `compra` */
-
-insert  into `compra`(`cod_compra`,`cod_proveedor`,`nro_factura`,`fecha`,`estado`,`hora`,`id_user`,`id_orden_comp`,`id_timbrado`) values 
-(1,1,'1','2025-01-14','activo','22:08:24',1,1,1);
 
 /*Table structure for table `cuentas_a_pagar` */
 
@@ -109,16 +103,11 @@ CREATE TABLE `cuentas_a_pagar` (
   `fecha_vencimiento` date NOT NULL,
   `estado` varchar(20) NOT NULL,
   `cod_compra` int NOT NULL,
-  `cod_proveedor` int NOT NULL,
   PRIMARY KEY (`id_cuenta`),
-  KEY `cod_compra_cuenta_fk` (`cod_compra`),
-  KEY `cod_prove_cuentas_fk` (`cod_proveedor`)
+  KEY `cod_compra_cuenta_fk` (`cod_compra`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /*Data for the table `cuentas_a_pagar` */
-
-insert  into `cuentas_a_pagar`(`id_cuenta`,`fecha_emision`,`fecha_vencimiento`,`estado`,`cod_compra`,`cod_proveedor`) values 
-(1,'2025-01-14','2025-04-14','pendiente',1,1);
 
 /*Table structure for table `departamento` */
 
@@ -185,9 +174,6 @@ CREATE TABLE `det_cuenta_a_pagar` (
 
 /*Data for the table `det_cuenta_a_pagar` */
 
-insert  into `det_cuenta_a_pagar`(`id_cuenta`,`monto_total`,`monto_pagado`) values 
-(1,155500,0);
-
 /*Table structure for table `det_nota_credit_debit` */
 
 DROP TABLE IF EXISTS `det_nota_credit_debit`;
@@ -213,7 +199,6 @@ CREATE TABLE `det_nota_credit_debit` (
 DROP TABLE IF EXISTS `det_pedido`;
 
 CREATE TABLE `det_pedido` (
-  `cod_deposito` int NOT NULL,
   `cod_producto` int NOT NULL,
   `id_pedido` int NOT NULL,
   `cantidad` int NOT NULL,
@@ -222,10 +207,6 @@ CREATE TABLE `det_pedido` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /*Data for the table `det_pedido` */
-
-insert  into `det_pedido`(`cod_deposito`,`cod_producto`,`id_pedido`,`cantidad`) values 
-(1,2,1,10),
-(1,1,1,10);
 
 /*Table structure for table `det_pedido_v` */
 
@@ -246,7 +227,8 @@ CREATE TABLE `det_pedido_v` (
 insert  into `det_pedido_v`(`id_pedido_v`,`cod_producto`,`cod_deposito`,`cantidad`) values 
 (2,1,1,12),
 (1,1,1,13),
-(3,1,1,1);
+(3,1,1,1),
+(4,1,1,10);
 
 /*Table structure for table `det_presu` */
 
@@ -261,10 +243,6 @@ CREATE TABLE `det_presu` (
 ) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /*Data for the table `det_presu` */
-
-insert  into `det_presu`(`id_presupuesto`,`cod_producto`,`cantidad`,`precio_unit`) values 
-(1,2,10,8000),
-(1,1,10,7550);
 
 /*Table structure for table `det_venta` */
 
@@ -285,7 +263,8 @@ CREATE TABLE `det_venta` (
 
 insert  into `det_venta`(`cod_producto`,`cod_venta`,`cod_deposito`,`det_precio_unit`,`det_cantidad`) values 
 (1,2,1,10400,1),
-(1,1,1,10400,10);
+(1,1,1,10400,10),
+(1,3,1,10400,5);
 
 /*Table structure for table `detalle_compra` */
 
@@ -294,18 +273,12 @@ DROP TABLE IF EXISTS `detalle_compra`;
 CREATE TABLE `detalle_compra` (
   `cod_producto` int NOT NULL,
   `cod_compra` int NOT NULL,
-  `cod_deposito` int NOT NULL,
   `precio` int NOT NULL,
   `cantidad` int NOT NULL,
-  KEY `compra_detalle_compra_fk` (`cod_compra`),
-  KEY `deposito_detalle_compra_fk` (`cod_deposito`)
+  KEY `compra_detalle_compra_fk` (`cod_compra`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /*Data for the table `detalle_compra` */
-
-insert  into `detalle_compra`(`cod_producto`,`cod_compra`,`cod_deposito`,`precio`,`cantidad`) values 
-(1,1,1,7550,10),
-(2,1,1,8000,10);
 
 /*Table structure for table `detalle_orden_comp` */
 
@@ -322,9 +295,29 @@ CREATE TABLE `detalle_orden_comp` (
 
 /*Data for the table `detalle_orden_comp` */
 
-insert  into `detalle_orden_comp`(`id_orden_comp`,`cod_producto`,`precio_unit`,`cantidad_aprobada`) values 
-(1,2,8000,10),
-(1,1,7550,10);
+/*Table structure for table `factura_compra` */
+
+DROP TABLE IF EXISTS `factura_compra`;
+
+CREATE TABLE `factura_compra` (
+  `fac_cod` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `com_cod` int NOT NULL,
+  `fac_numero` varchar(30) NOT NULL,
+  `fac_fecha` date NOT NULL,
+  `fac_vencimiento` date DEFAULT NULL,
+  `fac_total` decimal(12,2) NOT NULL,
+  `fac_exentas` decimal(12,2) DEFAULT '0.00',
+  `fac_iva5` decimal(12,2) DEFAULT '0.00',
+  `fac_iva10` decimal(12,2) DEFAULT '0.00',
+  `fac_estado` varchar(15) NOT NULL,
+  `tim_cod` int NOT NULL,
+  PRIMARY KEY (`fac_cod`),
+  UNIQUE KEY `fac_cod` (`fac_cod`),
+  KEY `fk_compra` (`com_cod`),
+  KEY `fk_timbrado` (`tim_cod`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+/*Data for the table `factura_compra` */
 
 /*Table structure for table `nota_credito_debito` */
 
@@ -362,9 +355,6 @@ CREATE TABLE `orden_compra` (
 
 /*Data for the table `orden_compra` */
 
-insert  into `orden_compra`(`id_orden_comp`,`fecha`,`estado`,`hora`,`id_user`,`id_presupuesto`) values 
-(1,'2025-01-14','aprobado','22:07:55',1,1);
-
 /*Table structure for table `pedido` */
 
 DROP TABLE IF EXISTS `pedido`;
@@ -377,12 +367,14 @@ CREATE TABLE `pedido` (
   `id_user` int NOT NULL,
   PRIMARY KEY (`id_pedido`),
   KEY `id_user_pedido_fk` (`id_user`)
-) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /*Data for the table `pedido` */
 
 insert  into `pedido`(`id_pedido`,`fecha`,`estado`,`hora`,`id_user`) values 
-(1,'2025-01-14','aprobado','21:23:53',1);
+(8,'2025-09-29','Pendiente','14:17:26',1),
+(7,'2025-09-29','Pendiente','14:17:12',1),
+(6,'2025-09-29','Pendiente','14:16:51',1);
 
 /*Table structure for table `pedido_v` */
 
@@ -403,7 +395,8 @@ CREATE TABLE `pedido_v` (
 insert  into `pedido_v`(`id_pedido_v`,`fecha_pedido`,`hora`,`estado`,`id_user`) values 
 (2,'2025-01-05','15:48:05','aprobado',1),
 (1,'2025-01-02','20:00:11','aprobado',1),
-(3,'2025-01-12','15:29:32','pendiente',1);
+(3,'2025-01-12','15:29:32','pendiente',1),
+(4,'2025-01-15','19:35:41','aprobado',1);
 
 /*Table structure for table `presupuesto` */
 
@@ -423,9 +416,6 @@ CREATE TABLE `presupuesto` (
 
 /*Data for the table `presupuesto` */
 
-insert  into `presupuesto`(`id_presupuesto`,`fecha_presu`,`fecha_vencimiento`,`cod_proveedor`,`estado`,`id_pedido`) values 
-(1,'2025-01-14','2025-03-14',1,'aprobado',1);
-
 /*Table structure for table `producto` */
 
 DROP TABLE IF EXISTS `producto`;
@@ -435,7 +425,6 @@ CREATE TABLE `producto` (
   `cod_tipo_prod` int NOT NULL,
   `id_u_medida` int NOT NULL,
   `p_descrip` varchar(50) NOT NULL,
-  `precio` int NOT NULL,
   PRIMARY KEY (`cod_producto`),
   KEY `tipo_producto_producto_fk` (`cod_tipo_prod`),
   KEY `u_medida_producto_fk` (`id_u_medida`)
@@ -443,10 +432,8 @@ CREATE TABLE `producto` (
 
 /*Data for the table `producto` */
 
-insert  into `producto`(`cod_producto`,`cod_tipo_prod`,`id_u_medida`,`p_descrip`,`precio`) values 
-(1,1,1,'Yogurt lactolanda',8000),
-(2,2,2,'Coca Cola',9500),
-(3,2,2,'Skol',9000);
+insert  into `producto`(`cod_producto`,`cod_tipo_prod`,`id_u_medida`,`p_descrip`) values 
+(1,2,1,'Vaso Plastico 2x ');
 
 /*Table structure for table `proveedor` */
 
@@ -482,49 +469,25 @@ CREATE TABLE `stock` (
 /*Data for the table `stock` */
 
 insert  into `stock`(`cod_deposito`,`cod_producto`,`cantidad`) values 
-(1,1,10),
-(1,2,10);
+(1,1,93),
+(1,2,12);
 
-/*Table structure for table `timbrado` */
+/*Table structure for table `timbrado_compra` */
 
-DROP TABLE IF EXISTS `timbrado`;
+DROP TABLE IF EXISTS `timbrado_compra`;
 
-CREATE TABLE `timbrado` (
-  `id_timbrado` int NOT NULL,
-  `numero_timbrado` int NOT NULL,
-  `rango_inicio` int NOT NULL,
-  `rango_fin` int NOT NULL,
-  `fecha_inicio` date NOT NULL,
-  `fecha_fin` date NOT NULL,
-  `estado` varchar(20) NOT NULL,
-  PRIMARY KEY (`id_timbrado`),
-  KEY `numero_timbrado` (`numero_timbrado`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
-/*Data for the table `timbrado` */
-
-insert  into `timbrado`(`id_timbrado`,`numero_timbrado`,`rango_inicio`,`rango_fin`,`fecha_inicio`,`fecha_fin`,`estado`) values 
-(1,12345678,1,1000,'2025-01-04','2025-04-04','activo');
-
-/*Table structure for table `timbrado_comp` */
-
-DROP TABLE IF EXISTS `timbrado_comp`;
-
-CREATE TABLE `timbrado_comp` (
-  `id_timbrado` int NOT NULL,
-  `numero_timbrado` int NOT NULL,
-  `rango_inicio` int NOT NULL,
-  `rango_fin` int NOT NULL,
-  `fecha_inicio` date NOT NULL,
-  `fecha_fin` date NOT NULL,
-  `estado` varchar(20) DEFAULT NULL,
-  PRIMARY KEY (`id_timbrado`)
+CREATE TABLE `timbrado_compra` (
+  `tim_cod` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `prov_cod` int NOT NULL,
+  `tim_numero` varchar(20) NOT NULL,
+  `tim_fecha_ini` date NOT NULL,
+  `tim_fecha_fin` date NOT NULL,
+  `tim_estado` varchar(15) NOT NULL,
+  PRIMARY KEY (`tim_cod`),
+  UNIQUE KEY `tim_cod` (`tim_cod`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-/*Data for the table `timbrado_comp` */
-
-insert  into `timbrado_comp`(`id_timbrado`,`numero_timbrado`,`rango_inicio`,`rango_fin`,`fecha_inicio`,`fecha_fin`,`estado`) values 
-(1,13245678,1,1000,'2025-01-09','2025-01-16','activo');
+/*Data for the table `timbrado_compra` */
 
 /*Table structure for table `tipo_producto` */
 
@@ -552,7 +515,7 @@ CREATE TABLE `tmp` (
   `cantidad_tmp` int DEFAULT NULL,
   `session_id` varchar(765) DEFAULT NULL,
   PRIMARY KEY (`id_tmp`)
-) ENGINE=MyISAM AUTO_INCREMENT=184 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=191 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /*Data for the table `tmp` */
 
@@ -566,7 +529,7 @@ CREATE TABLE `tmp_compra` (
   `session_id` varchar(765) NOT NULL,
   PRIMARY KEY (`id_tmp`),
   KEY `id_orden_comp_tmp_compra_fk` (`id_orden_comp`)
-) ENGINE=MyISAM AUTO_INCREMENT=69 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=87 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /*Data for the table `tmp_compra` */
 
@@ -579,7 +542,7 @@ CREATE TABLE `tmp_nota` (
   `cod_compra` int NOT NULL,
   `session_id` varchar(765) NOT NULL,
   PRIMARY KEY (`id_tmp`)
-) ENGINE=MyISAM AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /*Data for the table `tmp_nota` */
 
@@ -593,7 +556,7 @@ CREATE TABLE `tmp_orden` (
   `session_id` varchar(765) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   PRIMARY KEY (`id_tmp`),
   KEY `id_orden_tmp_fk` (`id_presupuesto`)
-) ENGINE=MyISAM AUTO_INCREMENT=42 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=45 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /*Data for the table `tmp_orden` */
 
@@ -607,7 +570,7 @@ CREATE TABLE `tmp_presu` (
   `session_id` varchar(765) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   PRIMARY KEY (`id_tmp`),
   KEY `id_pedido_tmp_presu_fk` (`id_pedido`)
-) ENGINE=MyISAM AUTO_INCREMENT=108 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=110 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /*Data for the table `tmp_presu` */
 
@@ -622,7 +585,7 @@ CREATE TABLE `tmp_venta` (
   `precio_tmp` int NOT NULL,
   `session_id` varchar(765) NOT NULL,
   PRIMARY KEY (`id_tmp`)
-) ENGINE=MyISAM AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /*Data for the table `tmp_venta` */
 
@@ -662,7 +625,7 @@ CREATE TABLE `usuarios` (
 /*Data for the table `usuarios` */
 
 insert  into `usuarios`(`id_user`,`username`,`name_user`,`password`,`email`,`telefono`,`foto`,`permisos_acceso`,`status`) values 
-(1,'aldo','Aldo Torres','92eb5ffee6ae2fec3ad71c777531578f','aldo28071987@gmail.com','0987264101','','Super Admin','activo'),
+(1,'aldo','Aldo Torres','202cb962ac59075b964b07152d234b70','aldo28071987@gmail.com','0987264101','jefe_choto_2.jpg','Super Admin','activo'),
 (2,'Ucompras','Usuario de compras','0cc175b9c0f1b6a831c399e269772661','usuariocompras@gmail.com','0987654321','3135768.png','Compras','activo'),
 (3,'Uventas','Usuario de ventas','0cc175b9c0f1b6a831c399e269772661','uventas@gmail.com','0123654789','3135768.png','Ventas','activo');
 
@@ -689,15 +652,16 @@ CREATE TABLE `venta` (
 
 insert  into `venta`(`cod_venta`,`id_cliente`,`id_user`,`fecha`,`estado`,`hora`,`nro_factura`,`id_timbrado`) values 
 (1,2,1,'2025-01-11','anulado','14:02:49',1,1),
-(2,1,1,'2025-01-12','activo','15:31:45',2,1);
+(2,1,1,'2025-01-12','activo','15:31:45',2,1),
+(3,1,1,'2025-01-15','activo','19:36:03',3,1);
 
-/* Trigger structure for table `ajuste_inventario` */
+/* Trigger structure for table `ajuste_com` */
 
 DELIMITER $$
 
 /*!50003 DROP TRIGGER*//*!50032 IF EXISTS */ /*!50003 `borrar_tmp_ajuste` */$$
 
-/*!50003 CREATE */ /*!50017 DEFINER = 'root'@'localhost' */ /*!50003 TRIGGER `borrar_tmp_ajuste` AFTER INSERT ON `ajuste_inventario` FOR EACH ROW BEGIN
+/*!50003 CREATE */ /*!50017 DEFINER = 'root'@'localhost' */ /*!50003 TRIGGER `borrar_tmp_ajuste` AFTER INSERT ON `ajuste_com` FOR EACH ROW BEGIN
    DELETE FROM tmp;
     END */$$
 
@@ -828,8 +792,7 @@ DROP TABLE IF EXISTS `v_producto`;
  `cod_tipo_prod` int ,
  `t_p_descrip` varchar(50) ,
  `id_u_medida` int ,
- `u_descrip` varchar(20) ,
- `precio` int 
+ `u_descrip` varchar(20) 
 )*/;
 
 /*Table structure for table `v_stock` */
@@ -863,8 +826,6 @@ DROP TABLE IF EXISTS `v_pedido`;
  `fecha` date ,
  `hora` time ,
  `estado` varchar(30) ,
- `cod_deposito` int ,
- `descrip` varchar(50) ,
  `cod_producto` int ,
  `p_descrip` varchar(50) ,
  `cod_tipo_prod` int ,
@@ -931,9 +892,6 @@ DROP TABLE IF EXISTS `v_compras`;
  `cod_compra` int ,
  `cod_proveedor` int ,
  `razon_social` varchar(75) ,
- `cod_deposito` int ,
- `descrip` varchar(50) ,
- `nro_factura` varchar(25) ,
  `fecha` date ,
  `estado` varchar(15) ,
  `hora` time ,
@@ -947,9 +905,7 @@ DROP TABLE IF EXISTS `v_compras`;
  `id_u_medida` int ,
  `u_descrip` varchar(20) ,
  `precio` int ,
- `cantidad` int ,
- `timbrado` int ,
- `numero_timbrado` int 
+ `cantidad` int 
 )*/;
 
 /*Table structure for table `v_cuentas` */
@@ -965,8 +921,6 @@ DROP TABLE IF EXISTS `v_cuentas`;
  `fecha_vencimiento` date ,
  `estado` varchar(20) ,
  `cod_compra` int ,
- `cod_proveedor` int ,
- `razon_social` varchar(75) ,
  `monto_total` int ,
  `monto_pagado` int 
 )*/;
@@ -1019,8 +973,6 @@ DROP TABLE IF EXISTS `v_ajuste`;
  `t_p_descrip` varchar(50) ,
  `id_u_medida` int ,
  `u_descrip` varchar(20) ,
- `cod_deposito` int ,
- `descrip` varchar(50) ,
  `id_user` int ,
  `name_user` varchar(150) ,
  `cantidad_ajustada` int ,
@@ -1044,19 +996,14 @@ DROP TABLE IF EXISTS `v_ventas`;
  `fecha` date ,
  `estado` varchar(15) ,
  `hora` time ,
- `nro_factura` int ,
  `cod_producto` int ,
  `p_descrip` varchar(50) ,
  `cod_tipo_prod` int ,
  `t_p_descrip` varchar(50) ,
  `id_u_medida` int ,
  `u_descrip` varchar(20) ,
- `cod_deposito` int ,
- `descrip` varchar(50) ,
  `det_precio_unit` int ,
- `det_cantidad` int ,
- `id_timbrado` int ,
- `numero_timbrado` int 
+ `det_cantidad` int 
 )*/;
 
 /*Table structure for table `v_pedido_v` */
@@ -1096,7 +1043,7 @@ DROP TABLE IF EXISTS `v_pedido_v`;
 /*!50001 DROP TABLE IF EXISTS `v_producto` */;
 /*!50001 DROP VIEW IF EXISTS `v_producto` */;
 
-/*!50001 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_producto` AS select `pro`.`cod_producto` AS `cod_producto`,`pro`.`p_descrip` AS `p_descrip`,`tp`.`cod_tipo_prod` AS `cod_tipo_prod`,`tp`.`t_p_descrip` AS `t_p_descrip`,`um`.`id_u_medida` AS `id_u_medida`,`um`.`u_descrip` AS `u_descrip`,`pro`.`precio` AS `precio` from ((`producto` `pro` join `tipo_producto` `tp`) join `u_medida` `um`) where ((`tp`.`cod_tipo_prod` = `pro`.`cod_tipo_prod`) and (`um`.`id_u_medida` = `pro`.`id_u_medida`)) */;
+/*!50001 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_producto` AS select `pro`.`cod_producto` AS `cod_producto`,`pro`.`p_descrip` AS `p_descrip`,`tp`.`cod_tipo_prod` AS `cod_tipo_prod`,`tp`.`t_p_descrip` AS `t_p_descrip`,`um`.`id_u_medida` AS `id_u_medida`,`um`.`u_descrip` AS `u_descrip` from ((`producto` `pro` join `tipo_producto` `tp`) join `u_medida` `um`) where ((`tp`.`cod_tipo_prod` = `pro`.`cod_tipo_prod`) and (`um`.`id_u_medida` = `pro`.`id_u_medida`)) */;
 
 /*View structure for view v_stock */
 
@@ -1110,7 +1057,7 @@ DROP TABLE IF EXISTS `v_pedido_v`;
 /*!50001 DROP TABLE IF EXISTS `v_pedido` */;
 /*!50001 DROP VIEW IF EXISTS `v_pedido` */;
 
-/*!50001 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_pedido` AS select `pe`.`id_pedido` AS `id_pedido`,`usu`.`id_user` AS `id_user`,`usu`.`name_user` AS `name_user`,`pe`.`fecha` AS `fecha`,`pe`.`hora` AS `hora`,`pe`.`estado` AS `estado`,`dep`.`cod_deposito` AS `cod_deposito`,`dep`.`descrip` AS `descrip`,`pro`.`cod_producto` AS `cod_producto`,`pro`.`p_descrip` AS `p_descrip`,`tp`.`cod_tipo_prod` AS `cod_tipo_prod`,`tp`.`t_p_descrip` AS `t_p_descrip`,`u`.`id_u_medida` AS `id_u_medida`,`u`.`u_descrip` AS `u_descrip`,`det`.`cantidad` AS `cantidad` from ((((((`pedido` `pe` join `det_pedido` `det`) join `usuarios` `usu`) join `deposito` `dep`) join `producto` `pro`) join `tipo_producto` `tp`) join `u_medida` `u`) where ((`pe`.`id_user` = `usu`.`id_user`) and (`pe`.`id_pedido` = `det`.`id_pedido`) and (`det`.`cod_producto` = `pro`.`cod_producto`) and (`det`.`cod_deposito` = `dep`.`cod_deposito`) and (`pro`.`cod_tipo_prod` = `tp`.`cod_tipo_prod`) and (`pro`.`id_u_medida` = `u`.`id_u_medida`)) */;
+/*!50001 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_pedido` AS select `pe`.`id_pedido` AS `id_pedido`,`usu`.`id_user` AS `id_user`,`usu`.`name_user` AS `name_user`,`pe`.`fecha` AS `fecha`,`pe`.`hora` AS `hora`,`pe`.`estado` AS `estado`,`pro`.`cod_producto` AS `cod_producto`,`pro`.`p_descrip` AS `p_descrip`,`tp`.`cod_tipo_prod` AS `cod_tipo_prod`,`tp`.`t_p_descrip` AS `t_p_descrip`,`u`.`id_u_medida` AS `id_u_medida`,`u`.`u_descrip` AS `u_descrip`,`det`.`cantidad` AS `cantidad` from (((((`pedido` `pe` join `det_pedido` `det`) join `usuarios` `usu`) join `producto` `pro`) join `tipo_producto` `tp`) join `u_medida` `u`) where ((`pe`.`id_user` = `usu`.`id_user`) and (`pe`.`id_pedido` = `det`.`id_pedido`) and (`det`.`cod_producto` = `pro`.`cod_producto`) and (`pro`.`cod_tipo_prod` = `tp`.`cod_tipo_prod`) and (`pro`.`id_u_medida` = `u`.`id_u_medida`)) */;
 
 /*View structure for view v_presu */
 
@@ -1131,14 +1078,14 @@ DROP TABLE IF EXISTS `v_pedido_v`;
 /*!50001 DROP TABLE IF EXISTS `v_compras` */;
 /*!50001 DROP VIEW IF EXISTS `v_compras` */;
 
-/*!50001 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_compras` AS select `com`.`cod_compra` AS `cod_compra`,`prov`.`cod_proveedor` AS `cod_proveedor`,`prov`.`razon_social` AS `razon_social`,`dep`.`cod_deposito` AS `cod_deposito`,`dep`.`descrip` AS `descrip`,`com`.`nro_factura` AS `nro_factura`,`com`.`fecha` AS `fecha`,`com`.`estado` AS `estado`,`com`.`hora` AS `hora`,`usu`.`id_user` AS `id_user`,`usu`.`name_user` AS `name_user`,`orde`.`id_orden_comp` AS `id_orden_comp`,`pro`.`cod_producto` AS `cod_producto`,`pro`.`p_descrip` AS `p_descrip`,`tp`.`cod_tipo_prod` AS `cod_tipo_prod`,`tp`.`t_p_descrip` AS `t_p_descrip`,`u`.`id_u_medida` AS `id_u_medida`,`u`.`u_descrip` AS `u_descrip`,`det`.`precio` AS `precio`,`det`.`cantidad` AS `cantidad`,`tim`.`id_timbrado` AS `timbrado`,`tim`.`numero_timbrado` AS `numero_timbrado` from (((((((((`compra` `com` join `detalle_compra` `det`) join `orden_compra` `orde`) join `deposito` `dep`) join `producto` `pro`) join `proveedor` `prov`) join `usuarios` `usu`) join `timbrado` `tim`) join `tipo_producto` `tp`) join `u_medida` `u`) where ((`com`.`cod_compra` = `det`.`cod_compra`) and (`com`.`cod_proveedor` = `prov`.`cod_proveedor`) and (`det`.`cod_deposito` = `dep`.`cod_deposito`) and (`com`.`id_user` = `usu`.`id_user`) and (`com`.`id_orden_comp` = `orde`.`id_orden_comp`) and (`det`.`cod_producto` = `pro`.`cod_producto`) and (`com`.`id_timbrado` = `tim`.`id_timbrado`) and (`pro`.`cod_tipo_prod` = `tp`.`cod_tipo_prod`) and (`pro`.`id_u_medida` = `u`.`id_u_medida`)) */;
+/*!50001 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_compras` AS select `com`.`cod_compra` AS `cod_compra`,`prov`.`cod_proveedor` AS `cod_proveedor`,`prov`.`razon_social` AS `razon_social`,`com`.`fecha` AS `fecha`,`com`.`estado` AS `estado`,`com`.`hora` AS `hora`,`usu`.`id_user` AS `id_user`,`usu`.`name_user` AS `name_user`,`orde`.`id_orden_comp` AS `id_orden_comp`,`pro`.`cod_producto` AS `cod_producto`,`pro`.`p_descrip` AS `p_descrip`,`tp`.`cod_tipo_prod` AS `cod_tipo_prod`,`tp`.`t_p_descrip` AS `t_p_descrip`,`u`.`id_u_medida` AS `id_u_medida`,`u`.`u_descrip` AS `u_descrip`,`det`.`precio` AS `precio`,`det`.`cantidad` AS `cantidad` from (((((((`compra` `com` join `detalle_compra` `det`) join `orden_compra` `orde`) join `producto` `pro`) join `proveedor` `prov`) join `usuarios` `usu`) join `tipo_producto` `tp`) join `u_medida` `u`) where ((`com`.`cod_compra` = `det`.`cod_compra`) and (`com`.`cod_proveedor` = `prov`.`cod_proveedor`) and (`com`.`id_user` = `usu`.`id_user`) and (`com`.`id_orden_comp` = `orde`.`id_orden_comp`) and (`det`.`cod_producto` = `pro`.`cod_producto`) and (`pro`.`cod_tipo_prod` = `tp`.`cod_tipo_prod`) and (`pro`.`id_u_medida` = `u`.`id_u_medida`)) */;
 
 /*View structure for view v_cuentas */
 
 /*!50001 DROP TABLE IF EXISTS `v_cuentas` */;
 /*!50001 DROP VIEW IF EXISTS `v_cuentas` */;
 
-/*!50001 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_cuentas` AS select `cue`.`id_cuenta` AS `id_cuenta`,`cue`.`fecha_emision` AS `fecha_emision`,`cue`.`fecha_vencimiento` AS `fecha_vencimiento`,`cue`.`estado` AS `estado`,`cue`.`cod_compra` AS `cod_compra`,`cue`.`cod_proveedor` AS `cod_proveedor`,`prov`.`razon_social` AS `razon_social`,`det`.`monto_total` AS `monto_total`,`det`.`monto_pagado` AS `monto_pagado` from (((`cuentas_a_pagar` `cue` join `det_cuenta_a_pagar` `det`) join `proveedor` `prov`) join `compra` `com`) where ((`cue`.`id_cuenta` = `det`.`id_cuenta`) and (`cue`.`cod_proveedor` = `prov`.`cod_proveedor`) and (`cue`.`cod_compra` = `com`.`cod_compra`)) */;
+/*!50001 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_cuentas` AS select `cue`.`id_cuenta` AS `id_cuenta`,`cue`.`fecha_emision` AS `fecha_emision`,`cue`.`fecha_vencimiento` AS `fecha_vencimiento`,`cue`.`estado` AS `estado`,`cue`.`cod_compra` AS `cod_compra`,`det`.`monto_total` AS `monto_total`,`det`.`monto_pagado` AS `monto_pagado` from ((`cuentas_a_pagar` `cue` join `det_cuenta_a_pagar` `det`) join `compra` `com`) where ((`cue`.`id_cuenta` = `det`.`id_cuenta`) and (`cue`.`cod_compra` = `com`.`cod_compra`)) */;
 
 /*View structure for view v_nota */
 
@@ -1152,14 +1099,14 @@ DROP TABLE IF EXISTS `v_pedido_v`;
 /*!50001 DROP TABLE IF EXISTS `v_ajuste` */;
 /*!50001 DROP VIEW IF EXISTS `v_ajuste` */;
 
-/*!50001 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_ajuste` AS select `aju`.`id_ajuste` AS `id_ajuste`,`aju`.`fecha_ajuste` AS `fecha_ajuste`,`aju`.`motivo` AS `motivo`,`aju`.`estado` AS `estado`,`pro`.`cod_producto` AS `cod_producto`,`pro`.`p_descrip` AS `p_descrip`,`tp`.`cod_tipo_prod` AS `cod_tipo_prod`,`tp`.`t_p_descrip` AS `t_p_descrip`,`u`.`id_u_medida` AS `id_u_medida`,`u`.`u_descrip` AS `u_descrip`,`dep`.`cod_deposito` AS `cod_deposito`,`dep`.`descrip` AS `descrip`,`usu`.`id_user` AS `id_user`,`usu`.`name_user` AS `name_user`,`det`.`cantidad_ajustada` AS `cantidad_ajustada`,`det`.`cantidad_anterior` AS `cantidad_anterior` from ((((((`ajuste_inventario` `aju` join `det_ajuste` `det`) join `producto` `pro`) join `usuarios` `usu`) join `deposito` `dep`) join `tipo_producto` `tp`) join `u_medida` `u`) where ((`aju`.`id_ajuste` = `det`.`id_ajuste`) and (`det`.`cod_producto` = `pro`.`cod_producto`) and (`det`.`cod_deposito` = `dep`.`cod_deposito`) and (`det`.`id_user` = `usu`.`id_user`) and (`pro`.`cod_tipo_prod` = `tp`.`cod_tipo_prod`) and (`pro`.`id_u_medida` = `u`.`id_u_medida`)) */;
+/*!50001 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_ajuste` AS select `aju`.`id_ajuste` AS `id_ajuste`,`aju`.`fecha_ajuste` AS `fecha_ajuste`,`aju`.`motivo` AS `motivo`,`aju`.`estado` AS `estado`,`pro`.`cod_producto` AS `cod_producto`,`pro`.`p_descrip` AS `p_descrip`,`tp`.`cod_tipo_prod` AS `cod_tipo_prod`,`tp`.`t_p_descrip` AS `t_p_descrip`,`u`.`id_u_medida` AS `id_u_medida`,`u`.`u_descrip` AS `u_descrip`,`usu`.`id_user` AS `id_user`,`usu`.`name_user` AS `name_user`,`det`.`cantidad_ajustada` AS `cantidad_ajustada`,`det`.`cantidad_anterior` AS `cantidad_anterior` from (((((`ajuste_com` `aju` join `det_ajuste` `det`) join `producto` `pro`) join `usuarios` `usu`) join `tipo_producto` `tp`) join `u_medida` `u`) where ((`aju`.`id_ajuste` = `det`.`id_ajuste`) and (`det`.`cod_producto` = `pro`.`cod_producto`) and (`det`.`id_user` = `usu`.`id_user`) and (`pro`.`cod_tipo_prod` = `tp`.`cod_tipo_prod`) and (`pro`.`id_u_medida` = `u`.`id_u_medida`)) */;
 
 /*View structure for view v_ventas */
 
 /*!50001 DROP TABLE IF EXISTS `v_ventas` */;
 /*!50001 DROP VIEW IF EXISTS `v_ventas` */;
 
-/*!50001 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_ventas` AS select `v`.`cod_venta` AS `cod_venta`,`cli`.`id_cliente` AS `id_cliente`,`cli`.`cli_nombre` AS `cli_nombre`,`cli`.`cli_apellido` AS `cli_apellido`,`usu`.`id_user` AS `id_user`,`usu`.`name_user` AS `name_user`,`v`.`fecha` AS `fecha`,`v`.`estado` AS `estado`,`v`.`hora` AS `hora`,`v`.`nro_factura` AS `nro_factura`,`pro`.`cod_producto` AS `cod_producto`,`pro`.`p_descrip` AS `p_descrip`,`tp`.`cod_tipo_prod` AS `cod_tipo_prod`,`tp`.`t_p_descrip` AS `t_p_descrip`,`u`.`id_u_medida` AS `id_u_medida`,`u`.`u_descrip` AS `u_descrip`,`dep`.`cod_deposito` AS `cod_deposito`,`dep`.`descrip` AS `descrip`,`det`.`det_precio_unit` AS `det_precio_unit`,`det`.`det_cantidad` AS `det_cantidad`,`ti`.`id_timbrado` AS `id_timbrado`,`ti`.`numero_timbrado` AS `numero_timbrado` from ((((((((`venta` `v` join `det_venta` `det`) join `producto` `pro`) join `deposito` `dep`) join `usuarios` `usu`) join `clientes` `cli`) join `timbrado` `ti`) join `tipo_producto` `tp`) join `u_medida` `u`) where ((`v`.`cod_venta` = `det`.`cod_venta`) and (`v`.`id_cliente` = `cli`.`id_cliente`) and (`det`.`cod_producto` = `pro`.`cod_producto`) and (`det`.`cod_deposito` = `dep`.`cod_deposito`) and (`v`.`id_user` = `usu`.`id_user`) and (`v`.`id_timbrado` = `ti`.`id_timbrado`) and (`pro`.`cod_tipo_prod` = `tp`.`cod_tipo_prod`) and (`pro`.`id_u_medida` = `u`.`id_u_medida`)) */;
+/*!50001 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_ventas` AS select `v`.`cod_venta` AS `cod_venta`,`cli`.`id_cliente` AS `id_cliente`,`cli`.`cli_nombre` AS `cli_nombre`,`cli`.`cli_apellido` AS `cli_apellido`,`usu`.`id_user` AS `id_user`,`usu`.`name_user` AS `name_user`,`v`.`fecha` AS `fecha`,`v`.`estado` AS `estado`,`v`.`hora` AS `hora`,`pro`.`cod_producto` AS `cod_producto`,`pro`.`p_descrip` AS `p_descrip`,`tp`.`cod_tipo_prod` AS `cod_tipo_prod`,`tp`.`t_p_descrip` AS `t_p_descrip`,`u`.`id_u_medida` AS `id_u_medida`,`u`.`u_descrip` AS `u_descrip`,`det`.`det_precio_unit` AS `det_precio_unit`,`det`.`det_cantidad` AS `det_cantidad` from ((((((`venta` `v` join `det_venta` `det`) join `producto` `pro`) join `usuarios` `usu`) join `clientes` `cli`) join `tipo_producto` `tp`) join `u_medida` `u`) where ((`v`.`cod_venta` = `det`.`cod_venta`) and (`v`.`id_cliente` = `cli`.`id_cliente`) and (`det`.`cod_producto` = `pro`.`cod_producto`) and (`v`.`id_user` = `usu`.`id_user`) and (`pro`.`cod_tipo_prod` = `tp`.`cod_tipo_prod`) and (`pro`.`id_u_medida` = `u`.`id_u_medida`)) */;
 
 /*View structure for view v_pedido_v */
 

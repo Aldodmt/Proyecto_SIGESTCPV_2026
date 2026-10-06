@@ -41,6 +41,7 @@ if ($_GET['form'] == "add") { ?>
                                     <option value="Super Admin">Administrador de sistemas</option>
                                     <option value="Compras">Usuario de compras</option>
                                     <option value="Ventas">Usuario de ventas</option>
+                                    <option value="Produccion">Usuario de produccion</option>
                                 </select>
                             </div>
                             <div class="d-flex justify-content-end">
@@ -83,31 +84,38 @@ if ($_GET['form'] == "add") { ?>
                             <input type="hidden" name="id_user" value="<?php echo $data['id_user']; ?>">
                             <div class="mb-3">
                                 <label for="username" class="form-label">Nombre de usuario</label>
-                                <input type="text" class="form-control" id="username" name="username" value="<?php echo $data['username']; ?>" required>
+                                <input type="text" class="form-control" id="username" name="username"
+                                    value="<?php echo $data['username']; ?>" required>
                             </div>
                             <div class="mb-3">
                                 <label for="name_user" class="form-label">Nombre y apellido</label>
-                                <input type="text" class="form-control" id="name_user" name="name_user" value="<?php echo $data['name_user']; ?>" required>
+                                <input type="text" class="form-control" id="name_user" name="name_user"
+                                    value="<?php echo $data['name_user']; ?>" required>
                             </div>
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email</label>
-                                <input type="email" class="form-control" id="email" name="email" value="<?php echo $data['email']; ?>" required>
+                                <input type="email" class="form-control" id="email" name="email"
+                                    value="<?php echo $data['email']; ?>" required>
                             </div>
                             <div class="mb-3">
                                 <label for="telefono" class="form-label">Teléfono</label>
-                                <input type="text" class="form-control" id="telefono" name="telefono" maxlength="12" value="<?php echo $data['telefono']; ?>" required>
+                                <input type="text" class="form-control" id="telefono" name="telefono" maxlength="12"
+                                    value="<?php echo $data['telefono']; ?>" required>
                             </div>
                             <div class="mb-3">
                                 <label for="foto" class="form-label">Foto</label>
                                 <input type="file" class="form-control" id="foto" name="foto">
                                 <div class="mt-2">
-                                    <img src="images/user/<?php echo $data['foto'] ? $data['foto'] : 'user-default.png'; ?>" alt="Foto de usuario" class="img-thumbnail" style="width: 150px;">
+                                    <img src="images/user/<?php echo $data['foto'] ? $data['foto'] : 'user-default.png'; ?>"
+                                        alt="Foto de usuario" class="img-thumbnail" style="width: 150px;">
                                 </div>
                             </div>
                             <div class="mb-3">
                                 <label for="permisos_acceso" class="form-label">Permisos de acceso</label>
                                 <select class="form-select" id="permisos_acceso" name="permisos_acceso" required>
-                                    <option value="<?php echo $data['permisos_acceso']; ?>" selected><?php echo $data['permisos_acceso']; ?></option>
+                                    <option value="<?php echo $data['permisos_acceso']; ?>" selected>
+                                        <?php echo $data['permisos_acceso']; ?>
+                                    </option>
                                     <option value="Super Admin">Administrador de sistemas</option>
                                     <option value="Compras">Usuario de compras</option>
                                     <option value="Ventas">Usuario de ventas</option>

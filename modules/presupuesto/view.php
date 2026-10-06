@@ -2,7 +2,7 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="?module=start"><i class="cil-home"></i>Inicio</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Presupuestos</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Presupuestos</li>
         </ol>
     </nav>
     <hr>
@@ -20,49 +20,37 @@
         <div class="col-md-12">
             <?php
             if (!empty($_GET['alert'])) {
-                if ($_GET["alert"] == 1) {
-                    echo "<div class='alert alert-success alert-dismissible fade show' role='alert'>
-                        <button type='button' class='btn-close' data-coreui-dismiss='alert' aria-label='Close'></button>
-                        <h4><i class='fa fa-check-circle'></i> Exitoso!</h4>
-                        Presupuesto registrado correctamente.
-                    </div>";
-                } elseif ($_GET["alert"] == 2) {
-                    echo "<div class='alert alert-danger alert-dismissible fade show' role='alert'>
-                        <button type='button' class='btn-close' data-coreui-dismiss='alert' aria-label='Close'></button>
-                        <h4><i class='fa fa-check-circle'></i> Exitoso!</h4>
-                        Presupuesto rechazado correctamente.
-                    </div>";
-                } elseif ($_GET["alert"] == 3) {
-                    echo "<div class='alert alert-danger alert-dismissible fade show' role='alert'>
-                        <button type='button' class='btn-close' data-coreui-dismiss='alert' aria-label='Close'></button>
-                        <h4><i class='fa fa-exclamation-circle'></i> Error!</h4>
-                        No se pudo realizar la operación.
-                    </div>";
-                } elseif ($_GET["alert"] == 4) {
-                    echo "<div class='alert alert-success alert-dismissible fade show' role='alert'>
-                        <button type='button' class='btn-close' data-coreui-dismiss='alert' aria-label='Close'></button>
-                        <h4><i class='fa fa-check-circle'></i> Exitoso!</h4>
-                        Presupuesto aprovado.
-                    </div>";
-                } elseif ($_GET["alert"] == 5) {
-                    echo "<div class='alert alert-warning alert-dismissible fade show' role='alert'>
-                        <button type='button' class='btn-close' data-coreui-dismiss='alert' aria-label='Close'></button>
-                        <h4><i class='fa fa-check-circle'></i> Error!</h4>
-                        No puedes aprobar un presupuesto rechazado.
-                    </div>";
-                } elseif ($_GET["alert"] == 6) {
-                    echo "<div class='alert alert-warning alert-dismissible fade show' role='alert'>
-                        <button type='button' class='btn-close' data-coreui-dismiss='alert' aria-label='Close'></button>
-                        <h4><i class='fa fa-check-circle'></i> Error!</h4>
-                        El presupuesto ya esta rechazado.
-                    </div>";
+                $alerts = [
+                    1 => ['success', 'Presupuesto registrado correctamente.'],
+                    2 => ['danger', 'Presupuesto rechazado correctamente.'],
+                    3 => ['danger', 'No se pudo realizar la operación.'],
+                    4 => ['success', 'Presupuesto aprobado.'],
+                    5 => ['warning', 'No puedes aprobar un presupuesto rechazado.'],
+                    6 => ['warning', 'El presupuesto ya está rechazado.']
+                ];
+                if (isset($alerts[$_GET['alert']])) {
+                    [$type, $msg] = $alerts[$_GET['alert']];
+                    echo "<div class='alert alert-$type alert-dismissible fade show' role='alert'>
+                            <button type='button' class='btn-close' data-coreui-dismiss='alert' aria-label='Close'></button>
+                            $msg
+                          </div>";
                 }
             }
             ?>
 
+            <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+            <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+            <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
             <div class="card">
                 <div class="card-body">
-                    <h2>Lista de Presupuesto</h2>
+                    <h2>Lista de Presupuestos</h2>
+                    <div class="mb-3">
+                        <label>Buscar Presupuesto:</label>
+                        <input type="text" id="buscarPresupuesto" class="form-control"
+                            placeholder="Filtrar por código, proveedor o producto">
+                    </div>
+
                     <table id="dataTables1" class="table table-bordered table-striped table-hover">
                         <thead>
                             <tr>
@@ -81,9 +69,9 @@
                         </thead>
                         <tbody>
                             <?php
-                            $nro = 1;
-                            $query = mysqli_query($mysqli, "SELECT * FROM v_presu where estado = 'rechazado' or estado = 'pendiente' ORDER BY id_presupuesto ASC")
-                                or die("Error" . mysqli_error($mysqli));
+                            $query = mysqli_query($mysqli, "SELECT * FROM v_presu ORDER BY id_presupuesto ASC")
+                                or die("Error " . mysqli_error($mysqli));
+
                             while ($data = mysqli_fetch_assoc($query)) {
                                 $cod = $data['id_presupuesto'];
                                 $cod_p = $data['id_pedido'];
@@ -93,16 +81,8 @@
                                 $prod = $data['p_descrip'];
                                 $cantidad = $data['cantidad'];
                                 $precio = $data['precio_unit'];
-                                $total = ($data['cantidad'] * $data['precio_unit']);
+                                $total = $cantidad * $precio;
                                 $estado = $data['estado'];
-
-                                //por si  acaso
-                                /*$precio_compra_ = $row['precio_tmp'];
-        $precio_compra_f = number_format($precio_compra_); //Formatear una variable (Poner ,)
-        $precio_compra_r = str_replace(",", "", $precio_compra_f); //Reemplazar la coma 
-        $precio_total = $precio_compra_r * $cantidad;
-        $precio_total_f = number_format($precio_total);
-        $precio_total_r = str_replace(",", "", $precio_total_f);*/
 
                                 echo "<tr>
                                     <td class='text-center'>$cod</td>
@@ -117,15 +97,10 @@
                                     <td class='text-center'>$estado</td>
                                     <td class='text-center' width='80'>
                                         <div class='btn-group' role='group'>
-                                            <a data-coreui-toggle='tooltip' title='Aprobar pedido' class='btn btn-success btn-sm'
-                                                href='modules/presupuesto/proses.php?act=aprobar&id_presupuesto=$cod'
-                                                onclick='return confirm(\"¿Estás seguro/a de aprovar el pedido $cod?\");'>
-                                                <i class='cil-check'></i>
-                                            </a>
-                                            <a data-coreui-toggle='tooltip' title='Rechazar pedido' class='btn btn-danger btn-sm'
-                                                href='modules/presupuesto/proses.php?act=anular&id_presupuesto=$cod'
-                                                onclick='return confirm(\"¿Estás seguro/a de rechzar el pedido $cod?\");'>
-                                                <i class='cil-x'></i>
+                                            <a data-coreui-toggle='tooltip' title='Detalle de Presupuesto' class='btn btn-success btn-sm'
+                                                href='?module=form_presupuesto&form=detalle&id_presupuesto=$cod
+                                                onclick='return confirm(\"¿Estás seguro/a de ver los detalles del presupuesto $cod?\");'>
+                                                <i class='cil-description'></i>
                                             </a>
                                         </div>
                                     </td>
@@ -134,8 +109,23 @@
                             ?>
                         </tbody>
                     </table>
+
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        $(document).ready(function () {
+            var table = $('#dataTables1').DataTable({
+                language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json" },
+                pageLength: 10,
+                ordering: true
+            });
+
+            $('#buscarPresupuesto').on('keyup', function () {
+                table.search(this.value).draw();
+            });
+        });
+    </script>
 </section>

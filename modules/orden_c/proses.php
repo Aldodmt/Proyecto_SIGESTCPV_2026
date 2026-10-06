@@ -1,112 +1,167 @@
 <?php
 session_start();
-
+header('Content-Type: application/json');
 require_once '../../config/database.php';
 
+// Comprobar sesión
 if (empty($_SESSION['username']) && empty($_SESSION['password'])) {
-    echo "<meta http-equiv='refresh' content='0; url=index.php?alert=alert=3'>";
-} else {
-    if ($_GET['act'] == 'insert') {
-        if (isset($_POST['Guardar'])) {
-            $codigo = $_POST['codigo'];
+    echo json_encode(['success' => false, 'message' => 'No hay sesión activa']);
+    exit;
+}
 
-            if (!empty($_POST['productos_json'])) {
-                $productos = json_decode($_POST['productos_json'], true);
+// Tomar acción
+$accion = $_POST['act'] ?? $_GET['act'] ?? '';
 
-                if (is_array($productos)) {
-                    foreach ($productos as $producto) {
-                        $codigo_producto = $producto['codigoProducto'];
-                        $cantidad = $producto['cantidad'];
+// =========================
+// INSERT
+// =========================
+if ($accion === 'insert') {
+    $codigo = intval($_POST['codigo']);
+    $fecha_e = mysqli_real_escape_string($mysqli, $_POST['fecha_E'] ?? date('Y-m-d'));
+    $hora = mysqli_real_escape_string($mysqli, $_POST['hora'] ?? date('H:i:s'));
+    $id_presupuesto = intval($_POST['id_presupuesto'] ?? 0);
+    $id_user = intval($_SESSION['id_user'] ?? 0);
+    $productos_json = $_POST['productos_json'] ?? '';
 
-                        $presu = mysqli_query($mysqli, "SELECT precio_unit FROM v_presu where cod_producto = " . $codigo_producto . " ");
-                        $datos = mysqli_fetch_array($presu);
-                        $precio_unit = $datos['precio_unit'];
+    if (empty($productos_json)) {
+        echo json_encode(['success' => false, 'message' => 'Debe agregar al menos un producto.']);
+        exit;
+    }
 
-                        // Insertar los productos en la tabla detalle_orden_comp
-                        $insert_detalle = mysqli_query($mysqli, "INSERT INTO detalle_orden_comp (id_orden_comp, cod_producto, precio_unit, cantidad_aprobada) 
-                            VALUES ($codigo, '$codigo_producto', $precio_unit, $cantidad)")
-                            or die('Error: ' . mysqli_error($mysqli));
-                    }
-                } else {
-                    echo "<script>
-                        alert('Error: Los datos de los productos no son válidos.');
-                        window.history.back();
-                    </script>";
-                    exit;
-                }
-            }
-
-            // Consulta original para obtener datos relacionados al presupuesto
-            $sql_p = mysqli_query($mysqli, "SELECT * FROM v_presu, tmp_orden WHERE v_presu.id_presupuesto = tmp_orden.id_presupuesto");
-            $data = mysqli_fetch_array($sql_p);
-
-            // Insertar cabecera de orden
-            $codigo_presu = $data['id_presupuesto'];
-            //$codigo_proveedor = $_POST['codigo_proveedor'];
-            $fecha = $_POST['fecha'];
-
-            //Ya no hace falta la validacion de fecha
-            /*if (strtotime($fecha_v))) {
-                echo "<script>
-                alert('Error: La fecha de vencimiento no puede ser menor que la fecha de emisión.');
-                window.history.back();
-              </script>";
-                exit;
-            }*/
-
-            $hora = $_POST['hora'];
-            $estado = 'pendiente';
-            $usuario = $_SESSION['id_user'];
-            $query = mysqli_query($mysqli, "INSERT INTO orden_compra (id_orden_comp, fecha, estado, hora, id_user, id_presupuesto) 
-                VALUES ($codigo, '$fecha', '$estado', '$hora', $usuario, $codigo_presu)")
-                or die("Error" . mysqli_error($mysqli));
-
-            if ($query) {
-                header("Location: ../../main.php?module=orden_c&alert=1");
-            } else {
-                header("Location: ../../main.php?module=orden_c&alert=3");
-            }
+    // =========================
+    // Determinar proveedor
+    // =========================
+    if ($id_presupuesto > 0) {
+        // Flujo con presupuesto: obtener proveedor desde presupuesto
+        $query_prov = mysqli_query($mysqli, "SELECT cod_proveedor FROM presupuesto WHERE id_presupuesto = $id_presupuesto");
+        if ($query_prov && mysqli_num_rows($query_prov) > 0) {
+            $row_prov = mysqli_fetch_assoc($query_prov);
+            $codigo_proveedor = intval($row_prov['cod_proveedor']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'No se pudo recuperar el proveedor del presupuesto.']);
+            exit;
         }
-    } elseif ($_GET['act'] == 'anular') {
-        if (isset($_GET['id_orden'])) {
-            $codigo = $_GET['id_orden'];
-
-            $result = mysqli_query($mysqli, "SELECT estado FROM orden_compra WHERE id_orden_comp = $codigo");
-            $row = mysqli_fetch_assoc($result);
-
-            if ($row['estado'] === 'rechazado') {
-                header("Location: ../../main.php?module=orden_c&alert=6");
-            } else {
-                $query = mysqli_query($mysqli, "UPDATE orden_compra SET estado = 'rechazado' WHERE id_orden_comp= $codigo")
-                    or die("Error: " . mysqli_error($mysqli));
-
-                if ($query) {
-                    header("Location: ../../main.php?module=orden_c&alert=2");
-                } else {
-                    header("Location: ../../main.php?module=orden_c&alert=3");
-                }
-            }
-        }
-    } elseif ($_GET['act'] == 'aprobar') {
-        if (isset($_GET['id_orden'])) {
-            $codigo = $_GET['id_orden'];
-            // Verificar si el estado no es 'rechazado'
-            $result = mysqli_query($mysqli, "SELECT estado FROM orden_compra WHERE id_orden_comp = $codigo");
-            $row = mysqli_fetch_assoc($result);
-
-            if ($row['estado'] === 'rechazado') {
-                header("Location: ../../main.php?module=orden_c&alert=5");
-            } else {
-                $query = mysqli_query($mysqli, "UPDATE orden_compra SET estado = 'aprobado' WHERE id_orden_comp= $codigo")
-                    or die("Error: " . mysqli_error($mysqli));
-
-                if ($query) {
-                    header("Location: ../../main.php?module=orden_c&alert=4");
-                } else {
-                    header("Location: ../../main.php?module=orden_c&alert=3");
-                }
-            }
+    } else {
+        // Flujo manual: tomar proveedor del select
+        $codigo_proveedor = intval($_POST['codigo_proveedor'] ?? 0);
+        if ($codigo_proveedor <= 0) {
+            echo json_encode(['success' => false, 'message' => 'Debes seleccionar un proveedor para la orden manual.']);
+            exit;
         }
     }
+
+    $estado = 'PENDIENTE';
+
+    // Insertar cabecera
+    $sql_c = "INSERT INTO orden_compra 
+        (id_orden_comp, fecha, estado, hora, id_user, id_presupuesto, cod_proveedor)
+        VALUES ($codigo, '$fecha_e', '$estado', '$hora', $id_user, " . ($id_presupuesto > 0 ? $id_presupuesto : "NULL") . ", $codigo_proveedor)";
+
+    if (!mysqli_query($mysqli, $sql_c)) {
+        echo json_encode(['success' => false, 'message' => 'Error al insertar cabecera: ' . mysqli_error($mysqli)]);
+        exit;
+    }
+
+    // Insertar detalle
+    $productos = json_decode($productos_json, true);
+    if (!is_array($productos)) {
+        echo json_encode(['success' => false, 'message' => 'Productos inválidos.']);
+        exit;
+    }
+
+    foreach ($productos as $p) {
+        $cod_producto = mysqli_real_escape_string($mysqli, $p['codigo_producto']);
+        $cantidad = floatval($p['cantidad'] ?? 0);
+        $precio_unit = floatval($p['precio_unitario'] ?? 0);
+
+        $sql_d = "INSERT INTO detalle_orden_comp 
+            (id_orden_comp, cod_producto, precio_unit, cantidad)
+            VALUES ($codigo, '$cod_producto', $precio_unit, $cantidad)";
+        if (!mysqli_query($mysqli, $sql_d)) {
+            echo json_encode(['success' => false, 'message' => 'Error al insertar detalle: ' . mysqli_error($mysqli)]);
+            exit;
+        }
+    }
+
+    echo json_encode(['success' => true, 'message' => 'Orden de compra guardada correctamente']);
+    exit;
 }
-?>
+
+// =========================
+// CONFIRMAR PRESUPUESTO
+// =========================
+if ($accion === 'confirm') {
+    $codigo = intval($_POST['codigo'] ?? 0);
+    if (!$codigo) {
+        echo json_encode(['success' => false, 'message' => 'Código de orden inválido']);
+        exit;
+    }
+
+    $query = mysqli_query($mysqli, "SELECT estado FROM orden_compra WHERE id_orden_comp = $codigo");
+    if (!$query || mysqli_num_rows($query) === 0) {
+        echo json_encode(['success' => false, 'message' => 'Orden de compra no encontrada']);
+        exit;
+    }
+
+    $row = mysqli_fetch_assoc($query);
+    $estado_actual = $row['estado'];
+
+    if ($estado_actual !== 'PENDIENTE') {
+        echo json_encode(['success' => false, 'message' => 'Solo se puede aprobar una orden de compra pendiente']);
+        exit;
+    }
+
+    $update = mysqli_query($mysqli, "UPDATE orden_compra SET estado='APROBADO' WHERE id_orden_comp = $codigo");
+    if (!$update) {
+        echo json_encode(['success' => false, 'message' => 'Error al aprobar orden de compra: ' . mysqli_error($mysqli)]);
+        exit;
+    }
+
+    echo json_encode(['success' => true, 'message' => 'Orden de compra aprobada correctamente', 'estado' => 'APROBADO']);
+    exit;
+}
+
+// =========================
+// ANULAR ORDEN DE COMPRA
+// =========================
+if ($accion === 'cancel') {
+    $codigo = intval($_POST['codigo'] ?? 0);
+    if (!$codigo) {
+        echo json_encode(['success' => false, 'message' => 'Código de orden de compra inválido']);
+        exit;
+    }
+
+    $query = mysqli_query($mysqli, "SELECT estado FROM orden_compra WHERE id_orden_comp = $codigo");
+    if (!$query || mysqli_num_rows($query) === 0) {
+        echo json_encode(['success' => false, 'message' => 'Orden de compra no encontrada']);
+        exit;
+    }
+
+    $row = mysqli_fetch_assoc($query);
+    $estado_actual = $row['estado'];
+
+    if (!in_array($estado_actual, ['PENDIENTE', 'APROBADO', 'BORRADOR'])) {
+        echo json_encode(['success' => false, 'message' => 'No se puede anular esta orden de compra']);
+        exit;
+    }
+
+    $id_user = intval($_SESSION['id_user'] ?? 0);
+
+    $update = mysqli_query($mysqli, "UPDATE orden_compra SET estado='ANULADO',
+                anulado_por = $id_user, 
+                anulado_fecha = CURDATE(), 
+                anulado_hora = CURTIME() WHERE id_orden_comp = $codigo");
+    if (!$update) {
+        echo json_encode(['success' => false, 'message' => 'Error al anular orden de compra: ' . mysqli_error($mysqli)]);
+        exit;
+    }
+
+    echo json_encode(['success' => true, 'message' => 'Orden de compra anulada correctamente', 'estado' => 'ANULADO']);
+    exit;
+}
+
+// =========================
+// ACCIÓN NO RECONOCIDA
+// =========================
+echo json_encode(['success' => false, 'message' => 'Acción no reconocida']);
+exit;

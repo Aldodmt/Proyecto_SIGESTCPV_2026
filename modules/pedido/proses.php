@@ -1,84 +1,115 @@
 <?php
 session_start();
+require_once "../../config/database.php";
 
-require_once '../../config/database.php';
+// Respuesta JSON siempre
+header('Content-Type: application/json');
 
-if (empty($_SESSION['username']) && empty($_SESSION['password'])) {
-    echo "<meta http-equiv='refresh' content='0; url=index.php?alert=alert=3'>";
-} else {
-    if ($_GET['act'] == 'insert') {
-        if (isset($_POST['Guardar'])) {
-            $codigo = $_POST['codigo'];
-            $codigo_deposito = $_POST['codigo_deposito'];
-            //Insertar detalle de compra
+$response = ['success' => false, 'message' => 'Acción no válida'];
 
-            $sql = mysqli_query($mysqli, "SELECT * FROM producto, tmp WHERE producto.cod_producto = tmp.id_producto");
-            while ($row = mysqli_fetch_array($sql)) {
-                $codigo_producto = $row['id_producto'];
-                $cantidad = $row['cantidad_tmp'];
-                $insert_detalle = mysqli_query($mysqli, "INSERT INTO det_pedido (cod_producto,  cod_deposito, id_pedido, cantidad) VALUES ($codigo_producto, $codigo_deposito, $codigo, $cantidad)") or die('Error: ' . mysqli_error($mysqli));
-            }
-            //Insertar cabecera de compra 
-            //Definir valores
-            $fecha = $_POST['fecha'];
-            $hora = $_POST['hora'];
-            $estado = 'pendiente';
-            $usuario = $_SESSION['id_user'];
-            //Insertar
-            $query = mysqli_query($mysqli, "INSERT INTO pedido (id_pedido, fecha, estado, hora ,id_user) VALUES ($codigo, '$fecha', '$estado', '$hora', $usuario)")
-                or die("Error" . mysqli_error($mysqli));
-
-            if ($query) {
-                header("Location: ../../main.php?module=pedido&alert=1");
-            } else {
-                header("Location: ../../main.php?module=pedido&alert=3");
-            }
-        }
-    } elseif ($_GET['act'] == 'anular') {
-        if (isset($_GET['id_pedido'])) {
-            $codigo = $_GET['id_pedido'];
-
-            // Verificar si el estado no es 'anulado'
-            $result = mysqli_query($mysqli, "SELECT estado FROM pedido WHERE id_pedido = $codigo");
-            $row = mysqli_fetch_assoc($result);
-
-            if ($row['estado'] === 'rechazado') {
-                header("Location: ../../main.php?module=pedido&alert=6");
-            } else {
-                //Anular cabecera de pedido (cambiar estado a rechazado)
-                $query = mysqli_query($mysqli, "UPDATE pedido SET estado = 'rechazado' WHERE id_pedido= $codigo")
-                    or die("Error: " . mysqli_error($mysqli));
-
-                if ($query) {
-                    header("Location: ../../main.php?module=pedido&alert=2");
-                } else {
-                    header("Location: ../../main.php?module=pedido&alert=3");
-                }
-            }
-        }
-    } elseif ($_GET['act'] == 'aprobar') {
-        if (isset($_GET['id_pedido'])) {
-            $codigo = $_GET['id_pedido'];
-
-            // Verificar si el estado no es 'anulado'
-            $result = mysqli_query($mysqli, "SELECT estado FROM pedido WHERE id_pedido = $codigo");
-            $row = mysqli_fetch_assoc($result);
-
-            if ($row['estado'] === 'rechazado') {
-                header("Location: ../../main.php?module=pedido&alert=5");
-            } else {
-                $query = mysqli_query($mysqli, "UPDATE pedido SET estado = 'aprobado' WHERE id_pedido = $codigo")
-                    or die("Error: " . mysqli_error($mysqli));
-
-                if ($query) {
-                    header("Location: ../../main.php?module=pedido&alert=4");
-                } else {
-                    header("Location: ../../main.php?module=pedido&alert=3");
-                }
-            }
-        }
-    }
-
+$id_user = $_SESSION['id_user'] ?? null;
+if (!$id_user) {
+    echo json_encode(['success' => false, 'message' => 'No se detectó usuario logueado.']);
+    exit();
 }
 
-?>
+try {
+    switch ($_POST['act']) {
+
+        // ====== GUARDAR PEDIDO ======
+        case 'save':
+            $codigo = intval($_POST['codigo']); // id_pedido que ya existe
+
+            // VALIDAR que haya al menos 1 producto en el pedido
+            $check = mysqli_query($mysqli, "SELECT COUNT(*) AS total FROM det_pedido WHERE id_pedido=$codigo");
+            $row = mysqli_fetch_assoc($check);
+
+            if ($row['total'] == 0) {
+                $response = [
+                    'success' => false,
+                    'message' => 'Debe seleccionar al menos un producto antes de guardar el pedido.'
+                ];
+                break; // salir del case sin cambiar el estado
+            }
+
+            $estado = 'PENDIENTE'; // Cambiamos el estado al guardar
+            $update = mysqli_query($mysqli, "UPDATE pedido SET estado='$estado' WHERE id_pedido=$codigo");
+
+            if (!$update) {
+                throw new Exception("Error al guardar: " . mysqli_error($mysqli));
+            }
+
+            // Aquí agregamos la URL de redirección
+            $response = [
+                'success' => true,
+                'message' => 'Pedido guardado exitosamente',
+                'estado' => $estado,
+                'redirect' => '?module=pedido' // <-- URL a la interfaz de pedidos
+            ];
+            break;
+
+        // ====== CONFIRMAR PEDIDO ======
+        case 'confirm':
+            $codigo = intval($_POST['codigo']);
+            $estado = 'CONFIRMADO';
+            $update = mysqli_query($mysqli, "UPDATE pedido SET estado='$estado' WHERE id_pedido=$codigo");
+            $response = ['success' => (bool) $update, 'message' => $update ? 'Pedido confirmado' : mysqli_error($mysqli), 'estado' => $estado];
+            break;
+
+        // ====== MODIFICAR PEDIDO ======
+        case 'modify':
+            $codigo = intval($_POST['codigo']);
+            $estado = 'MODIFICANDO';
+            $update = mysqli_query($mysqli, "UPDATE pedido SET estado='$estado' WHERE id_pedido=$codigo");
+            $response = ['success' => (bool) $update, 'message' => $update ? 'Pedido en modificación' : mysqli_error($mysqli), 'estado' => $estado];
+            break;
+
+        // ====== ANULAR PEDIDO ======
+        case 'cancel':
+            $codigo = intval($_POST['codigo']);
+
+            if (empty($_POST['confirm'])) {
+                // Si no se confirmó explícitamente
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Se requiere confirmación para anular el pedido'
+                ]);
+                exit();
+            }
+
+            $estado = 'ANULADO';
+            $update = mysqli_query($mysqli, "UPDATE pedido SET estado = '$estado', 
+                anulado_por = $id_user, 
+                anulado_fecha = CURDATE(), 
+                anulado_hora = CURTIME() WHERE id_pedido=$codigo");
+            $response = ['success' => (bool) $update, 'message' => $update ? 'Pedido anulado' : mysqli_error($mysqli), 'estado' => $estado];
+            break;
+
+        // ====== LIMPIAR BORRADORES ======
+        case 'clear_borrador':
+            // Borrar todos los pedidos BORRADOR de este usuario
+            mysqli_begin_transaction($mysqli);
+            try {
+                $del_det = mysqli_query($mysqli, "DELETE dp FROM det_pedido dp JOIN pedido p ON dp.id_pedido=p.id_pedido WHERE p.estado='BORRADOR' AND p.id_user=$id_user");
+                $del_ped = mysqli_query($mysqli, "DELETE FROM pedido WHERE estado='BORRADOR' AND id_user=$id_user");
+
+                if (!$del_det || !$del_ped)
+                    throw new Exception("Error al limpiar borradores");
+
+                mysqli_commit($mysqli);
+                $response = ['success' => true, 'message' => 'Borradores eliminados'];
+            } catch (Exception $e) {
+                mysqli_rollback($mysqli);
+                $response = ['success' => false, 'message' => $e->getMessage()];
+            }
+            break;
+
+        default:
+            throw new Exception("Acción desconocida: " . $_POST['act']);
+    }
+} catch (Exception $e) {
+    $response = ['success' => false, 'message' => $e->getMessage()];
+}
+
+echo json_encode($response);
+exit();

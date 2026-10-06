@@ -1,75 +1,131 @@
 <?php
-session_start();
-$session_id = session_id();
-if (isset($_POST['id'])) {
-    $id = $_POST['id'];
-}
-if (isset($_POST['cantidad'])) {
-    $cantidad = $_POST['cantidad'];
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
 
-require_once '../config/database.php';
+require_once "../config/database.php";
 
-if (!empty($id) && !empty($cantidad)) {
-    $insert_tmp = mysqli_query($mysqli, "INSERT INTO tmp (id_producto, cantidad_tmp, session_id) VALUES ('$id', '$cantidad', '$session_id')");
+// Validar ID de pedido
+if (!isset($_POST['id_pedido']) || !is_numeric($_POST['id_pedido'])) {
+    echo "<div class='alert alert-danger'>ID de pedido no válido.</div>";
+    exit;
 }
 
-if (isset($_GET['id'])) {
-    $id = intval($_GET['id']);
-    $delete = mysqli_query($mysqli, "DELETE FROM tmp WHERE id_tmp = '" . $id . "'");
+$id_pedido = intval($_POST['id_pedido']);
+$op = $_POST['op'] ?? 'add';
+
+// -------------------------------------------------------------
+// AGREGAR PRODUCTO AL PEDIDO
+// -------------------------------------------------------------
+if ($op === 'add') {
+    $id_producto = intval($_POST['id'] ?? 0);
+    $cantidad = floatval($_POST['cantidad'] ?? 0);
+
+    if ($id_producto <= 0 || $cantidad <= 0) {
+        echo "<div class='alert alert-danger'>Datos inválidos. Verifique el producto y la cantidad.</div>";
+        exit;
+    }
+
+    if ($cantidad >= 1000) {
+        echo "<div class='alert alert-danger'>El producto supera la cantidad maxima permitida.</div>";
+        exit;
+    }
+
+    // Validar si el producto existe
+    $sql_producto = mysqli_query($mysqli, "SELECT cod_producto FROM producto WHERE cod_producto = $id_producto");
+    if (mysqli_num_rows($sql_producto) === 0) {
+        echo "<div class='alert alert-danger'>El producto no existe.</div>";
+        exit;
+    }
+
+    // Validar stock disponible (si aplica)
+    $sql_stock = mysqli_query($mysqli, "SELECT cantidad FROM stock_prod WHERE cod_producto = $id_producto");
+    $row_stock = mysqli_fetch_assoc($sql_stock);
+    $stock_disponible = floatval($row_stock['cantidad'] ?? 0);
+
+    /*
+    if ($cantidad > $stock_disponible) {
+        echo "<div class='alert alert-warning'>No puedes pedir más de lo disponible en stock ($stock_disponible).</div>";
+        exit;
+    }
+    */
+
+    // Verificar si el producto ya existe en el detalle
+    $query_check = mysqli_query($mysqli, "
+        SELECT cantidad 
+        FROM det_pedido 
+        WHERE id_pedido = $id_pedido AND cod_producto = $id_producto
+    ");
+
+    if (mysqli_num_rows($query_check) > 0) {
+        // Actualizar cantidad sumando
+        mysqli_query($mysqli, "
+            UPDATE det_pedido 
+            SET cantidad = cantidad + $cantidad 
+            WHERE id_pedido = $id_pedido AND cod_producto = $id_producto
+        ");
+    } else {
+        // Insertar nuevo detalle
+        mysqli_query($mysqli, "
+            INSERT INTO det_pedido (id_pedido, cod_producto, cantidad)
+            VALUES ($id_pedido, $id_producto, $cantidad)
+        ");
+    }
 }
 
-?>
-<table class="table table-striped table-hover align-middle">
-    <thead class="table-primary">
-        <tr>
-            <th>Codigo</th>
-            <th>Tipo de prod.</th>
-            <th>Unid. de Medida</th>
-            <th>Producto</th>
-            <th class="text-end">Cantidad</th>
-            <th class="text-center" style="width: 36px;">Eliminar</th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php
-        $suma_to = 0;
-        $sql = mysqli_query($mysqli, "SELECT * FROM producto, tmp WHERE producto.cod_producto= tmp.id_producto and tmp.session_id = '" . $session_id . "'");
-        while ($row = mysqli_fetch_array($sql)) {
-            $id_tmp = $row['id_tmp'];
-            $codigo_producto = $row['cod_producto'];
-            $descrip_producto = $row['p_descrip'];
-            $cantidad = $row['cantidad_tmp'];
+// -------------------------------------------------------------
+// ELIMINAR PRODUCTO DEL PEDIDO
+// -------------------------------------------------------------
+elseif ($op === 'delete') {
+    $id_producto = intval($_POST['id'] ?? 0);
 
-            $codigo_tproducto = $row['cod_tipo_prod'];
-            $sql_tproducto = mysqli_query($mysqli, "SELECT t_p_descrip FROM tipo_producto WHERE cod_tipo_prod='$codigo_tproducto'");
-            $rw_tproducto = mysqli_fetch_assoc($sql_tproducto);
-            $tproducto_nombre = $rw_tproducto['t_p_descrip'];
+    if ($id_producto <= 0) {
+        echo "<div class='alert alert-danger'>Producto no válido.</div>";
+        exit;
+    }
 
-            $id_u_medida = $row['id_u_medida'];
-            $sql_umedida = mysqli_query($mysqli, "SELECT u_descrip FROM u_medida WHERE id_u_medida='$id_u_medida'");
-            $rw_u_medida = mysqli_fetch_assoc($sql_umedida);
-            $u_medida_nombre = $rw_u_medida['u_descrip'];
-            ?>
+    mysqli_query($mysqli, "
+        DELETE FROM det_pedido 
+        WHERE id_pedido = $id_pedido AND cod_producto = $id_producto
+    ");
+}
+
+// Listar productos del pedido
+$sql_detalle = mysqli_query($mysqli, "
+    SELECT dp.*, p.p_descrip, u.u_descrip, p.tipo_impuesto
+    FROM det_pedido dp
+    JOIN producto p ON dp.cod_producto = p.cod_producto
+    JOIN u_medida u ON p.id_u_medida = u.id_u_medida
+    WHERE dp.id_pedido = $id_pedido
+");
+
+echo "<table class='table table-striped table-hover align-middle'>
+        <thead class='table-primary'>
             <tr>
-                <td><?php echo $codigo_producto; ?></td>
-                <td><?php echo $tproducto_nombre; ?></td>
-                <td><?php echo $u_medida_nombre; ?></td>
-                <td><?php echo $descrip_producto; ?></td>
-                <td class="text-end"><?php echo $cantidad; ?></td>
-                <td class="text-center">
-                    <button class="btn btn-danger btn-sm" onclick="eliminar(<?php echo $id_tmp; ?>)">
-                        <i class="cil-trash"></i>
-                    </button>
-                </td>
+                <th>Código</th>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Unidad</th>
+                <th>Tipo de Impuesto</th>
+                <th>Acciones</th>
             </tr>
-        <?php } ?>
-    </tbody>
-    <tfoot>
-        <tr>
-            <input type="hidden" class="form-control" name="codigo_producto"
-                value="<?php echo $codigo_producto ?? 0; ?>">
-            <input type="hidden" class="form-control" name="cantidad" value="<?php echo $cantidad ?? 0; ?>">
-        </tr>
-    </tfoot>
-</table>
+        </thead>
+        <tbody>";
+
+while ($prod = mysqli_fetch_assoc($sql_detalle)) {
+    echo "<tr>
+        <td>{$prod['cod_producto']}</td>
+        <td>{$prod['p_descrip']}</td>
+        <td>{$prod['cantidad']}</td>
+        <td>{$prod['u_descrip']}</td>
+        <td>{$prod['tipo_impuesto']}</td>
+        <td>
+            <button class='btn btn-danger btn-sm' onclick='eliminar({$prod['cod_producto']}, {$id_pedido})'>
+                Eliminar
+            </button>
+        </td>
+    </tr>";
+}
+
+echo "</tbody></table>";
+?>

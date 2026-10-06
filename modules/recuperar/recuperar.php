@@ -12,8 +12,8 @@
     <title>Sysweb - Recuperar</title>
 
     <!-- CoreUI CSS -->
-    <link href="dist/css/coreui.min.css" rel="stylesheet">
-    <link href="dist/css/themes/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link href="../../dist/css/coreui.min.css" rel="stylesheet">
+    <link href="../../dist/css/themes/bootstrap/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/@coreui/icons/css/all.min.css">
 
 </head>

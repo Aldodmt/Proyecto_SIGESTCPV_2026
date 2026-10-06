@@ -1,4 +1,16 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+
+require_once "config/database.php";
+
+$id_usuario = $_SESSION['id_user'] ?? null;
+if (!$id_usuario) {
+    die("No se detectó usuario logueado.");
+}
+
 if ($_GET['form'] == 'add') { ?>
     <div class="container-fluid">
         <div class="fade-in">
@@ -16,11 +28,11 @@ if ($_GET['form'] == 'add') { ?>
             </div>
             <div class="card">
                 <div class="card-header"><strong>Formulario de Ajustes</strong></div>
-                <form action="modules/ajuste/proses.php?act=insert" method="POST" class="form-horizontal">
+                <form id="formAjuste" class="form-horizontal" autocomplete="off">
                     <div class="card-body">
                         <?php
                         // Generar código único
-                        $query_id = mysqli_query($mysqli, "SELECT MAX(id_ajuste) as id FROM ajuste_inventario")
+                        $query_id = mysqli_query($mysqli, "SELECT MAX(id_ajuste) as id FROM ajuste_com")
                             or die("Error: " . mysqli_error($mysqli));
                         $data_id = mysqli_fetch_assoc($query_id);
                         $codigo = $data_id['id'] + 1 ?? 1;
@@ -35,22 +47,6 @@ if ($_GET['form'] == 'add') { ?>
                             <div class="col-md-2">
                                 <input type="text" class="form-control" name="fecha" value="<?php echo date("Y-m-d"); ?>"
                                     readonly>
-                            </div>
-                        </div>
-                        <br>
-                        <div class="form-groug">
-                            <label class="col-md-2 col-form-label">Depósito</label>
-                            <div class="col-md-4">
-                                <select class="form-control" name="codigo_deposito" required>
-                                    <option value="" disabled selected>-- Seleccionar Depósito --</option>
-                                    <?php
-                                    $query_dep = mysqli_query($mysqli, "SELECT cod_deposito, descrip FROM deposito ORDER BY descrip ASC")
-                                        or die("Error: " . mysqli_error($mysqli));
-                                    while ($row = mysqli_fetch_assoc($query_dep)) {
-                                        echo "<option value='{$row['cod_deposito']}'>{$row['descrip']}</option>";
-                                    }
-                                    ?>
-                                </select>
                             </div>
                         </div>
                         <br>
@@ -74,8 +70,9 @@ if ($_GET['form'] == 'add') { ?>
                         <br>
 
                     </div>
+                    <input type="hidden" id="productos_json" name="productos">
                     <div class="card-footer">
-                        <button type="submit" class="btn btn-primary" name="Guardar">Guardar</button>
+                        <button type="button" class="btn btn-primary" id="btnGuardar">Guardar</button>
                         <a href="?module=ajuste" class="btn btn-secondary">Cancelar</a>
                     </div>
                 </form>
@@ -98,7 +95,7 @@ if ($_GET['form'] == 'add') { ?>
         var parametros = { "action": "ajax", "page": page, "x": x };
         $("#loader").fadeIn('slow');
         $.ajax({
-            url: './ajax/productos_pedido_ajuste.php',
+            url: './ajax/productos_ajuste.php',
             data: parametros,
             beforeSend: function (objeto) {
                 $('#loader').html('<img src="./images/ajax-loader.gif">Cargando....');
@@ -110,41 +107,82 @@ if ($_GET['form'] == 'add') { ?>
         });
     }
 
+    let productos = []; // Array de productos agregados
+
     function agregar(id) {
-        var cantidad = $('#cantidad_a' + id).val();
-        if (isNaN(cantidad)) {
-            alert('Esto no es un número');
-            document.getElementById('cantidad_a' + id).focus();
-            return false;
+        id = parseInt(id); // Aseguramos que sea número
+        let cantidad = parseFloat($('#cantidad_a' + id).val());
+        if (isNaN(cantidad) || cantidad <= 0) {
+            alert('Cantidad inválida');
+            $('#cantidad_a' + id).focus();
+            return;
         }
-        // Fin de la validación
-        var parametros = { "id": id, "cantidad_a": cantidad };
-        $.ajax({
-            type: "POST",
-            url: "./ajax/agregar_pedido_ajuste.php",
-            data: parametros,
-            beforeSend: function (objeto) {
-                $("#resultados").html("Mensaje: Cargando...");
-            },
-            success: function (datos) {
-                $("#resultados").html(datos);
+
+        // Evitar duplicados
+        if (productos.some(p => p.id === id)) {
+            alert('Producto ya agregado');
+            return;
+        }
+
+        $.post('./ajax/agregar_ajuste.php', { id_producto: id, cantidad_a: cantidad }, function (fila) {
+            // Si no hay tabla, crearla
+            if ($('#resultados table').length === 0) {
+                $('#resultados').html('<table class="table table-bordered"><thead><tr><th>Código</th><th>Tipo</th><th>Unidad</th><th>Producto</th><th>Cant. Anterior</th><th>Cant. Ajuste</th><th>Cant. Final</th><th>Acción</th></tr></thead><tbody></tbody></table>');
+            }
+
+            $('#resultados tbody').append(fila);
+
+            // Guardar en array
+            productos.push({ id: id, cantidad: cantidad });
+        });
+    }
+
+    function eliminarProducto(id) {
+        id = parseInt(id); // Normalizar
+        // Eliminar del array primero
+        productos = productos.filter(p => p.id !== id);
+
+        // Eliminar del DOM
+        $('#fila_' + id).fadeOut(300, function () {
+            $(this).remove();
+
+            // Si ya no hay filas, borrar tabla completa
+            if ($('#resultados tbody tr').length === 0) {
+                $('#resultados').html('');
             }
         });
     }
 
-    function eliminar(id) {
-        $.ajax({
-            type: "GET",
-            url: "./ajax/agregar_pedido_ajuste.php",
-            data: "id=" + id,
-            beforeSend: function (objeto) {
-                $("#resultados").html("Mensaje: cargando...");
-            },
-            success: function (datos) {
-                $("#resultados").html(datos);
-            }
+    $('#btnGuardar').off('click').on('click', function (e) {
+        e.preventDefault();
+
+        // Validaciones
+        if (productos.length === 0) {
+            alert("Agrega al menos un producto.");
+            return;
+        }
+
+        let motivo = $('input[name="motivo"]').val().trim();
+        if (motivo === "") {
+            alert("Ingresa el motivo del ajuste.");
+            $('input[name="motivo"]').focus();
+            return;
+        }
+
+        // Convertir array de productos a JSON
+        $('#productos_json').val(JSON.stringify(productos));
+
+        let formData = $('#formAjuste').serialize();
+
+        $.post("modules/ajuste/proses.php?act=insert", formData, function (response) {
+            // Como tu proses.php redirige con header, podemos simplemente recargar
+            window.location.href = "?module=ajuste";
+        }).fail(function (xhr, status, error) {
+            console.error("Error AJAX:", status, error, xhr.responseText);
+            alert("Error en la solicitud AJAX.");
         });
-    }
+    });
+
 </script>
 
 <div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="myModallabel" aria-hidden="true">

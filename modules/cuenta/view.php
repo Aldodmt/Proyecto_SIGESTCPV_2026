@@ -43,65 +43,102 @@
                 }
             }
             ?>
-
+            <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+            <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+            <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
             <div class="card">
                 <div class="card-body">
-                    <h2>Lista de cuentas a pagar</h2>
-                    <table id="dataTables1" class="table table-bordered table-striped table-hover">
-                        <thead>
-                            <tr>
-                                <th class="text-center">ID</th>
-                                <th class="text-center">ID compra</th>
-                                <th class="text-center">Proveedor</th>
-                                <th class="text-center">Fecha Emitida</th>
-                                <th class="text-center">Fecha de Vencimiento</th>
-                                <th class="text-center">Monto total</th>
-                                <th class="text-center">Monto pagado</th>
-                                <th class="text-center">Saldo Pendiente</th>
-                                <th class="text-center">Estado</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php
-                            $nro = 1;
-                            $query = mysqli_query($mysqli, "SELECT * FROM v_cuentas WHERE estado = 'pendiente' ORDER BY id_cuenta ASC")
-                                or die("Error" . mysqli_error($mysqli));
-                            while ($data = mysqli_fetch_assoc($query)) {
-                                $cod = $data['id_cuenta'];
-                                $cod_p = $data['cod_compra'];
-                                $razon = $data['razon_social'];
-                                $fecha = $data['fecha_emision'];
-                                $fecha_v = $data['fecha_vencimiento'];
-                                $monto_t = $data['monto_total'];
-                                $monto_p = $data['monto_pagado'];
-                                $saldo = ($monto_t - $monto_p);
-                                $estado = $data['estado'];
+                    <h2>Lista de Cuentas a Pagar</h2>
+                    <div class="mb-3">
+                        <label>Buscar Cuentas:</label>
+                        <input type="text" id="buscarCompra" class="form-control"
+                            placeholder="Filtrar por código o producto">
+                    </div>
+                    <div class="table-responsive">
+                        <table id="dataTables1" class="table table-bordered table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">ID</th>
+                                    <th class="text-center">ID compra</th>
+                                    <th class="text-center">Proveedor</th>
+                                    <th class="text-center">nro_cuota</th>
+                                    <th class="text-center">monto</th>
+                                    <th class="text-center">saldo</th>
+                                    <th class="text-center">Fecha de venicimiento</th>
+                                    <th class="text-center">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                $nro = 1;
+                                $query = mysqli_query($mysqli, "SELECT * FROM v_cuentas  ORDER BY cap_cod ASC")
+                                    or die("Error" . mysqli_error($mysqli));
+                                while ($data = mysqli_fetch_assoc($query)) {
+                                    $cod = $data['cap_cod'];
+                                    $cod_c = $data['cod_compra'];
+                                    $razon = $data['razon_social'];
+                                    $nro_cuota = $data['nro_cuota'];
+                                    $monto = $data['cap_monto'];
+                                    $saldo = $data['cap_saldo'];
+                                    $fecha_venci = $data['cap_fecha_venci'];
+                                    $estado = $data['cap_estado'];
 
-                                //por si  acaso
-                                /*$precio_compra_ = $row['precio_tmp'];
-        $precio_compra_f = number_format($precio_compra_); //Formatear una variable (Poner ,)
-        $precio_compra_r = str_replace(",", "", $precio_compra_f); //Reemplazar la coma 
-        $precio_total = $precio_compra_r * $cantidad;
-        $precio_total_f = number_format($precio_total);
-        $precio_total_r = str_replace(",", "", $precio_total_f);*/
+                                    //por si  acaso
+                                    /*$precio_compra_ = $row['precio_tmp'];
+            $precio_compra_f = number_format($precio_compra_); //Formatear una variable (Poner ,)
+            $precio_compra_r = str_replace(",", "", $precio_compra_f); //Reemplazar la coma 
+            $precio_total = $precio_compra_r * $cantidad;
+            $precio_total_f = number_format($precio_total);
+            $precio_total_r = str_replace(",", "", $precio_total_f);*/
 
-                                echo "<tr>
+                                    echo "<tr>
                                     <td class='text-center'>$cod</td>
-                                    <td class='text-center'>$cod_p</td>
+                                    <td class='text-center'>$cod_c</td>
                                     <td class='text-center'>$razon</td>
-                                    <td class='text-center'>$fecha</td>
-                                    <td class='text-center'>$fecha_v</td>
-                                    <td class='text-center'>$monto_t</td>
-                                    <td class='text-center'>$monto_p</td>
+                                    <td class='text-center'>$nro_cuota</td>
+                                    <td class='text-center'>$monto</td>
                                     <td class='text-center'>$saldo</td>
+                                    <td class='text-center'>$fecha_venci</td>
                                     <td class='text-center'>$estado</td>
                                 </tr>";
-                            }
-                            ?>
-                        </tbody>
-                    </table>
+                                }
+                                ?>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+        <script>
+            $(document).ready(function () {
+                var table = $('#dataTables1').DataTable({
+                    language: {
+                        url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
+                    },
+                    pageLength: 10,
+                    ordering: true
+                });
+
+                // Filtro personalizado
+                $('#buscarCompra').on('keyup', function () {
+                    var value = this.value.toLowerCase();
+
+                    table.rows().every(function () {
+                        var id = this.data()[0].toString().toLowerCase();      // Columna ID
+                        var prov = this.data()[2].toString().toLowerCase();    // Columna Proveedor
+                        var estado = this.data()[7].toString().toLowerCase();
+                        var id_com = this.data()[1].toString().toLowerCase();
+
+                        if (id.includes(value) || prov.includes(value) || estado.includes(value) || id_com.includes(value)) {
+                            $(this.node()).show();
+                        } else {
+                            $(this.node()).hide();
+                        }
+                    });
+                });
+            });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </section>

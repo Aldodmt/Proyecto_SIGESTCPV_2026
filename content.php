@@ -39,10 +39,10 @@ if (empty($_SESSION['username']) && empty($_SESSION['password'])) {
     } elseif ($_GET['module'] == 'form_clientes') {
         include "modules/clientes/form.php";
 
-    } elseif ($_GET['module'] == 'compras') {
+    } elseif ($_GET['module'] == 'compra') {
         include "modules/compras/view.php";
 
-    } elseif ($_GET['module'] == 'form_compras') {
+    } elseif ($_GET['module'] == 'form_compra') {
         include "modules/compras/form.php";
 
     } elseif ($_GET['module'] == 'stock') {
@@ -66,7 +66,7 @@ if (empty($_SESSION['username']) && empty($_SESSION['password'])) {
     } elseif ($_GET['module'] == 'form_tipo_producto') {
         include "modules/tipo_producto/form.php";
 
-    } elseif ($_GET['module'] == 'unidad_medida') {
+    } elseif ($_GET['module'] == 'u_medida') {
         include "modules/u_medida/view.php";
 
     } elseif ($_GET['module'] == 'form_u_medida') {
@@ -105,17 +105,23 @@ if (empty($_SESSION['username']) && empty($_SESSION['password'])) {
     } elseif ($_GET['module'] == 'cuenta') {
         include "modules/cuenta/view.php";
 
-    } elseif ($_GET['module'] == 'nota') {
-        include "modules/nota/view.php";
+    } elseif ($_GET['module'] == 'nota_c_d') {
+        include "modules/nota_c_d/view.php";
 
-    } elseif ($_GET['module'] == 'form_nota') {
-        include "modules/nota/form.php";
+    } elseif ($_GET['module'] == 'form_nota_c_d') {
+        include "modules/nota_c_d/form.php";
 
     } elseif ($_GET['module'] == 'ajuste') {
         include "modules/ajuste/view.php";
 
     } elseif ($_GET['module'] == 'form_ajuste') {
         include "modules/ajuste/form.php";
+
+    } elseif ($_GET['module'] == 'nota_remision') {
+        include "modules/nota_remision/view.php";
+
+    } elseif ($_GET['module'] == 'form_remision') {
+        include "modules/nota_remision/form.php";
 
     } elseif ($_GET['module'] == 'pedido_v') {
         include "modules/pedido_v/view.php";
@@ -140,6 +146,24 @@ if (empty($_SESSION['username']) && empty($_SESSION['password'])) {
 
     } elseif ($_GET['module'] == 'info_pedido_v') {
         include "modules/info_pedido_v/view.php";
+
+    } elseif ($_GET['module'] == 'info_facturacion_compra') {
+        include "modules/info_facturacion_compra/view.php";
+
+    } elseif ($_GET['module'] == 'info_nota_cd') {
+        include "modules/info_nota_cd/view.php";
+
+    } elseif ($_GET['module'] == 'info_notaR') {
+        include "modules/info_notaR/view.php";
+
+    } elseif ($_GET['module'] == 'info_producto') {
+        include "modules/info_producto/view.php";
+
+    } elseif ($_GET['module'] == 'info_proveedores') {
+        include "modules/info_proveedores/view.php";
+
+    } elseif ($_GET['module'] == 'info_u_medida') {
+        include "modules/info_u_medida/view.php";
 
     }
 

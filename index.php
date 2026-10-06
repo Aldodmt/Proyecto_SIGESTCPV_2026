@@ -32,28 +32,31 @@
                 if (!empty($_GET['alert'])) {
                     if ($_GET['alert'] == 1) {
                         echo "<div class='alert alert-danger' role='alert'>
-                        <strong><i class='fa-solid fa-circle-xmark'></i> Error:</strong> Usuario o contraseña incorrecta.
-                        </div>";
+                    <strong><i class='fa-solid fa-circle-xmark'></i> Error:</strong> Usuario o contraseña incorrecta.
+                    </div>";
                     } elseif ($_GET['alert'] == 2) {
                         echo "<div class='alert alert-success' role='alert'>
-                        <strong><i class='fa-solid fa-circle-check'></i> Salida Exitosa:</strong> Has cerrado tu sesión correctamente.
-                        </div>";
+                    <strong><i class='fa-solid fa-circle-check'></i> Salida Exitosa:</strong> Has cerrado tu sesión correctamente.
+                    </div>";
                     } elseif ($_GET['alert'] == 3) {
                         echo "<div class='alert alert-warning' role='alert'>
-                        <strong><i class='fa-solid fa-triangle-exclamation'></i> Atención:</strong> Por favor, ingresa un usuario y contraseña.
-                        </div>";
+                    <strong><i class='fa-solid fa-triangle-exclamation'></i> Atención:</strong> Por favor, ingresa un usuario y contraseña.
+                    </div>";
                     } elseif ($_GET['alert'] == 4) {
                         echo "<div class='alert alert-success' role='alert'>
-                        <strong><i class='fa-solid fa-circle-check'></i> Salida Exitosa:</strong> Se restaurado la contraseña.
-                        </div>";
+                    <strong><i class='fa-solid fa-circle-check'></i> Contraseña restaurada:</strong> Tu contraseña ha sido restablecida correctamente.
+                    </div>";
                     } elseif ($_GET['alert'] == 5) {
                         echo "<div class='alert alert-warning' role='alert'>
-                        <strong><i class='fa-solid fa-triangle-exclamation'></i> Error:</strong> A pasado algo inesperado.
-                        </div>";
+                    <strong><i class='fa-solid fa-triangle-exclamation'></i> Error:</strong> Ha ocurrido algo inesperado. Inténtalo nuevamente.
+                    </div>";
+                    } elseif ($_GET['alert'] == 6) {
+                        echo "<div class='alert alert-danger' role='alert'>
+                    <strong><i class='fa-solid fa-lock'></i> Cuenta bloqueada:</strong> Tu cuenta ha sido bloqueada por exceder el número máximo de intentos fallidos.
+                    </div>";
                     }
                 }
                 ?>
-
                 <!-- Login Form -->
                 <div class="card">
                     <div class="card-body">
