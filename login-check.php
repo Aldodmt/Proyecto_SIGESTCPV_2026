@@ -1,69 +1,118 @@
 <?php
 require_once "config/database.php";
+require_once "config/auth.php";
 
-// Capturar y limpiar los datos enviados desde el formulario
-$username = mysqli_real_escape_string($mysqli, stripslashes(strip_tags(htmlspecialchars(trim($_POST['username'])))));
-$password = mysqli_real_escape_string($mysqli, stripslashes(strip_tags(htmlspecialchars(trim($_POST['password'])))));
+$inicio = microtime(true);
+$es_ajax = ($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'XMLHttpRequest';
 
-// Validar que los campos no contengan caracteres inválidos
-if (!ctype_alnum($username) || !ctype_alnum($password)) {
-    header("Location: index.php?alert=1"); // Error de credenciales
-    exit();
-}
-
-// Convertir la contraseña a MD5 (solo por compatibilidad)
-$password = md5($password);
-
-//Verificar si el usuario existe
-$query_user = mysqli_query($mysqli, "SELECT * FROM usuarios WHERE username = '$username'")
-    or die('Error al realizar la consulta: ' . mysqli_error($mysqli));
-
-if (mysqli_num_rows($query_user) == 0) {
-    // Usuario no existe
-    header("Location: index.php?alert=1");
-    exit();
-}
-
-$data = mysqli_fetch_assoc($query_user);
-
-//Verificar si está bloqueado
-if ($data['status'] == 'bloqueado') {
-    header("Location: index.php?alert=6"); // cuenta bloqueada
-    exit();
-}
-
-// Verificar contraseña
-if ($data['password'] === $password) {
-    //contraseña correcta, reinicia contador
-    mysqli_query($mysqli, "UPDATE usuarios SET intentos_fallidos = 0 WHERE username = '$username'")
-        or die('Error al reiniciar intentos: ' . mysqli_error($mysqli));
-
-    // Iniciar sesión
-    session_start();
-    $_SESSION['id_user'] = $data['id_user'];
-    $_SESSION['username'] = $data['username'];
-    $_SESSION['password'] = $data['password']; //acordate que esto es mala practica guardar los datos del cliente en variables xd
-    $_SESSION['name_user'] = $data['name_user'];
-    $_SESSION['permisos_acceso'] = $data['permisos_acceso'];
-
-    header("Location: main.php?module=start");
-    exit();
-} else {
-    //Contraseña incorrecta, incrementar contador
-    $intentos = $data['intentos_fallidos'] + 1;
-
-    // Actualizar contador
-    mysqli_query($mysqli, "UPDATE usuarios SET intentos_fallidos = $intentos WHERE username = '$username'")
-        or die('Error al actualizar intentos: ' . mysqli_error($mysqli));
-
-    // Si llega a 3, bloquear usuario
-    if ($intentos >= 3) {
-        mysqli_query($mysqli, "UPDATE usuarios SET status = 'bloqueado' WHERE username = '$username'")
-            or die('Error al bloquear usuario: ' . mysqli_error($mysqli));
-        header("Location: index.php?alert=3"); // cuenta bloqueada
+// Responde en JSON (login por AJAX con validación en tiempo real) o redirige (sin JavaScript).
+function responder(int $code, int $left = 0, ?string $redirect = null): void
+{
+    global $es_ajax;
+    if ($es_ajax) {
+        [$nivel, $texto] = $redirect !== null ? ['success', 'Acceso correcto. Ingresando...'] : auth_mensaje($code, $left);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode([
+            'ok' => $redirect !== null,
+            'nivel' => $nivel,
+            'mensaje' => $texto,
+            'bloqueado' => $code === 6,
+            'redirect' => $redirect,
+        ]);
     } else {
-        header("Location: index.php?alert=1"); // contraseña incorrecta
+        header($redirect !== null ? "Location: $redirect" : "Location: index.php?alert=$code&left=$left");
     }
     exit();
 }
-?>
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header("Location: index.php");
+    exit();
+}
+
+$username = trim($_POST['username'] ?? '');
+$password = $_POST['password'] ?? '';
+
+if ($username === '' || $password === '') {
+    responder(3);
+}
+if (mb_strlen($username) > 150 || mb_strlen($password) > 128) {
+    auth_log($mysqli, null, $username, mb_strlen($password), 'FALLIDO', 'Formato inválido', (int) ((microtime(true) - $inicio) * 1000));
+    responder(1);
+}
+
+$stmt = $mysqli->prepare("SELECT id_user, username, name_user, password, email, permisos_acceso, status, intentos_fallidos FROM usuarios WHERE username = ?");
+$stmt->bind_param('s', $username);
+$stmt->execute();
+$data = $stmt->get_result()->fetch_assoc();
+$stmt->close();
+
+$ms = fn() => (int) ((microtime(true) - $inicio) * 1000);
+$largo = mb_strlen($password);
+
+// Usuario inexistente
+if (!$data) {
+    auth_log($mysqli, null, $username, $largo, 'FALLIDO', 'Usuario inexistente', $ms());
+    responder(7);
+}
+
+// Cuenta ya bloqueada: no se evalúa la contraseña
+if ($data['status'] === 'bloqueado') {
+    auth_log($mysqli, (int) $data['id_user'], $username, $largo, 'BLOQUEADO', 'Intento sobre cuenta bloqueada', $ms());
+    responder(6);
+}
+
+// Contraseña correcta
+if (auth_verificar($password, $data['password'])) {
+    $id = (int) $data['id_user'];
+
+    // Migra MD5 antiguo a bcrypt de forma transparente
+    if (auth_necesita_rehash($data['password'])) {
+        $nuevo = auth_hash($password);
+        $up = $mysqli->prepare("UPDATE usuarios SET password = ?, intentos_fallidos = 0 WHERE id_user = ?");
+        $up->bind_param('si', $nuevo, $id);
+    } else {
+        $up = $mysqli->prepare("UPDATE usuarios SET intentos_fallidos = 0 WHERE id_user = ?");
+        $up->bind_param('i', $id);
+    }
+    $up->execute();
+    $up->close();
+
+    ini_set('session.cookie_httponly', '1');
+    session_start();
+    session_regenerate_id(true);
+    $_SESSION['id_user'] = $id;
+    $_SESSION['username'] = $data['username'];
+    $_SESSION['name_user'] = $data['name_user'];
+    $_SESSION['permisos_acceso'] = $data['permisos_acceso'];
+
+    auth_log($mysqli, $id, $username, $largo, 'EXITOSO', 'Inicio de sesión', $ms());
+    responder(0, 0, 'main.php?module=start');
+}
+
+// Contraseña incorrecta: suma un intento y bloquea al llegar al máximo
+$id = (int) $data['id_user'];
+$up = $mysqli->prepare("UPDATE usuarios SET intentos_fallidos = intentos_fallidos + 1 WHERE id_user = ?");
+$up->bind_param('i', $id);
+$up->execute();
+$up->close();
+
+$sel = $mysqli->prepare("SELECT intentos_fallidos FROM usuarios WHERE id_user = ?");
+$sel->bind_param('i', $id);
+$sel->execute();
+$intentos = (int) $sel->get_result()->fetch_assoc()['intentos_fallidos'];
+$sel->close();
+
+if ($intentos >= AUTH_MAX_INTENTOS) {
+    $bl = $mysqli->prepare("UPDATE usuarios SET status = 'bloqueado', bloqueado_fecha = NOW() WHERE id_user = ?");
+    $bl->bind_param('i', $id);
+    $bl->execute();
+    $bl->close();
+
+    auth_log($mysqli, $id, $username, $largo, 'FALLIDO', "Contraseña incorrecta (intento $intentos): cuenta bloqueada", $ms());
+    auth_alerta_bloqueo($mysqli, $data, auth_ip());
+    responder(6);
+}
+
+auth_log($mysqli, $id, $username, $largo, 'FALLIDO', "Contraseña incorrecta (intento $intentos de " . AUTH_MAX_INTENTOS . ")", $ms());
+responder(8, AUTH_MAX_INTENTOS - $intentos);

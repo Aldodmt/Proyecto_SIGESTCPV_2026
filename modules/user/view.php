@@ -20,7 +20,8 @@
                         4 => ["danger", "¡Éxito!", "El usuario ha sido bloqueado correctamente"],
                         5 => ["danger", "¡Error!", "Asegúrese de que el archivo ingresado sea una imagen"],
                         6 => ["danger", "¡Error!", "El archivo debe ser menor a 1MB"],
-                        7 => ["danger", "¡Error!", "Asegúrese de que el tipo de archivo sea: *.jpg, *.jpeg, *.png"]
+                        7 => ["danger", "¡Error!", "Asegúrese de que el tipo de archivo sea: *.jpg, *.jpeg, *.png"],
+                        8 => ["danger", "¡Error!", "La contraseña no cumple los requisitos: mínimo 12 caracteres con mayúscula, minúscula, número y símbolo"]
                     ];
                     $alert = $alerts[$_GET['alert']] ?? null;
                     if ($alert) {

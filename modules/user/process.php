@@ -1,18 +1,24 @@
 <?php
     session_start();
     require "../../config/database.php";
+    require_once "../../config/auth.php";
 
     if(empty($_SESSION['username']) && empty($_SESSION['password'])){
         echo "<meta http-equiv='refresh' content='0; url=index.php?alert=3'>";
     }else{
         if($_GET['act']== 'insert'){
             $username = mysqli_real_escape_string($mysqli, trim($_POST['username']));
-            $password = md5(mysqli_real_escape_string($mysqli, trim($_POST['password'])));
+            $plain = $_POST['password'] ?? '';
+            if (auth_validar_politica($plain)) {
+                header("Location: ../../main.php?module=user&alert=8");
+                exit();
+            }
+            $password = auth_hash($plain);
             $name_user = mysqli_real_escape_string($mysqli, trim($_POST['name_user']));
             $permisos_acceso = mysqli_real_escape_string($mysqli, trim($_POST['permisos_acceso']));
-            
-            $query = mysqli_query($mysqli, "INSERT INTO usuarios (username, password, name_user, permisos_acceso)
-                                            VALUES ('$username', '$password', '$name_user', '$permisos_acceso')")
+
+            $query = mysqli_query($mysqli, "INSERT INTO usuarios (username, password, name_user, permisos_acceso, status, intentos_fallidos)
+                                            VALUES ('$username', '$password', '$name_user', '$permisos_acceso', 'activo', 0)")
                                             or die('error'.mysqli_error($mysqli));
 
             if($query){
@@ -86,10 +92,13 @@
         }
         elseif ($_GET['act']== 'on') {
             if(isset($_GET['id'])){
-                $id_user = $_GET['id'];
+                $id_user = (int) $_GET['id'];
                 $status = "activo";
 
-                $query = mysqli_query($mysqli, "UPDATE usuarios SET status = '$status'
+                // Al desbloquear también se reinician los intentos fallidos
+                $query = mysqli_query($mysqli, "UPDATE usuarios SET status = '$status',
+                                                                intentos_fallidos = 0,
+                                                                bloqueado_fecha = NULL
                                                                 WHERE id_user = '$id_user'")
                                                                 or die('error'.mysqli_error($mysqli));
                     if($query){

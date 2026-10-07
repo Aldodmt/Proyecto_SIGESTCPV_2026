@@ -1,81 +1,81 @@
 <?php
-ob_start(); // Inicia el búfer de salida
+// Solicitud de recuperación: se identifica al usuario por su nombre de usuario y, si tiene un
+// correo asociado, se le envía un enlace con token de un solo uso (30 min).
 require_once "../../config/database.php";
+require_once "../../config/auth.php";
 
-// Configurar la codificación UTF-8 
-header('Content-Type: text/html; charset=utf-8');
-// Incluir la librería PHPMailer
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-use PHPMailer\PHPMailer\SMTP;
+$inicio = microtime(true);
+$ms = fn() => (int) ((microtime(true) - $inicio) * 1000);
 
-require '../../PHPMailer/src/Exception.php';
-require '../../PHPMailer/src/PHPMailer.php';
-require '../../PHPMailer/src/SMTP.php';
-
-if (isset($_POST['recuperar'])) {
-    // Escapar el correo ingresado por el usuario y configurar UTF-8
-    $email = htmlspecialchars(trim($_POST['email']), ENT_QUOTES, 'UTF-8');
-
-    // Validar si el correo existe en la base de datos
-    $query = mysqli_prepare($mysqli, "SELECT COUNT(*) FROM usuarios WHERE email = ?");
-    mysqli_stmt_bind_param($query, "s", $email);
-    mysqli_stmt_execute($query);
-    mysqli_stmt_bind_result($query, $exists);
-    mysqli_stmt_fetch($query);
-    mysqli_stmt_close($query);
-
-    if ($exists > 0) {
-        // Preparar y enviar el correo con PHPMailer
-        $mail = new PHPMailer(true);
-
-        try {
-            // Configuración SMTP
-            //$mail->SMTPDebug = SMTP::DEBUG_SERVER; // Activar para depuración
-            $mail->isSMTP();
-            $mail->Host = 'smtp.gmail.com';
-            $mail->SMTPAuth = true;
-            $mail->Username = 'aldo28071987@gmail.com'; // Tu correo
-            $mail->Password = 'ctliypfzvalquetn'; // Contraseña de aplicación SMTP
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port = 587;
-
-            // Remitente del correo
-            $mail->setFrom('aldo28071987@gmail.com', 'Recuperación de Contraseña');
-            $mail->CharSet = 'UTF-8'; // Configuración UTF-8 para PHPMailer
-
-            // Destinatario: el correo proporcionado por el usuario
-            $mail->addAddress($email);
-
-            // Enlace de recuperación con el correo como parámetro
-            $recovery_link = "http://localhost/Proyecto1/modules/recuperar/nueva_contra.php?email=" . urlencode($email);
-
-            // Contenido del correo
-            $mail->isHTML(true);
-            $mail->Subject = 'Recuperación de contraseña';
-            $mail->Body = "
-                <h1>Recuperación de contraseña</h1>
-                <p>Estimado usuario, haga clic en el siguiente enlace para restablecer su contraseña:</p>
-                <p><a href='$recovery_link' target='_blank'>Restablecer contraseña</a></p>
-                <p>En caso de problemas, comuníquese con soporte técnico.
-                <p>Aldo David Marin Torres</p>
-                <p>Numero: 0987264101</p>
-            ";
-
-            $mail->send(); // Envía el correo
-
-            // Redirigir al usuario con una alerta de éxito
-            header("Location: /Proyecto1/modules/recuperar/recuperar.php?module=recuperar&alert=1");
-        } catch (Exception $e) {
-            // Manejo de errores en caso de que el correo no se envíe
-            echo "No se pudo enviar el correo. Error: {$mail->ErrorInfo}";
-        }
-    } else {
-        // Redirigir con una alerta indicando que el correo no existe
-        header("Location: /Proyecto1/modules/recuperar/recuperar.php?module=recuperar&alert=2");
-    }
-
-    exit(); // Finaliza el script después de enviar el correo o redireccionar
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['recuperar'])) {
+    header("Location: recuperar.php");
+    exit();
 }
 
-ob_end_flush(); // Libera el búfer y envía todo al navegador
+$username = trim($_POST['username'] ?? '');
+if ($username === '' || mb_strlen($username) > 150) {
+    header("Location: recuperar.php?alert=2"); // usuario vacío o inválido
+    exit();
+}
+
+$stmt = $mysqli->prepare("SELECT id_user, username, email FROM usuarios WHERE username = ? LIMIT 1");
+$stmt->bind_param('s', $username);
+$stmt->execute();
+$usuario = $stmt->get_result()->fetch_assoc();
+$stmt->close();
+
+if (!$usuario) {
+    auth_log($mysqli, null, $username, 0, 'RECUPERACION', 'Solicitud con usuario inexistente', $ms());
+    header("Location: recuperar.php?alert=4");
+    exit();
+}
+
+$id = (int) $usuario['id_user'];
+$email = trim((string) $usuario['email']);
+
+if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    auth_log($mysqli, $id, $usuario['username'], 0, 'RECUPERACION', 'Usuario sin correo asociado', $ms());
+    header("Location: recuperar.php?alert=5");
+    exit();
+}
+
+$token = bin2hex(random_bytes(32));
+$hash = hash('sha256', $token);
+$ip = auth_ip();
+$minutos = AUTH_TOKEN_MINUTOS;
+
+// Invalida los enlaces anteriores y guarda el nuevo (solo su hash)
+$mysqli->query("UPDATE password_resets SET usado = 1 WHERE id_user = $id AND usado = 0");
+$ins = $mysqli->prepare("INSERT INTO password_resets (id_user, token_hash, expira, usado, creado, ip)
+                         VALUES (?, ?, DATE_ADD(NOW(), INTERVAL $minutos MINUTE), 0, NOW(), ?)");
+$ins->bind_param('iss', $id, $hash, $ip);
+$ins->execute();
+$ins->close();
+
+$enlace = auth_base_url() . '/modules/recuperar/nueva_contra.php?token=' . $token;
+
+// Correo parcialmente oculto para mostrarlo en pantalla (ej.: al***@gmail.com)
+[$local, $dominio] = explode('@', $email, 2);
+$oculto = mb_substr($local, 0, 2) . '***@' . $dominio;
+
+try {
+    $mail = auth_mailer();
+    if (!$mail) {
+        throw new Exception('Correo no configurado');
+    }
+    $mail->addAddress($email);
+    $mail->Subject = 'Recuperación de contraseña - Sysweb';
+    $mail->Body = "
+        <h1>Recuperación de contraseña</h1>
+        <p>Hola <strong>" . htmlspecialchars($usuario['username'], ENT_QUOTES, 'UTF-8') . "</strong>, recibimos una solicitud para restablecer tu contraseña.</p>
+        <p><a href='$enlace' target='_blank'>Restablecer contraseña</a></p>
+        <p>Este enlace vence en $minutos minutos y solo puede usarse una vez.</p>
+        <p>Si no hiciste esta solicitud, ignora este mensaje: tu contraseña seguirá igual.</p>";
+    $mail->send();
+    auth_log($mysqli, $id, $usuario['username'], 0, 'RECUPERACION', 'Enlace de recuperación enviado', $ms());
+    header("Location: recuperar.php?alert=1&m=" . urlencode($oculto));
+} catch (Throwable $e) {
+    auth_log($mysqli, $id, $usuario['username'], 0, 'RECUPERACION', mb_substr('Error al enviar el correo: ' . ($e->getMessage() ?: 'desconocido'), 0, 120), $ms());
+    header("Location: recuperar.php?alert=3");
+}
+exit();

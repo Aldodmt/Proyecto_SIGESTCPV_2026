@@ -129,6 +129,9 @@ if (empty($_SESSION['username']) && empty($_SESSION['password'])) {
     } elseif ($_GET['module'] == 'form_pedido_v') {
         include "modules/pedido_v/form.php";
 
+    } elseif ($_GET['module'] == 'accesos') {
+        include "modules/accesos/view.php";
+
     } elseif ($_GET['module'] == 'info_pedido') {
         include "modules/info_pedido/view.php";
 

@@ -8,7 +8,7 @@
     <meta name="description" content="Sysweb">
     <meta name="author" content="Aldo Torres">
 
-    <link rel="shortcut icon" href="../../assets/img/favicon.ico" />
+    <link rel="shortcut icon" href="../../images/favicon.ico" />
     <title>Sysweb - Recuperar</title>
 
     <!-- CoreUI CSS -->
@@ -23,43 +23,40 @@
         <div class="row justify-content-center">
             <div class="col-md-4">
                 <div class="text-center mb-4">
-                    <img src="../../assets/img/favicon.ico" alt="Sysweb" height="50">
+                    <img src="../../images/favicon.ico" alt="Sysweb" height="50">
                     <h1 style="color: #3c8dbc;">Recuperar contraseña</h1>
                 </div>
 
                 <!-- Alerts -->
                 <?php
-                if (!empty($_GET['alert'])) {
-                    if ($_GET['alert'] == 1) {
-                        echo "<div class='alert alert-success' role='alert'>
-                        <strong><i class='fa-solid fa-circle-check'></i> Exitosa:</strong> Se ha enviado el correo.
-                        </div>";
-                    } elseif ($_GET['alert'] == 2) {
-                        echo "<div class='alert alert-warning' role='alert'>
-                        <strong><i class='fa-solid fa-triangle-exclamation'></i> Atención:</strong> Por favor, ingresa un email existinte.
-                        </div>";
-                    } elseif ($_GET['alert'] == 3) {
-                        echo "<div class='alert alert-warning' role='alert'>
-                        <strong><i class='fa-solid fa-triangle-exclamation'></i> Error:</strong> Se ha producido un error.
-                        </div>";
-                    }
+                $m = htmlspecialchars($_GET['m'] ?? '', ENT_QUOTES, 'UTF-8');
+                $alertas = [
+                    1 => ['success', 'cil-check-circle', "Se envió un enlace de recuperación al correo asociado a tu usuario ($m). Vence en 30 minutos."],
+                    2 => ['warning', 'cil-warning', 'Ingresa un nombre de usuario válido.'],
+                    3 => ['danger', 'cil-x-circle', 'No se pudo enviar el correo. Inténtalo más tarde o contacta al administrador.'],
+                    4 => ['danger', 'cil-x-circle', 'El usuario ingresado no está registrado.'],
+                    5 => ['warning', 'cil-warning', 'Este usuario no tiene un correo asociado. Contacta al administrador para recuperar tu acceso.'],
+                ];
+                $a = $alertas[(int) ($_GET['alert'] ?? 0)] ?? null;
+                if ($a) {
+                    echo "<div class='alert alert-{$a[0]}' role='alert' aria-live='polite'><i class='{$a[1]}'></i> {$a[2]}</div>";
                 }
                 ?>
 
-                <!-- Login Form -->
+                <!-- Formulario -->
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title text-center mb-3">
-                            <i class="cil-user"></i> Ingrese su correo
+                            <i class="cil-user"></i> Ingrese su usuario
                         </h5>
                         <form action="proses.php" method="POST">
                             <div class="mb-3">
-                                <label for="username" class="form-label">Correo</label>
-                                <input type="text" class="form-control" id="email" name="email" placeholder="Usuario"
-                                    required>
+                                <label for="username" class="form-label">Usuario</label>
+                                <input type="text" class="form-control" id="username" name="username" placeholder="Usuario"
+                                    maxlength="150" autocomplete="username" autofocus required>
+                                <div class="form-text">Enviaremos el enlace al correo registrado en tu cuenta.</div>
                             </div>
-                            <a href=""><input type="submit" class="btn btn-primary " name="recuperar"
-                                    value="Enviar"></a>
+                            <input type="submit" class="btn btn-primary" name="recuperar" value="Enviar"> <a class="ms-2" href="../../index.php">Volver</a>
                             <hr>
                         </form>
                     </div>

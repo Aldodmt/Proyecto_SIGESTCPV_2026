@@ -184,6 +184,9 @@ session_start();
                                     <li class="nav-item">
                                         <a class="nav-link" href="?module=user">Administrar Usuario</a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="?module=accesos">Registro de accesos</a>
+                                    </li>
                                 <?php } ?>
                             </ul>
                         </div>

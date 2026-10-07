@@ -32,6 +32,11 @@
                         <button type='button' class='btn-close' data-coreui-dismiss='alert' aria-label='Close'></button>
                         <strong><i class='fa-solid fa-circle-check'></i> Exitoso:</strong> La nueva contraseña cambiada exitosamente.
                         </div>";
+                } elseif ($_GET['alert'] == 4) {
+                    echo "<div class='alert alert-danger alert-dismissible fade show' role='alert'>
+                        <button type='button' class='btn-close' data-coreui-dismiss='alert' aria-label='Close'></button>
+                        <strong>Error:</strong> La nueva contraseña debe tener mínimo 12 caracteres, con mayúscula, minúscula, número y símbolo.
+                        </div>";
                 }
             }
             ?>
