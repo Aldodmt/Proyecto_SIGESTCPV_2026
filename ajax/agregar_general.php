@@ -48,7 +48,7 @@
             <td class="subtotal">0</td>
             <td>
                 <button class="btn btn-danger btn-sm" onclick="eliminarProductoPresupuesto('${cod}')">
-                    <i class="cil-trash"></i>
+                    <i class="bi bi-trash"></i>
                 </button>
             </td>
         `;

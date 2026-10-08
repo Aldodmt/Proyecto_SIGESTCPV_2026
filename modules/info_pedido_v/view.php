@@ -2,7 +2,7 @@
     <div class="row mb-3">
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
-                <a href="?module=start"><i class="cil-home"></i> Inicio</a>
+                <a href="?module=start"><i class="bi bi-house-door"></i> Inicio</a>
             </li>
             <li class="breadcrumb-item">
                 <a>Filtrar pedidos de venta</a>
@@ -13,7 +13,7 @@
     <div class="row">
         <div class="col">
             <h1 class="display-12">
-                <i class="cil-filter"></i> Filtrar pedidos de venta
+                <i class="bi bi-funnel"></i> Filtrar pedidos de venta
             </h1>
             <hr>
         </div>
@@ -45,7 +45,7 @@
                         </div>
                         <div class="col-md-12 text-end">
                             <button type="submit" class="btn btn-primary">
-                                <i class="cil-magnifying-glass"></i> Buscar
+                                <i class="bi bi-search"></i> Buscar
                             </button>
                         </div>
                     </form>

@@ -59,7 +59,7 @@ if ($numeros > 0) { ?>
                         <td>
                             <button class="btn btn-success btn-sm"
                                 onclick="seleccionarPresupuesto(<?= $row['id_presupuesto'] ?>)">
-                                <i class="cil-plus"></i>
+                                <i class="bi bi-plus-lg"></i>
                             </button>
                         </td>
                     </tr>

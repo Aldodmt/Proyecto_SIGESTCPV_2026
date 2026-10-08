@@ -78,7 +78,7 @@ if (mysqli_num_rows($sql) > 0) {
                     </td>
                     <td>
                         <button class="btn btn-danger btn-sm" onclick="eliminarCompra('<?= $row['cod_producto'] ?>')">
-                            <i class="cil-trash"></i>
+                            <i class="bi bi-trash"></i>
                         </button>
                     </td>
                 </tr>

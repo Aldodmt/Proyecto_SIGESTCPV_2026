@@ -46,17 +46,14 @@ $h = fn($s) => htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8');
 <section class="container-fluid">
     <div class="row mb-3">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="?module=start"><i class="cil-home"></i> Inicio</a></li>
+            <li class="breadcrumb-item"><a href="?module=start"><i class="bi bi-house-door"></i> Inicio</a></li>
             <li class="breadcrumb-item active">Registro de accesos</li>
         </ol>
     </div>
-    <h1 class="display-6"><i class="cil-shield-alt"></i> Registro de intentos de acceso</h1>
+    <h1 class="display-6"><i class="bi bi-shield-lock"></i> Registro de intentos de acceso</h1>
     <hr>
 </section>
 
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
 <div class="card mb-3">
     <div class="card-body">
@@ -84,7 +81,7 @@ $h = fn($s) => htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8');
                 <input type="text" class="form-control" id="usuario" name="usuario" value="<?= $h($usuarioFiltro) ?>" placeholder="Buscar">
             </div>
             <div class="col-md-2">
-                <button type="submit" class="btn btn-primary w-100"><i class="cil-search"></i> Consultar</button>
+                <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search"></i> Consultar</button>
             </div>
         </form>
     </div>

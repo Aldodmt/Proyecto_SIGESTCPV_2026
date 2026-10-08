@@ -11,7 +11,7 @@ $count = mysqli_num_rows($query);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reporte de depositos</title>
-    <link rel="shortcut icon" href="../../assets/img/favicon.ico">
+    <link rel="shortcut icon" href="../../images/favicon.ico">
 </head>
 <body>
     <div>

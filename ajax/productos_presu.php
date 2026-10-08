@@ -60,7 +60,7 @@ if ($numeros > 0) { ?>
                         <td><?= $row['estado'] ?></td>
                         <td>
                             <button class="btn btn-success btn-sm" onclick="seleccionarPedido(<?= $row['id_pedido'] ?>)">
-                                <i class="cil-plus"></i>
+                                <i class="bi bi-plus-lg"></i>
                             </button>
                         </td>
                     </tr>

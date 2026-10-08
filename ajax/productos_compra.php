@@ -55,7 +55,7 @@ if ($numeros > 0) { ?>
                         <td><?= $row['estado'] ?></td>
                         <td>
                             <button class="btn btn-success btn-sm" onclick="seleccionarOrden(<?= $row['id_orden_comp'] ?>)">
-                                <i class="cil-plus"></i>
+                                <i class="bi bi-plus-lg"></i>
                             </button>
                         </td>
                     </tr>

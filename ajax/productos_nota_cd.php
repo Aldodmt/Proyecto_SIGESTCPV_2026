@@ -79,7 +79,7 @@ if ($action == 'ajax') {
                             <td><?php echo $estado; ?></td>
                             <td>
                                 <button class="btn btn-success btn-sm" onclick="seleccionarCompra('<?php echo $cod; ?>')">
-                                    <i class="cil-plus"></i>
+                                    <i class="bi bi-plus-lg"></i>
                                 </button>
                             </td>
                         </tr>

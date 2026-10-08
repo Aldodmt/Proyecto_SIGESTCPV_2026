@@ -1,60 +1,60 @@
-<section class="content-header">
+<section class="app-content-header">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="?module=start"><i class="cil-home"></i>Inicio</a></li>
+            <li class="breadcrumb-item"><a href="?module=start"><i class="bi bi-house-door"></i>Inicio</a></li>
             <li class="breadcrumb-item active" aria-current="page">Ventas</a></li>
         </ol>
     </nav>
     <hr>
     <h1>
-        <i class="fa fa-folder icon-title"></i> Datos de Ventas
+        <i class="bi bi-folder me-1"></i> Datos de Ventas
         <a class="btn btn-primary btn-sm float-end" href="?module=form_ventas&form=add" title="Agregar"
-            data-coreui-toggle="tooltip">
-            <i class="fa fa-plus"></i> Agregar
+            data-bs-toggle="tooltip">
+            <i class="bi bi-plus-lg"></i> Agregar
         </a>
     </h1>
 </section>
 
-<section class="content">
+<section class="app-content">
     <div class="row">
         <div class="col-md-12">
             <?php
             if (!empty($_GET['alert'])) {
                 if ($_GET["alert"] == 1) {
                     echo "<div class='alert alert-success alert-dismissible fade show' role='alert'>
-                        <button type='button' class='btn-close' data-coreui-dismiss='alert' aria-label='Close'></button>
-                        <h4><i class='fa fa-check-circle'></i> Exitoso!</h4>
+                        <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+                        <h4><i class='bi bi-check-circle'></i> Exitoso!</h4>
                         Datos registrados correctamente.
                     </div>";
                 } elseif ($_GET["alert"] == 2) {
                     echo "<div class='alert alert-success alert-dismissible fade show' role='alert'>
-                        <button type='button' class='btn-close' data-coreui-dismiss='alert' aria-label='Close'></button>
-                        <h4><i class='fa fa-check-circle'></i> Exitoso!</h4>
+                        <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+                        <h4><i class='bi bi-check-circle'></i> Exitoso!</h4>
                         Datos anulados correctamente.
                     </div>";
                 } elseif ($_GET["alert"] == 3) {
                     echo "<div class='alert alert-danger alert-dismissible fade show' role='alert'>
-                        <button type='button' class='btn-close' data-coreui-dismiss='alert' aria-label='Close'></button>
-                        <h4><i class='fa fa-exclamation-circle'></i> Error!</h4>
+                        <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+                        <h4><i class='bi bi-exclamation-circle'></i> Error!</h4>
                         No se pudo realizar la operación.
                     </div>";
                 } elseif ($_GET["alert"] == 4) {
                     $resto = isset($_GET['diff']) ? $_GET['diff'] : "0";
                     echo "<div class='alert alert-danger alert-dismissible fade show' role='alert'>
-                        <button type='button' class='btn-close' data-coreui-dismiss='alert' aria-label='Close'></button>
-                        <h4><i class='fa fa-exclamation-circle'></i> Error!</h4>
+                        <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+                        <h4><i class='bi bi-exclamation-circle'></i> Error!</h4>
                         La cantidad a vender supera al stock por $resto unidades.
                     </div>";
                 } elseif ($_GET["alert"] == 5) {
                     echo "<div class='alert alert-danger alert-dismissible fade show' role='alert'>
-                        <button type='button' class='btn-close' data-coreui-dismiss='alert' aria-label='Close'></button>
-                        <h4><i class='fa fa-exclamation-circle'></i> Error!</h4>
+                        <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+                        <h4><i class='bi bi-exclamation-circle'></i> Error!</h4>
                         El producto no existe en el deposito solicitado.
                     </div>";
                 } elseif ($_GET["alert"] == 5) {
                     echo "<div class='alert alert-danger alert-dismissible fade show' role='alert'>
-                        <button type='button' class='btn-close' data-coreui-dismiss='alert' aria-label='Close'></button>
-                        <h4><i class='fa fa-exclamation-circle'></i> Error!</h4>
+                        <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+                        <h4><i class='bi bi-exclamation-circle'></i> Error!</h4>
                         El timbrado supero su limite.
                     </div>";
                 }
@@ -121,14 +121,14 @@
                                     <td class='text-center'>$estado</td>
                                     <td class='text-center' width='80'>
                                         <div class='btn-group' role='group'>
-                                            <a data-coreui-toggle='tooltip' title='Anular compra' class='btn btn-danger btn-sm'
+                                            <a data-bs-toggle='tooltip' title='Anular compra' class='btn btn-danger btn-sm'
                                                 href='modules/ventas/proses.php?act=anular&cod_venta=$cod'
                                                 onclick='return confirm(\"¿Estás seguro/a de anular la factura $nro_factura?\");'>
-                                                <i class='cil-trash'></i>
+                                                <i class='bi bi-trash'></i>
                                             </a>
-                                            <a data-coreui-toggle='tooltip' title='Imprimir factura de ventas' class='btn btn-warning btn-sm'
+                                            <a data-bs-toggle='tooltip' title='Imprimir factura de ventas' class='btn btn-warning btn-sm'
                                                 href='modules/ventas/print.php?act=imprimir&cod_venta=$cod' target='_blank'>
-                                                <i class='cil-print'></i>
+                                                <i class='bi bi-printer'></i>
                                             </a>
                                         </div>
                                     </td>

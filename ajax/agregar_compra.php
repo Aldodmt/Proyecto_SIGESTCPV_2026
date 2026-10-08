@@ -60,7 +60,7 @@ if (mysqli_num_rows($sql) > 0) {
 
             <td class="text-center">
                 <button class="btn btn-danger btn-sm" onclick="eliminarOrden(<?= $row['id_orden_comp'] ?>)">
-                    <i class="cil-trash"></i>
+                    <i class="bi bi-trash"></i>
                 </button>
             </td>
         </tr>

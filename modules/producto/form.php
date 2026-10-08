@@ -1,24 +1,24 @@
 <?php
 if ($_GET['form'] == 'add') { ?>
-    <section class="content-header">
+    <section class="app-content-header">
         <h1>
-            <i class="fa fa-edit icon-title"></i>Agregar ciudad
+            <i class="bi bi-pencil-square me-1"></i>Agregar ciudad
         </h1>
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="?module=start"><i class="cil-home"></i>Inicio</a></li>
+            <li class="breadcrumb-item"><a href="?module=start"><i class="bi bi-house-door"></i>Inicio</a></li>
             <li class="breadcrumb-item"><a href="?module=producto">Productos</a></li>
             <li class="breadcrumb-item active">Agregar</li>
         </ol>
     </section>
 
-    <section class="content">
+    <section class="app-content">
         <div class="row">
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
-                        <form role="form" class="form-horizontal" action="modules/producto/process.php?act=insert"
+                        <form role="form" action="modules/producto/process.php?act=insert"
                             method="POST">
-                            <div class="form-group">
+                            <div class="row mb-3">
                                 <?php
                                 // Método para generar código
                                 $query_id = mysqli_query($mysqli, "SELECT MAX(cod_producto) as id FROM producto") or die('error' . mysqli_error($mysqli));
@@ -37,7 +37,7 @@ if ($_GET['form'] == 'add') { ?>
                                 </div>
                             </div>
 
-                            <div class="form-group">
+                            <div class="row mb-3">
                                 <label class="col-sm-2 col-form-label">Producto</label>
                                 <div class="col-sm-5">
                                     <input type="text" class="form-control" name="p_descrip"
@@ -45,10 +45,10 @@ if ($_GET['form'] == 'add') { ?>
                                 </div>
                             </div>
 
-                            <div class="form-group">
+                            <div class="row mb-3">
                                 <label class="col-sm-2 col-form-label">Tipo de producto</label>
                                 <div class="col-sm-5">
-                                    <select class="form-control" name="tipo_producto"
+                                    <select class="form-select" name="tipo_producto"
                                         data-placeholder="--Seleccione el tipo de producto--" autocomplete="off" required>
                                         <option value=""></option>
                                         <?php
@@ -61,10 +61,10 @@ if ($_GET['form'] == 'add') { ?>
                                 </div>
                             </div>
 
-                            <div class="form-group">
+                            <div class="row mb-3">
                                 <label class="col-sm-2 col-form-label">Unidad de medida</label>
                                 <div class="col-sm-5">
-                                    <select class="form-control" name="u_medida"
+                                    <select class="form-select" name="u_medida"
                                         data-placeholder="--Seleccione la unidad de medida--" autocomplete="off" required>
                                         <option value=""></option>
                                         <?php
@@ -77,10 +77,10 @@ if ($_GET['form'] == 'add') { ?>
                                 </div>
                             </div>
 
-                            <div class="form-group">
+                            <div class="row mb-3">
                                 <label class="col-sm-2 col-form-label">Tipo de Impuesto</label>
                                 <div class="col-sm-5">
-                                    <select class="form-control" name="tipo_impuesto"
+                                    <select class="form-select" name="tipo_impuesto"
                                         data-placeholder="--Seleccione el tipo de impuesto--" autocomplete="off" required>
                                         <option value=""></option>
                                         <option value="10%">10</option>
@@ -91,8 +91,8 @@ if ($_GET['form'] == 'add') { ?>
                             </div>
 
                             <div class="card-footer">
-                                <div class="form-group row">
-                                    <div class="col-sm-offset-2 col-sm-10">
+                                <div class="row mb-3 row">
+                                    <div class="offset-sm-2 col-sm-10">
                                         <input type="submit" class="btn btn-primary" name="Guardar" value="Guardar">
                                         <a href="?module=producto" class="btn btn-secondary">Cancelar</a>
                                     </div>
@@ -109,25 +109,25 @@ if ($_GET['form'] == 'add') { ?>
         $query = mysqli_query($mysqli, "SELECT *FROM v_producto WHERE cod_producto = '$_GET[id]'") or die('error' . mysqli_error($mysqli));
         $data = mysqli_fetch_assoc($query);
     } ?>
-    <section class="content-header">
+    <section class="app-content-header">
         <h1>
-            <i class="fa fa-edit icon-title"></i>Modificar producto
+            <i class="bi bi-pencil-square me-1"></i>Modificar producto
         </h1>
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="?module=start"><i class="fa fa-home"></i>Inicio</a></li>
+            <li class="breadcrumb-item"><a href="?module=start"><i class="bi bi-house-door"></i>Inicio</a></li>
             <li class="breadcrumb-item"><a href="?module=producto">Productos</a></li>
             <li class="breadcrumb-item active">Modificar</li>
         </ol>
     </section>
 
-    <section class="content">
+    <section class="app-content">
         <div class="row">
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
-                        <form role="form" class="form-horizontal" action="modules/producto/process.php?act=update"
+                        <form role="form" action="modules/producto/process.php?act=update"
                             method="POST">
-                            <div class="form-group">
+                            <div class="row mb-3">
                                 <label class="col-sm-2 col-form-label">Código</label>
                                 <div class="col-sm-5">
                                     <input type="text" class="form-control" name="codigo"
@@ -135,7 +135,7 @@ if ($_GET['form'] == 'add') { ?>
                                 </div>
                             </div>
 
-                            <div class="form-group">
+                            <div class="row mb-3">
                                 <label class="col-sm-2 col-form-label">Producto</label>
                                 <div class="col-sm-5">
                                     <input type="text" class="form-control" name="p_descrip"
@@ -144,10 +144,10 @@ if ($_GET['form'] == 'add') { ?>
                             </div>
 
                             <!-- Combo buscador -->
-                            <div class="form-group">
+                            <div class="row mb-3">
                                 <label class="col-sm-2 col-form-label">Tipo de producto</label>
                                 <div class="col-sm-5">
-                                    <select class="form-control" name="tipo_producto" required>
+                                    <select class="form-select" name="tipo_producto" required>
                                         <option value="">--Seleccione un tipo de producto--</option>
                                         <?php
                                         $query_tp = mysqli_query($mysqli, "SELECT * FROM tipo_producto") or die('error' . mysqli_error($mysqli));
@@ -161,10 +161,10 @@ if ($_GET['form'] == 'add') { ?>
                             </div>
 
                             <!-- Combo buscador -->
-                            <div class="form-group">
+                            <div class="row mb-3">
                                 <label class="col-sm-2 col-form-label">Unidad de medida</label>
                                 <div class="col-sm-5">
-                                    <select class="form-control" name="u_medida" required>
+                                    <select class="form-select" name="u_medida" required>
                                         <option value="">--Seleccione una unidad de medida--</option>
                                         <?php
                                         $query_um = mysqli_query($mysqli, "SELECT * FROM u_medida") or die('error' . mysqli_error($mysqli));
@@ -177,10 +177,10 @@ if ($_GET['form'] == 'add') { ?>
                                 </div>
                             </div>
 
-                            <div class="form-group">
+                            <div class="row mb-3">
                                 <label class="col-sm-2 col-form-label">Tipo de Impuesto</label>
                                 <div class="col-sm-5">
-                                    <select class="form-control" name="tipo_impuesto"
+                                    <select class="form-select" name="tipo_impuesto"
                                         data-placeholder="--Seleccione el tipo de impuesto--" required>
                                         <option value="">--Seleccione el tipo de impuesto--</option>
                                         <option value="10%" <?= (isset($data['tipo_impuesto']) && $data['tipo_impuesto'] == '10%') ? 'selected' : '' ?>>10%</option>
@@ -191,8 +191,8 @@ if ($_GET['form'] == 'add') { ?>
                             </div>
 
                             <div class="card-footer">
-                                <div class="form-group">
-                                    <div class="col-sm-offset-2 col-sm-10">
+                                <div class="row mb-3">
+                                    <div class="offset-sm-2 col-sm-10">
                                         <input type="submit" class="btn btn-primary" name="Guardar" value="Guardar">
                                         <a href="?module=producto" class="btn btn-secondary">Cancelar</a>
                                     </div>

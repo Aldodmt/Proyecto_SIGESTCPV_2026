@@ -78,7 +78,7 @@ if ($action == 'ajax') {
                             </td>
                             <td>
                                 <button class="btn btn-success btn-sm" onclick="agregar('<?php echo $cod_prod; ?>')">
-                                    <i class="cil-plus"></i>
+                                    <i class="bi bi-plus-lg"></i>
                                 </button>
                             </td>
                         </tr>

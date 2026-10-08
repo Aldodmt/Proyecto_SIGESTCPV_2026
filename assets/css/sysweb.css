@@ -1,0 +1,35 @@
+/* Ajustes propios de Sysweb sobre AdminLTE 4. Solo lo imprescindible; nada de forzar anchos ni márgenes. */
+
+/* Tipografía de la plantilla, alojada localmente */
+@font-face { font-family: "Source Sans 3"; font-weight: 400; font-style: normal; font-display: swap;
+    src: url("../adminlte/fonts/source-sans-3-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "Source Sans 3"; font-weight: 600; font-style: normal; font-display: swap;
+    src: url("../adminlte/fonts/source-sans-3-latin-600-normal.woff2") format("woff2"); }
+@font-face { font-family: "Source Sans 3"; font-weight: 700; font-style: normal; font-display: swap;
+    src: url("../adminlte/fonts/source-sans-3-latin-700-normal.woff2") format("woff2"); }
+
+/* Encabezado de cada pantalla (breadcrumb + título) */
+.app-content-header { padding: 0 0 .5rem; }
+.app-content-header h1 { font-size: 1.6rem; margin: .25rem 0 .5rem; }
+.app-content-header .breadcrumb { margin-bottom: .25rem; }
+.app-content { padding: 0; }
+
+/* Select2 y DataTables dentro de tarjetas */
+.select2-container { max-width: 100%; }
+div.dataTables_wrapper div.dataTables_filter input { margin-left: .5rem; }
+
+/* Imagen del usuario en el menú superior */
+.user-menu .user-image { width: 2rem; height: 2rem; object-fit: cover; }
+.user-menu .user-header img { width: 90px; height: 90px; object-fit: cover; }
+
+/* Separación entre un icono y el texto que lo sigue */
+.btn > .bi:first-child,
+.breadcrumb-item > a > .bi,
+.app-content-header h1 > .bi,
+.alert > .bi:first-child { margin-right: .35rem; }
+
+/* Títulos dentro del cuerpo de una tarjeta: en bloque (AdminLTE los flota para usarlos en card-header) */
+.card-body > .card-title { float: none; display: block; }
+
+/* Etiquetas largas del sidebar: dejar sitio a la flecha del grupo */
+.sidebar-menu .nav-link > p { padding-right: 1.25rem; }

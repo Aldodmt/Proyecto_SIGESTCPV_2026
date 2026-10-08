@@ -1,21 +1,21 @@
-<section class="content-header">
+<section class="app-content-header">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="?module=start"><i class="cil-home"></i>Inicio</a></li>
+            <li class="breadcrumb-item"><a href="?module=start"><i class="bi bi-house-door"></i>Inicio</a></li>
             <li class="breadcrumb-item active" aria-current="page">Clientes</a></li>
         </ol>
     </nav><br>
     <hr>
     <h1>
-        <i class="fa fa-folder icon-title"></i>Datos de Clientes
-        <a class="btn btn-primary btn-social pull-right" href="?module=form_clientes&form=add" title="Agregar"
-            data-toggle="tooltip">
-            <i class="fa fa-plus"></i>Agregar
+        <i class="bi bi-folder me-1"></i>Datos de Clientes
+        <a class="btn btn-primary float-end" href="?module=form_clientes&form=add" title="Agregar"
+            data-bs-toggle="tooltip">
+            <i class="bi bi-plus-lg"></i>Agregar
         </a>
     </h1>
 </section>
 
-<section class="content">
+<section class="app-content">
     <div class="row">
         <div class="col-md-12">
             <?php
@@ -23,32 +23,32 @@
                 echo "";
             } elseif ($_GET["alert"] == 1) {
                 echo "<div class='alert alert-success alert-dismissable fade show' role='alert'>
-                        <button type='button' class='btn-close' data-coreui-dismiss='alert' aria-label='Close'></button>
-                        <strong><i class='fa-solid fa-circle-xmark'></i> Exitoso!</strong> Datos registrados correctamente.
+                        <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+                        <strong><i class='bi bi-x-circle'></i> Exitoso!</strong> Datos registrados correctamente.
                         </div>";
             } elseif ($_GET["alert"] == 2) {
                 echo "<div class='alert alert-success alert-dismissable fade show' role='alert'>
-                        <button type='button' class='btn-close' data-coreui-dismiss='alert' aria-label='Close'></button>
-                        <strong><i class='fa-solid fa-circle-xmark'></i> Exitoso!</strong> Datos modificados correctamente.
+                        <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+                        <strong><i class='bi bi-x-circle'></i> Exitoso!</strong> Datos modificados correctamente.
                         </div>";
             } elseif ($_GET["alert"] == 3) {
                 echo "<div class='alert alert-success alert-dismissable fade show' role='alert'>
-                        <button type='button' class='btn-close' data-coreui-dismiss='alert' aria-label='Close'></button>
-                        <strong><i class='fa-solid fa-circle-xmark'></i> Exitoso!</strong> Datos eliminados correctamente.
+                        <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+                        <strong><i class='bi bi-x-circle'></i> Exitoso!</strong> Datos eliminados correctamente.
                         </div>";
             } elseif ($_GET["alert"] == 4) {
                 echo "<div class='alert alert-danger alert-dismissable fade show' role='alert'>
-                        <button type='button' class='btn-close' data-coreui-dismiss='alert' aria-label='Close'></button>
-                        <strong><i class='fa-solid fa-circle-xmark'></i> Error!</strong> No se pudo realizar la operacion.
+                        <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+                        <strong><i class='bi bi-x-circle'></i> Error!</strong> No se pudo realizar la operacion.
                         </div>";
             }
             ?>
 
-            <div class="box box-primary">
-                <div class="box-body">
-                    <section class="content-header">
-                        <a class="btn btn-warning btn-social pull-right" href="modules/clientes/print.php" target="new">
-                            <i class="cil-print"></i> Imprimir
+            <div class="card card-primary">
+                <div class="card-body">
+                    <section class="app-content-header">
+                        <a class="btn btn-warning float-end" href="modules/clientes/print.php" target="new">
+                            <i class="bi bi-printer"></i> Imprimir
                         </a>
                     </section>
                     <table id="dataTables1" class="table table-bordered table-striped table-hover">
@@ -93,14 +93,14 @@
                                     <td class='center'>$cli_telefono</td>
                                     <td class='center' witdh='80'>
                                     <div>
-                                    <a data-toggle='tooltip' data-placement='top' title='Modificar datos de Clientes' style='margin-right:5px' class='btn btn-primary btn-sm' href='?module=form_clientes&form=edit&id=$data[id_cliente]'>
-                                    <i class='cil-pencil'></i>
+                                    <a data-bs-toggle='tooltip' data-bs-placement='top' title='Modificar datos de Clientes' style='margin-right:5px' class='btn btn-primary btn-sm' href='?module=form_clientes&form=edit&id=$data[id_cliente]'>
+                                    <i class='bi bi-pencil-square'></i>
                                     </a>
                                     <a class='btn btn-danger btn-sm' 
                                         href='modules/clientes/proses.php?act=delete&id_cliente=$id_cliente' 
                                         title='Eliminar datos' data-bs-toggle='tooltip'
                                         onclick=\"return confirm('¿Estás seguro/a de eliminar $id_cliente?');\">
-                                        <i class='cil-trash'></i>
+                                        <i class='bi bi-trash'></i>
                                     </a>
                                 </div>
                                 </td>

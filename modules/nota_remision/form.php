@@ -29,7 +29,7 @@ if ($_GET['form'] == 'add') {
             <div class="row mb-2">
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="?module=start"><i class="cil-home"></i> Inicio</a></li>
+                        <li class="breadcrumb-item"><a href="?module=start"><i class="bi bi-house-door"></i> Inicio</a></li>
                         <li class="breadcrumb-item"><a href="?module=nota_remision">Nota de Remision</a></li>
                         <li class="breadcrumb-item active">Agregar</li>
                     </ol>
@@ -37,14 +37,14 @@ if ($_GET['form'] == 'add') {
             </div>
 
             <div class="col-sm-6">
-                <h1><i class="fa fa-edit icon-title"></i> Registrar Nota de Remision</h1>
+                <h1><i class="bi bi-pencil-square me-1"></i> Registrar Nota de Remision</h1>
             </div>
 
             <div class="card">
                 <div class="card-header"><strong>Formulario de Nota de Remision</strong></div>
-                <form id="formNotaR" class="form-horizontal" method="POST" autocomplete="off">
+                <form id="formNotaR" method="POST" autocomplete="off">
                     <div class="card-body">
-                        <div class="form-group row">
+                        <div class="row mb-3 row">
                             <label class="col-md-2 col-form-label">Código</label>
                             <div class="col-md-2">
                                 <input type="text" class="form-control" name="codigo" value="<?= $codigo ?>" readonly>
@@ -56,7 +56,7 @@ if ($_GET['form'] == 'add') {
                             </div>
                         </div>
                         <br>
-                        <div class="form-group row">
+                        <div class="row mb-3 row">
                             <label class="col-md-2 col-form-label">Nro. Nota</label>
                             <div class="col-md-2">
                                 <input type="text" class="form-control" name="nro_nota" id="nro_nota" maxlength="15"
@@ -68,10 +68,10 @@ if ($_GET['form'] == 'add') {
                             </div>
                         </div>
                         <br>
-                        <div class="form-group row">
+                        <div class="row mb-3 row">
                             <label class="col-md-2 col-form-label">Tipo de traslado</label>
                             <div class="col-md-2">
-                                <select class="form-control" name="tipo_traslado" required>
+                                <select class="form-select" name="tipo_traslado" required>
                                     <option value="" disabled selected>Seleccionar Tipo Traslado</option>
                                     <option value="POR COMPRA">-- Por compra --</option>
                                     <option value="por DEVOLUCION">-- Por Devolucion --</option>
@@ -79,7 +79,7 @@ if ($_GET['form'] == 'add') {
                             </div>
                             <label class="col-md-2 col-form-label">Motivo de Traslado</label>
                             <div class="col-md-2">
-                                <select class="form-control" name="motivo_traslado" required>
+                                <select class="form-select" name="motivo_traslado" required>
                                     <option value="" disabled selected>Seleccionar Motivo del Traslado</option>
                                     <option value="PROVEEDOR">-- Entrega de Proveedor --</option>
                                     <option value="ENVIO SUCURSALES">-- Envio a Sucursales --</option>
@@ -88,7 +88,7 @@ if ($_GET['form'] == 'add') {
                         </div>
 
                         <br>
-                        <div class="form-group row">
+                        <div class="row mb-3 row">
                             <label class="col-md-2 col-form-label">Proveedor</label>
                             <div class="col-md-2">
                                 <input type="text" class="form-control" name="proveedor" value="" readonly>
@@ -100,7 +100,7 @@ if ($_GET['form'] == 'add') {
                             </div>
                         </div>
                         <br>
-                        <div class="form-group row">
+                        <div class="row mb-3 row">
                             <label class="col-md-2 col-form-label">Nombre del Conductor o Empresa</label>
                             <div class="col-md-2">
                                 <input type="text" class="form-control" name="conductor_empre" value="" required>
@@ -124,12 +124,12 @@ if ($_GET['form'] == 'add') {
                         <input type="hidden" id="estado_notaR" name="estado" value="<?= $estado ?>">
 
                         <!-- Botón agregar ordenes de compra -->
-                        <div class="form-group">
+                        <div class="row mb-3">
                             <div class="col-md-10">
                                 <?php if ($estado == 'BORRADOR') { ?>
-                                    <button type="button" class="btn btn-info" data-coreui-toggle="modal"
-                                        data-coreui-target="#myModal">
-                                        <i class="fa fa-plus"></i> Seleccionar Registro de Compra
+                                    <button type="button" class="btn btn-info" data-bs-toggle="modal"
+                                        data-bs-target="#myModal">
+                                        <i class="bi bi-plus-lg"></i> Seleccionar Registro de Compra
                                     </button>
                                 <?php } ?>
                             </div>
@@ -147,13 +147,13 @@ if ($_GET['form'] == 'add') {
                     <div class="card-footer">
                         <div class="btn-group" role="group">
                             <button type="button" class="btn btn-primary" id="btnGuardar">
-                                <i class="fas fa-save"></i> Guardar
+                                <i class="bi bi-save"></i> Guardar
                             </button>
                             <button type="button" class="btn btn-danger" id="btnAnular" disabled>
-                                <i class="fas fa-times"></i> Anular
+                                <i class="bi bi-x-lg"></i> Anular
                             </button>
                             <a href="?module=nota_remision" class="btn btn-secondary">
-                                <i class="fas fa-arrow-left"></i> Salir
+                                <i class="bi bi-arrow-left"></i> Salir
                             </a>
                         </div>
                     </div>
@@ -204,7 +204,7 @@ if ($_GET['form'] == 'detalle') {
             <div class="row mb-2">
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="?module=start"><i class="cil-home"></i> Inicio</a></li>
+                        <li class="breadcrumb-item"><a href="?module=start"><i class="bi bi-house-door"></i> Inicio</a></li>
                         <li class="breadcrumb-item"><a href="?module=nota_remision">Nota Remision</a></li>
                         <li class="breadcrumb-item active">Detalle de Nota de Remision</li>
                     </ol>
@@ -212,14 +212,14 @@ if ($_GET['form'] == 'detalle') {
             </div>
 
             <div class="col-sm-6">
-                <h1><i class="fa fa-edit icon-title"></i> Detalle de la Nota de Remision</h1>
+                <h1><i class="bi bi-pencil-square me-1"></i> Detalle de la Nota de Remision</h1>
             </div>
 
             <div class="card">
                 <div class="card-header"><strong>Datos de la Nota de Remision</strong></div>
-                <form class="form-horizontal" method="POST" autocomplete="off">
+                <form method="POST" autocomplete="off">
                     <div class="card-body">
-                        <div class="form-group row">
+                        <div class="row mb-3 row">
                             <label class="col-md-2 col-form-label">Código</label>
                             <div class="col-md-2">
                                 <input type="text" class="form-control" name="codigo" value="<?= $codigo ?>" readonly>
@@ -231,7 +231,7 @@ if ($_GET['form'] == 'detalle') {
                             </div>
                         </div>
                         <br>
-                        <div class="form-group row">
+                        <div class="row mb-3 row">
                             <label class="col-md-2 col-form-label">Nro. Nota</label>
                             <div class="col-md-2">
                                 <input type="text" class="form-control" id="nro_nota" value="<?= $nro_nota ?>" readonly>
@@ -242,7 +242,7 @@ if ($_GET['form'] == 'detalle') {
                             </div>
                         </div>
                         <br>
-                        <div class="form-group row">
+                        <div class="row mb-3 row">
                             <label class="col-md-2 col-form-label">Tipo de traslado</label>
                             <div class="col-md-2">
                                 <input type="text" class="form-control" value="<?= $tipo_tras ?>" readonly>
@@ -254,7 +254,7 @@ if ($_GET['form'] == 'detalle') {
                         </div>
 
                         <br>
-                        <div class="form-group row">
+                        <div class="row mb-3 row">
                             <label class="col-md-2 col-form-label">Proveedor</label>
                             <div class="col-md-2">
                                 <input type="text" class="form-control" value="<?= $razon_social ?>" readonly>
@@ -265,7 +265,7 @@ if ($_GET['form'] == 'detalle') {
                             </div>
                         </div>
                         <br>
-                        <div class="form-group row">
+                        <div class="row mb-3 row">
                             <label class="col-md-2 col-form-label">Nombre del Conductor o Empresa</label>
                             <div class="col-md-2">
                                 <input type="text" class="form-control" value="<?= $nom_trans ?>" readonly>
@@ -322,13 +322,13 @@ if ($_GET['form'] == 'detalle') {
                     <div class="card-footer">
                         <div class="btn-group" role="group">
                             <button type="button" class="btn btn-primary" id="btnGuardar">
-                                <i class="fas fa-save"></i> Guardar
+                                <i class="bi bi-save"></i> Guardar
                             </button>
                             <button type="button" class="btn btn-danger" id="btnAnular" disabled>
-                                <i class="fas fa-times"></i> Anular
+                                <i class="bi bi-x-lg"></i> Anular
                             </button>
                             <a href="?module=nota_remision" class="btn btn-secondary">
-                                <i class="fas fa-arrow-left"></i> Salir
+                                <i class="bi bi-arrow-left"></i> Salir
                             </a>
                         </div>
                     </div>
@@ -346,7 +346,7 @@ if ($_GET['form'] == 'detalle') {
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="myModallabel">Buscar Compras</h5>
-                <button type="button" class="btn-close" data-coreui-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form>
@@ -356,7 +356,7 @@ if ($_GET['form'] == 'detalle') {
                         </div>
                         <div class="col-md-3">
                             <button type="button" class="btn btn-primary" onclick="load(1, true)">
-                                <i class="cil-search"></i> Buscar
+                                <i class="bi bi-search"></i> Buscar
                             </button>
                         </div>
                     </div>
@@ -367,7 +367,7 @@ if ($_GET['form'] == 'detalle') {
                 <div class="outer_div"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-coreui-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>
@@ -375,13 +375,9 @@ if ($_GET['form'] == 'detalle') {
 
 
 <!-- jQuery -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
-<!-- CoreUI JS -->
-<script src="https://cdn.jsdelivr.net/npm/@coreui/coreui@4.2.2/dist/js/coreui.bundle.min.js"></script>
 
 <!-- Select2 (opcional) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 <script>
     var productos = [];
     var cod_compra = null;
@@ -463,20 +459,20 @@ if ($_GET['form'] == 'detalle') {
 
 
             // Cerrar modal de forma segura después de cargar datos
-            cerrarModalCoreUI();
+            cerrarModal();
         }, "html");
     }
 
-    function cerrarModalCoreUI() {
+    function cerrarModal() {
         let modalEl = document.getElementById('myModal');
-        let modal = coreui.Modal.getInstance(modalEl) || new coreui.Modal(modalEl);
+        let modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
 
         // Escuchar evento hidden para limpiar backdrop y scroll
-        modalEl.addEventListener('hidden.coreui.modal', function handler() {
+        modalEl.addEventListener('hidden.bs.modal', function handler() {
             $('.modal-backdrop').remove();
             $('body').removeClass('modal-open').css('overflow', '');
             // Eliminar listener para no repetirlo
-            modalEl.removeEventListener('hidden.coreui.modal', handler);
+            modalEl.removeEventListener('hidden.bs.modal', handler);
         });
 
         // Cerrar el modal usando la API oficial
@@ -517,7 +513,7 @@ if ($_GET['form'] == 'detalle') {
         });
     }
 
-    $('#myModal').on('shown.coreui.modal', function () {
+    $('#myModal').on('shown.bs.modal', function () {
         $('#x').val('');
         load(1, false);
         $('#x').focus();

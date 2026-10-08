@@ -13,7 +13,7 @@ $count = mysqli_num_rows($query);
 <head>
     <meta charset="UTF-8">
     <title>Reporte de clientes</title>
-    <link rel="stylesheet" type="txt/css" href="../../assets/img/favicon.ico">
+    <link rel="stylesheet" type="txt/css" href="../../images/favicon.ico">
 </head>
 
 <body>

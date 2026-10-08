@@ -1,25 +1,25 @@
 <?php
 if ($_GET['form'] == 'add') { ?>
-  <section class="content-header">
+  <section class="app-content-header">
     <h1>
-      <i class="fa fa-edit icon-title">Agregar Departamento</i>
+      <i class="bi bi-pencil-square me-1"></i> Agregar Departamento
     </h1>
     <nav aria-label="breadcrumb">
       <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="?module=start"><i class="cil-home"></i>Inicio</a></li>
+        <li class="breadcrumb-item"><a href="?module=start"><i class="bi bi-house-door"></i>Inicio</a></li>
         <li class="breadcrumb-item active" aria-current="page"><a href="?module=departamento">Departamentos</a></li>
         <li class="breadcrumb-item"><a>Agregar</a></li>
       </ol>
     </nav>
   </section>
 
-  <section class="content">
+  <section class="app-content">
     <div class="row">
       <div class="col-md-12">
         <div class="card">
           <div class="card-body">
-            <form role="form" class="form-horizontal" action="modules/departamento/proses.php?act=insert" method="POST">
-              <div class="form-group">
+            <form role="form" action="modules/departamento/proses.php?act=insert" method="POST">
+              <div class="row mb-3">
                 <?php
                 //metodo para generar codigo
                 $query_id = mysqli_query($mysqli, "SELECT MAX(id_departamento) as id FROM departamento")
@@ -32,15 +32,15 @@ if ($_GET['form'] == 'add') { ?>
                   $codigo = 1;
                 }
                 ?>
-                <div class="form-group">
-                  <label class="col-sm-2 control-label">Codigo</label>
+                <div class="row mb-3">
+                  <label class="col-sm-2 col-form-label">Codigo</label>
                   <div class="col-sm-5">
                     <input type="text" class="form-control" name="codigo" value="<?php echo $codigo; ?>" readonly>
                   </div>
                 </div>
 
-                <div class="form-group">
-                  <label class="col-sm-2 control-label">Descripcion</label>
+                <div class="row mb-3">
+                  <label class="col-sm-2 col-form-label">Descripcion</label>
                   <div class="col-sm-5">
                     <input type="text" class="form-control" name="dep_descripcion" pleaceholder="Ingresa un departamento"
                       required>
@@ -48,11 +48,11 @@ if ($_GET['form'] == 'add') { ?>
                 </div>
                 <br>
 
-                <div class="box-footer">
-                  <div class="form-group">
-                    <div class="col-sm-offset-2 col-sm-10">
-                      <input type="submit" class="btn btn-primary btn-submit" name="Guardar" value="Guardar">
-                      <a href="?module=departamento" class="btn btn-default btn-reset">Cancelar</a>
+                <div class="mt-3">
+                  <div class="row mb-3">
+                    <div class="offset-sm-2 col-sm-10">
+                      <input type="submit" class="btn btn-primary" name="Guardar" value="Guardar">
+                      <a href="?module=departamento" class="btn btn-secondary">Cancelar</a>
                     </div>
                   </div>
 
@@ -71,13 +71,13 @@ if ($_GET['form'] == 'add') { ?>
       or die('Error' . mysqli_error($mysqli));
     $data = mysqli_fetch_assoc($query);
   } ?>
-  <section class="content-header">
+  <section class="app-content-header">
     <h1>
-      <i class="fa fa-edit icon-title">Modificar Departamento</i>
+      <i class="bi bi-pencil-square me-1"></i> Modificar Departamento
     </h1>
     <nav aria-label="breadcrumb">
       <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="?module=start"><i class="cil-home"></i>Inicio</a></li>
+        <li class="breadcrumb-item"><a href="?module=start"><i class="bi bi-house-door"></i>Inicio</a></li>
         <li class="breadcrumb-item active" aria-current="page"><a href="?module=departamento">Departamentos</a></li>
         <li class="breadcrumb-item"><a>Modificar</a></li>
       </ol>
@@ -85,26 +85,26 @@ if ($_GET['form'] == 'add') { ?>
   </section>
 
 
-  <section class="content">
+  <section class="app-content">
     <div class="row">
       <div class="col-md-12">
-        <div class="box box-primary">
-          <form role="form" class="form-horizontal" action="modules/departamento/proses.php?act=update" method="POST">
-            <div class="box-body">
+        <div class="card card-primary">
+          <form role="form" action="modules/departamento/proses.php?act=update" method="POST">
+            <div class="card-body">
               <?php
               //metodo para generar codigo
             
               ?>
-              <div class="form-group">
-                <label class="col-sm-2 control-label">Codigo</label>
+              <div class="row mb-3">
+                <label class="col-sm-2 col-form-label">Codigo</label>
                 <div class="col-sm-5">
                   <input type="text" class="form-control" name="codigo" value="<?php echo $data['id_departamento']; ?>"
                     readonly>
                 </div>
               </div>
 
-              <div class="form-group">
-                <label class="col-sm-2 control-label">Descripcion</label>
+              <div class="row mb-3">
+                <label class="col-sm-2 col-form-label">Descripcion</label>
                 <div class="col-sm-5">
                   <input type="text" class="form-control" name="dep_descripcion"
                     value="<?php echo $data['dep_descripcion']; ?>" required>
@@ -112,11 +112,11 @@ if ($_GET['form'] == 'add') { ?>
               </div>
               <br>
 
-              <div class="box-footer">
-                <div class="form-group">
-                  <div class="col-sm-offset-2 col-sm-10">
-                    <input type="submit" class="btn btn-primary btn-submit" name="Guardar" value="Guardar">
-                    <a href="?module=departamento" class="btn btn-default btn-reset">Cancelar</a>
+              <div class="mt-3">
+                <div class="row mb-3">
+                  <div class="offset-sm-2 col-sm-10">
+                    <input type="submit" class="btn btn-primary" name="Guardar" value="Guardar">
+                    <a href="?module=departamento" class="btn btn-secondary">Cancelar</a>
                   </div>
                 </div>
 

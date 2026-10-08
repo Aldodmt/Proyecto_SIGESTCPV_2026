@@ -1,13 +1,13 @@
-<section class="content-header">
+<section class="app-content-header">
     <h1 class="d-flex align-items-center">
-        <i class="cil-user me-2"></i> Gestión de usuarios
-        <a class="btn btn-primary btn-sm ms-auto" href="?module=form_user&form=add" title="Agregar" data-toggle="tooltip">
-            <i class="cil-plus"></i> Agregar
+        <i class="bi bi-person me-2"></i> Gestión de usuarios
+        <a class="btn btn-primary btn-sm ms-auto" href="?module=form_user&form=add" title="Agregar" data-bs-toggle="tooltip">
+            <i class="bi bi-plus-lg"></i> Agregar
         </a>
     </h1>
 </section>
 
-<section class="content">
+<section class="app-content">
     <div class="row">
         <div class="col-md-12">
             <!-- Mensajes de alerta -->
@@ -59,10 +59,10 @@
                                     $foto = $data['foto'] ? "images/user/{$data['foto']}" : "images/user/user-default.png";
                                     $statusBtn = $data['status'] === 'activo' 
                                         ? "<a class='btn btn-warning btn-sm me-2' href='modules/user/process.php?act=off&id={$data['id_user']}' title='Bloquear' data-bs-toggle='tooltip'>
-                                            <i class='cil-ban'></i>
+                                            <i class='bi bi-slash-circle'></i>
                                            </a>"
                                         : "<a class='btn btn-success btn-sm me-2' href='modules/user/process.php?act=on&id={$data['id_user']}' title='Activar' data-bs-toggle='tooltip'>
-                                            <i class='cil-check'></i>
+                                            <i class='bi bi-check-lg'></i>
                                            </a>";
                                     echo "
                                         <tr>
@@ -76,7 +76,7 @@
                                                 <div class='d-flex justify-content-center'>
                                                     {$statusBtn}
                                                     <a class='btn btn-primary btn-sm' href='?module=form_user&form=edit&id={$data['id_user']}' title='Editar' data-bs-toggle='tooltip'>
-                                                        <i class='cil-pencil'></i>
+                                                        <i class='bi bi-pencil-square'></i>
                                                     </a>
                                                 </div>
                                             </td>

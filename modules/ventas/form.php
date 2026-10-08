@@ -5,18 +5,18 @@ if ($_GET['form'] == 'add') { ?>
             <div class="row mb-2">
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="?module=start"><i class="cil-home"></i> Inicio</a></li>
+                        <li class="breadcrumb-item"><a href="?module=start"><i class="bi bi-house-door"></i> Inicio</a></li>
                         <li class="breadcrumb-item"><a href="?module=ventas">Ventas</a></li>
                         <li class="breadcrumb-item active">Agregar</li>
                     </ol>
                 </div>
             </div>
             <div class="col-sm-6">
-                <h1><i class="fa fa-edit icon-title"></i> Agregar Venta</h1>
+                <h1><i class="bi bi-pencil-square me-1"></i> Agregar Venta</h1>
             </div>
             <div class="card">
                 <div class="card-header"><strong>Formulario de Ventas</strong></div>
-                <form action="modules/ventas/proses.php?act=insert" method="POST" class="form-horizontal"
+                <form action="modules/ventas/proses.php?act=insert" method="POST"
                     id="formPresupuesto">
                     <div class="card-body">
                         <?php
@@ -26,7 +26,7 @@ if ($_GET['form'] == 'add') { ?>
                         $data_id = mysqli_fetch_assoc($query_id);
                         $codigo = $data_id['id'] + 1 ?? 1;
                         ?>
-                        <div class="form-group row">
+                        <div class="row mb-3 row">
                             <label class="col-md-2 col-form-label">Código</label>
                             <div class="col-md-2">
                                 <input type="text" class="form-control" name="codigo" value="<?php echo $codigo; ?>"
@@ -46,10 +46,10 @@ if ($_GET['form'] == 'add') { ?>
                         <br>
 
 
-                        <div class="form-group row">
+                        <div class="row mb-3 row">
                             <label class="col-md-2 col-form-label">Cliente</label>
                             <div class="col-md-4">
-                                <select class="form-control" name="codigo_cliente" required>
+                                <select class="form-select" name="codigo_cliente" required>
                                     <option value="" disabled selected>-- Seleccionar Cliente --</option>
                                     <?php
                                     $query_prove = mysqli_query($mysqli, "SELECT id_cliente, cli_nombre, cli_apellido FROM clientes ORDER BY id_cliente ASC")
@@ -81,10 +81,10 @@ if ($_GET['form'] == 'add') { ?>
 
                         </div>
                         <br>
-                        <div class="form-group row">
+                        <div class="row mb-3 row">
                             <label class="col-md-2 col-form-label">Deposito</label>
                             <div class="col-md-4">
-                                <select class="form-control" name="codigo_deposito" required>
+                                <select class="form-select" name="codigo_deposito" required>
                                     <option value="" disabled selected>-- Seleccionar Depósito --</option>
                                     <?php
                                     $query_dep = mysqli_query($mysqli, "SELECT cod_deposito, descrip FROM deposito ORDER BY descrip ASC")
@@ -117,12 +117,12 @@ if ($_GET['form'] == 'add') { ?>
                                     readonly>
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="row mb-3">
                             <label class="col-md-2 col-form-label">Productos</label>
                             <div class="col-md-10">
-                                <button type="button" class="btn btn-info" data-coreui-toggle="modal"
-                                    data-coreui-target="#myModal">
-                                    <i class="fa fa-plus"></i> Buscar Productos
+                                <button type="button" class="btn btn-info" data-bs-toggle="modal"
+                                    data-bs-target="#myModal">
+                                    <i class="bi bi-plus-lg"></i> Buscar Productos
                                 </button>
                             </div>
                         </div>
@@ -139,9 +139,6 @@ if ($_GET['form'] == 'add') { ?>
     </div>
 <?php } ?>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
 
 <script>
     $(document).ready(function () {
@@ -214,7 +211,7 @@ if ($_GET['form'] == 'add') { ?>
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="myModallabel">Buscar Productos</h5>
-                <button type="button" class="btn-close" data-coreui-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form>
@@ -225,7 +222,7 @@ if ($_GET['form'] == 'add') { ?>
                         </div>
                         <div class="col-md-6">
                             <button type="button" class="btn btn-primary" onclick="load(1)">
-                                <i class="cil-search"></i> Buscar
+                                <i class="bi bi-search"></i> Buscar
                             </button>
                         </div>
                     </div>
@@ -236,7 +233,7 @@ if ($_GET['form'] == 'add') { ?>
                 <div class="outer_div"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-coreui-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>

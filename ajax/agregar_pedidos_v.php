@@ -69,7 +69,7 @@ if (isset($_GET['id'])) {
             <td><?php echo $precio_total_f; ?></td>
             <td class="text-center">
                 <button class="btn btn-danger btn-sm" onclick="eliminar(<?php echo $id_tmp; ?>)">
-                    <i class="cil-trash"></i>
+                    <i class="bi bi-trash"></i>
                 </button>
             </td>
         </tr>
@@ -88,7 +88,7 @@ if (isset($_GET['id'])) {
             $cantidad;
         } ?>
         <input type="hidden" class="form-control" name="cantidad" value="<?php echo $cantidad; ?>">
-        <td colspan=4><span class="pull-right">Total Gs.</span></td>
-        <td><strong><span class="pull-right"><?php echo number_format($total); ?></span></strong></td>
+        <td colspan=4><span class="float-end">Total Gs.</span></td>
+        <td><strong><span class="float-end"><?php echo number_format($total); ?></span></strong></td>
     </tr>
 </table>

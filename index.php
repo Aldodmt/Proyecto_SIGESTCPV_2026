@@ -6,91 +6,55 @@ $alerta = null;
 if (!empty($_GET['alert'])) {
     $alerta = auth_mensaje((int) $_GET['alert'], (int) ($_GET['left'] ?? 0));
 }
-$iconos = ['success' => 'cil-check-circle', 'danger' => 'cil-x-circle', 'warning' => 'cil-warning'];
-?><!DOCTYPE html>
-<html lang="es">
+$iconos = ['success' => 'bi-check-circle', 'danger' => 'bi-x-circle', 'warning' => 'bi-exclamation-triangle'];
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=yes">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="description" content="Sysweb">
-    <meta name="author" content="Aldo Torres">
-
-    <link rel="shortcut icon" href="images/favicon.ico" />
-    <title>Sysweb - Login</title>
-
-    <!-- CoreUI CSS -->
-    <link href="dist/css/coreui.min.css" rel="stylesheet">
-    <link href="dist/css/themes/bootstrap/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/@coreui/icons/css/all.min.css">
-
-</head>
-
-<body class="app flex-row align-items-center">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-4">
-                <div class="text-center mb-4">
-                    <img src="images/favicon.ico" alt="Sysweb" height="50">
-                    <h1 style="color: #3c8dbc;">Sysweb</h1>
-                </div>
+$base = '';
+$authTitle = 'Iniciar sesión';
+require 'layout/auth_head.php';
+?>
+                <p class="login-box-msg">Por favor, inicie sesión</p>
 
                 <!-- Mensajes (aria-live para lectores de pantalla) -->
                 <div id="mensaje" aria-live="polite">
                     <?php if ($alerta): ?>
                         <div class="alert alert-<?= $alerta[0] ?>" role="alert">
-                            <i class="<?= $iconos[$alerta[0]] ?? 'cil-warning' ?>"></i> <?= htmlspecialchars($alerta[1]) ?>
+                            <i class="bi <?= $iconos[$alerta[0]] ?? 'bi-exclamation-triangle' ?>"></i> <?= htmlspecialchars($alerta[1]) ?>
                         </div>
                     <?php endif; ?>
                 </div>
 
-                <!-- Login Form -->
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title text-center mb-3">
-                            <i class="cil-user"></i> Por favor, inicie sesión
-                        </h5>
-                        <form id="formLogin" action="login-check.php" method="POST" novalidate>
-                            <div class="mb-3">
-                                <label for="username" class="form-label">Usuario</label>
-                                <input type="text" class="form-control" id="username" name="username"
-                                    placeholder="Usuario" maxlength="150" autocomplete="username" autofocus required>
-                                <div class="invalid-feedback" id="errUsername"></div>
-                            </div>
-                            <div class="mb-3">
-                                <label for="password" class="form-label">Contraseña</label>
-                                <div class="input-group has-validation">
-                                    <input type="password" class="form-control" id="password" name="password"
-                                        placeholder="Contraseña" maxlength="128" autocomplete="current-password"
-                                        required>
-                                    <button class="btn btn-outline-secondary" type="button" id="verPassword"
-                                        aria-label="Mostrar u ocultar contraseña" aria-pressed="false">
-                                        <i class="cil-low-vision" id="iconoVer"></i>
-                                    </button>
-                                    <div class="invalid-feedback" id="errPassword"></div>
-                                </div>
-                                <div class="form-text text-warning d-none" id="avisoMayusculas">
-                                    <i class="cil-warning"></i> Tienes las mayúsculas activadas.
-                                </div>
-                            </div>
-                            <button type="submit" class="btn btn-primary w-100" id="btnIngresar">
-                                <span class="spinner-border spinner-border-sm d-none" id="spinner" role="status"
-                                    aria-hidden="true"></span>
-                                <span id="textoBtn">Ingresar</span>
-                            </button>
-                            <hr>
-                            <a href="modules/recuperar/recuperar.php">¿Olvidaste tu contraseña?</a>
-                        </form>
+                <form id="formLogin" action="login-check.php" method="POST" novalidate>
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Usuario</label>
+                        <input type="text" class="form-control" id="username" name="username" placeholder="Usuario"
+                            maxlength="150" autocomplete="username" autofocus required>
+                        <div class="invalid-feedback" id="errUsername"></div>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- CoreUI JS -->
-    <script src="dist/js/coreui.min.js"></script>
-    <script src="dist/js/bootstrap.min.js"></script>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Contraseña</label>
+                        <div class="input-group has-validation">
+                            <input type="password" class="form-control" id="password" name="password"
+                                placeholder="Contraseña" maxlength="128" autocomplete="current-password" required>
+                            <button class="btn btn-outline-secondary" type="button" id="verPassword"
+                                aria-label="Mostrar u ocultar contraseña" aria-pressed="false">
+                                <i class="bi bi-eye-slash" id="iconoVer"></i>
+                            </button>
+                            <div class="invalid-feedback" id="errPassword"></div>
+                        </div>
+                        <div class="form-text text-warning d-none" id="avisoMayusculas">
+                            <i class="bi bi-exclamation-triangle"></i> Tienes las mayúsculas activadas.
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100" id="btnIngresar">
+                        <span class="spinner-border spinner-border-sm d-none" id="spinner" role="status"
+                            aria-hidden="true"></span>
+                        <span id="textoBtn">Ingresar</span>
+                    </button>
+                </form>
+                <p class="mb-0 mt-3">
+                    <a href="modules/recuperar/recuperar.php">¿Olvidaste tu contraseña?</a>
+                </p>
+<?php require 'layout/auth_foot.php'; ?>
     <script>
         (function () {
             const form = document.getElementById('formLogin');
@@ -100,7 +64,7 @@ $iconos = ['success' => 'cil-check-circle', 'danger' => 'cil-x-circle', 'warning
             const spinner = document.getElementById('spinner');
             const textoBtn = document.getElementById('textoBtn');
             const caja = document.getElementById('mensaje');
-            const iconos = { success: 'cil-check-circle', danger: 'cil-x-circle', warning: 'cil-warning' };
+            const iconos = { success: 'bi-check-circle', danger: 'bi-x-circle', warning: 'bi-exclamation-triangle' };
 
             function mostrar(nivel, texto) {
                 caja.innerHTML = '';
@@ -108,7 +72,7 @@ $iconos = ['success' => 'cil-check-circle', 'danger' => 'cil-x-circle', 'warning
                 d.className = 'alert alert-' + nivel;
                 d.setAttribute('role', 'alert');
                 const i = document.createElement('i');
-                i.className = iconos[nivel] || 'cil-warning';
+                i.className = 'bi ' + (iconos[nivel] || 'bi-exclamation-triangle');
                 d.append(i, ' ' + texto);
                 caja.appendChild(d);
             }
@@ -134,7 +98,7 @@ $iconos = ['success' => 'cil-check-circle', 'danger' => 'cil-x-circle', 'warning
                 const oculto = pass.type === 'password';
                 pass.type = oculto ? 'text' : 'password';
                 this.setAttribute('aria-pressed', oculto ? 'true' : 'false');
-                document.getElementById('iconoVer').className = oculto ? 'cil-eye' : 'cil-low-vision';
+                document.getElementById('iconoVer').className = oculto ? 'bi bi-eye' : 'bi bi-eye-slash';
             });
 
             // Aviso de bloqueo de mayúsculas

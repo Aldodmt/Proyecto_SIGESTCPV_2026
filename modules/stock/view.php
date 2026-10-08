@@ -2,7 +2,7 @@
     <div class="row mb-3">
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
-                <a href="?module=start"><i class="cil-home"></i> Inicio</a>
+                <a href="?module=start"><i class="bi bi-house-door"></i> Inicio</a>
             </li>
             <li class="breadcrumb-item">
                 <a>Stock</a>
@@ -13,15 +13,12 @@
     <div class="row">
         <div class="col">
             <h1 class="display-6">
-                <i class="cil-folder"></i> Stock de productos
+                <i class="bi bi-folder"></i> Stock de productos
             </h1>
             <hr>
         </div>
     </div>
 </section>
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <div class="card">
     <div class="card-body">
         <h2>Lista del stock de productos</h2>
@@ -76,7 +73,4 @@
         });
     });
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </section>

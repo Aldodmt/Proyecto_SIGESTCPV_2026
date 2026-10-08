@@ -38,18 +38,18 @@ if ($_GET['form'] == 'add') {
             <div class="row mb-2">
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="?module=start"><i class="cil-home"></i> Inicio</a></li>
+                        <li class="breadcrumb-item"><a href="?module=start"><i class="bi bi-house-door"></i> Inicio</a></li>
                         <li class="breadcrumb-item"><a href="?module=pedido">Pedidos</a></li>
                         <li class="breadcrumb-item active">Agregar</li>
                     </ol>
                 </div>
             </div>
             <div class="col-sm-6">
-                <h1><i class="fa fa-edit icon-title"></i> Agregar Pedido</h1>
+                <h1><i class="bi bi-pencil-square me-1"></i> Agregar Pedido</h1>
             </div>
             <div class="card">
                 <div class="card-header"><strong>Formulario de Pedidos</strong></div>
-                <form class="form-horizontal" method="POST" autocomplete="off">
+                <form method="POST" autocomplete="off">
                     <div class="card-body">
                         <!--<?php
                         // Generar código único
@@ -58,7 +58,7 @@ if ($_GET['form'] == 'add') {
                         $data_id = mysqli_fetch_assoc($query_id);
                         $codigo = $data_id['id'] + 1 ?? 1;*/
                         ?>-->
-                        <div class="form-group row">
+                        <div class="row mb-3 row">
                             <label class="col-md-2 col-form-label">Código</label>
                             <div class="col-md-2">
                                 <input type="text" class="form-control" name="codigo" value="<?php echo $codigo; ?>"
@@ -83,13 +83,13 @@ if ($_GET['form'] == 'add') {
                         <input type="hidden" id="estado_pedido" name="estado" value="BORRADOR">
                         <br>
                         <!-- Botón Agregar Productos -->
-                        <div class="form-group">
+                        <div class="row mb-3">
                             <label class="col-md-2 col-form-label">Producto</label>
                             <div class="col-md-10">
                                 <?php if ($estado !== 'CONFIRMADO' && $estado !== 'ANULADO' && $estado !== 'PENDIENTE') { ?>
-                                    <button type="button" class="btn btn-info" data-coreui-toggle="modal"
-                                        data-coreui-target="#myModal">
-                                        <i class="fa fa-plus"></i> Agregar Productos
+                                    <button type="button" class="btn btn-info" data-bs-toggle="modal"
+                                        data-bs-target="#myModal">
+                                        <i class="bi bi-plus-lg"></i> Agregar Productos
                                     </button>
                                 <?php } ?>
                             </div>
@@ -137,25 +137,24 @@ if ($_GET['form'] == 'add') {
                     <div class="card-footer">
                         <div class="btn-group" role="group">
                             <button type="button" class="btn btn-primary" id="btnGuardar">
-                                <i class="fas fa-save"></i> Guardar
+                                <i class="bi bi-save"></i> Guardar
                             </button>
                             <button type="button" class="btn btn-primary" id="btnConfirmar" disabled>
-                                <i class="fas fa-check"></i> Confirmar
+                                <i class="bi bi-check-lg"></i> Confirmar
                             </button>
                             <button type="button" class="btn btn-primary" id="btnModificar" disabled>
-                                <i class="fas fa-edit"></i> Modificar
+                                <i class="bi bi-pencil-square"></i> Modificar
                             </button>
                             <button type="button" class="btn btn-danger" id="btnAnular" disabled>
-                                <i class="fas fa-times"></i> Anular
+                                <i class="bi bi-x-lg"></i> Anular
                             </button>
                             <a href="?module=pedido" class="btn btn-secondary" id="btnSalir">
-                                <i class="fas fa-arrow-left"></i> Salir
+                                <i class="bi bi-arrow-left"></i> Salir
                             </a>
                         </div>
                     </div>
                 </form>
-                <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-            </div>
+                            </div>
         </div>
     </div>
 <?php }
@@ -182,20 +181,20 @@ if ($_GET['form'] == 'detalle') {
             <div class="row mb-2">
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="?module=start"><i class="cil-home"></i> Inicio</a></li>
+                        <li class="breadcrumb-item"><a href="?module=start"><i class="bi bi-house-door"></i> Inicio</a></li>
                         <li class="breadcrumb-item"><a href="?module=pedido">Pedidos</a></li>
                         <li class="breadcrumb-item active">Detalles del Pedido</li>
                     </ol>
                 </div>
             </div>
             <div class="col-sm-6">
-                <h1><i class="fa fa-edit icon-title"></i> Detalles del Pedido</h1>
+                <h1><i class="bi bi-pencil-square me-1"></i> Detalles del Pedido</h1>
             </div>
             <div class="card">
                 <div class="card-header"><strong>Formulario de Pedidos</strong></div>
-                <form id="formPedido" class="form-horizontal" method="POST" autocomplete="off">
+                <form id="formPedido" method="POST" autocomplete="off">
                     <div class="card-body">
-                        <div class="form-group row">
+                        <div class="row mb-3 row">
                             <label class="col-md-2 col-form-label">Código</label>
                             <div class="col-md-2">
                                 <input type="text" class="form-control" name="codigo" value="<?= $codigo ?>" readonly>
@@ -218,13 +217,13 @@ if ($_GET['form'] == 'detalle') {
 
                         <br>
                         <!-- Tabla de productos -->
-                        <div class="form-group">
+                        <div class="row mb-3">
                             <label class="col-md-2 col-form-label">Producto</label>
                             <div class="col-md-10">
                                 <?php if ($estado !== 'CONFIRMADO' && $estado !== 'ANULADO' && $estado !== 'PENDIENTE') { ?>
-                                    <button type="button" class="btn btn-info" data-coreui-toggle="modal"
-                                        data-coreui-target="#myModal">
-                                        <i class="fa fa-plus"></i> Agregar Productos
+                                    <button type="button" class="btn btn-info" data-bs-toggle="modal"
+                                        data-bs-target="#myModal">
+                                        <i class="bi bi-plus-lg"></i> Agregar Productos
                                     </button>
                                 <?php } ?>
                             </div>
@@ -276,33 +275,29 @@ if ($_GET['form'] == 'detalle') {
                     <div class="card-footer">
                         <div class="btn-group" role="group">
                             <button type="button" class="btn btn-primary" id="btnGuardar">
-                                <i class="fas fa-save"></i> Guardar
+                                <i class="bi bi-save"></i> Guardar
                             </button>
                             <button type="button" class="btn btn-primary" id="btnConfirmar" disabled>
-                                <i class="fas fa-check"></i> Confirmar
+                                <i class="bi bi-check-lg"></i> Confirmar
                             </button>
                             <button type="button" class="btn btn-primary" id="btnModificar" disabled>
-                                <i class="fas fa-edit"></i> Modificar
+                                <i class="bi bi-pencil-square"></i> Modificar
                             </button>
                             <button type="button" class="btn btn-danger" id="btnAnular" disabled>
-                                <i class="fas fa-times"></i> Anular
+                                <i class="bi bi-x-lg"></i> Anular
                             </button>
                             <a href="?module=pedido" class="btn btn-secondary">
-                                <i class="fas fa-arrow-left"></i> Salir
+                                <i class="bi bi-arrow-left"></i> Salir
                             </a>
                         </div>
                     </div>
                 </form>
-                <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-            </div>
+                            </div>
         </div>
     </div>
 <?php } ?>
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
 <!-- Gestión de pedidos -->
 <script>
@@ -567,7 +562,7 @@ if ($_GET['form'] == 'detalle') {
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="myModallabel">Buscar Productos</h5>
-                <button type="button" class="btn-close" data-coreui-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form>
@@ -578,13 +573,13 @@ if ($_GET['form'] == 'detalle') {
                         </div>
                         <div class="col-md-3">
                             <button type="button" class="btn btn-primary" onclick="load(1)">
-                                <i class="cil-search"></i> Buscar
+                                <i class="bi bi-search"></i> Buscar
                             </button>
                         </div>
                         <div class="col-md-3">
-                            <button type="button" class="btn btn-primary" data-coreui-toggle="modal"
-                                data-coreui-target="#modalNuevoProducto">
-                                <i class="fa fa-plus"></i> Añadir Producto Nuevo
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                data-bs-target="#modalNuevoProducto">
+                                <i class="bi bi-plus-lg"></i> Añadir Producto Nuevo
                             </button>
                         </div>
                     </div>
@@ -595,7 +590,7 @@ if ($_GET['form'] == 'detalle') {
                 <div class="outer_div"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-coreui-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>
@@ -608,7 +603,7 @@ if ($_GET['form'] == 'detalle') {
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="modalNuevoProductoLabel">Agregar Nuevo Producto</h5>
-                <button type="button" class="btn-close" data-coreui-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="formNuevoProducto">
@@ -618,7 +613,7 @@ if ($_GET['form'] == 'detalle') {
                     </div>
                     <div class="mb-3">
                         <label for="tipo_producto" class="form-label">Tipo de Producto</label>
-                        <select class="form-control" id="tipo_producto" name="tipo_producto" required>
+                        <select class="form-select" id="tipo_producto" name="tipo_producto" required>
                             <option value="">Seleccione tipo de producto</option>
                             <?php
                             $query_tipo = mysqli_query($mysqli, "SELECT cod_tipo_prod, t_p_descrip FROM tipo_producto ORDER BY t_p_descrip ASC");
@@ -630,7 +625,7 @@ if ($_GET['form'] == 'detalle') {
                     </div>
                     <div class="mb-3">
                         <label for="unidad_medida" class="form-label">Unidad de Medida</label>
-                        <select class="form-control" id="unidad_medida" name="unidad_medida" required>
+                        <select class="form-select" id="unidad_medida" name="unidad_medida" required>
                             <option value="">Seleccione unidad de medida</option>
                             <?php
                             $query_umedida = mysqli_query($mysqli, "SELECT id_u_medida, u_descrip FROM u_medida ORDER BY u_descrip ASC");
@@ -642,7 +637,7 @@ if ($_GET['form'] == 'detalle') {
                     </div>
                     <div class="mb-3">
                         <label for="tipo_impuesto" class="form-label">Tipo de Impuesto</label>
-                        <select class="form-control" id="tipo_impuesto" name="tipo_impuesto" required>
+                        <select class="form-select" id="tipo_impuesto" name="tipo_impuesto" required>
                             <option value="">Seleccione tipo de impuesto</option>
                             <option value="10%">10</option>
                             <option value="5%">5</option>
@@ -653,7 +648,7 @@ if ($_GET['form'] == 'detalle') {
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" onclick="guardarNuevoProducto()">Guardar Producto</button>
-                <button type="button" class="btn btn-secondary" data-coreui-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
             </div>
         </div>
     </div>

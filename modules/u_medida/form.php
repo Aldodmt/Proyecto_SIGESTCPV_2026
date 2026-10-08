@@ -1,11 +1,11 @@
 <?php
 if ($_GET['form'] == 'add') { ?>
-    <section class="content-header">
+    <section class="app-content-header">
         <h1>
-            <i class="cil-pencil icon-title"></i> Agregar unidad de medida
+            <i class="bi bi-pencil-square me-1"></i> Agregar unidad de medida
         </h1>
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="?module=start"><i class="cil-home"></i> Inicio</a></li>
+            <li class="breadcrumb-item"><a href="?module=start"><i class="bi bi-house-door"></i> Inicio</a></li>
             <li class="breadcrumb-item"><a href="?module=u_medida">Unidades de medida</a></li>
             <li class="breadcrumb-item active">Agregar</li>
         </ol>
@@ -15,7 +15,7 @@ if ($_GET['form'] == 'add') { ?>
         <div class="row">
             <div class="col-md-12">
                 <div class="card">
-                    <form role="form" class="form-horizontal" action="modules/u_medida/process.php?act=insert"
+                    <form role="form" action="modules/u_medida/process.php?act=insert"
                         method="POST">
                         <div class="card-body">
                             <?php
@@ -56,22 +56,22 @@ if ($_GET['form'] == 'add') { ?>
         $query = mysqli_query($mysqli, "SELECT *FROM u_medida WHERE id_u_medida = '$_GET[id]'") or die('error' . mysqli_error($mysqli));
         $data = mysqli_fetch_assoc($query);
     } ?>
-    <section class="content-header">
+    <section class="app-content-header">
         <h1>
-            <i class="cil-pencil icon-title"></i> Modificar unidad de medida
+            <i class="bi bi-pencil-square me-1"></i> Modificar unidad de medida
         </h1>
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="?module=start"><i class="cil-home"></i> Inicio</a></li>
+            <li class="breadcrumb-item"><a href="?module=start"><i class="bi bi-house-door"></i> Inicio</a></li>
             <li class="breadcrumb-item"><a href="?module=u_medida">Unidad de medida</a></li>
             <li class="breadcrumb-item active">Modificar</li>
         </ol>
     </section>
 
-    <section class="content">
+    <section class="app-content">
         <div class="row">
             <div class="col-md-12">
                 <div class="card">
-                    <form role="form" class="form-horizontal" action="modules/u_medida/process.php?act=update"
+                    <form role="form" action="modules/u_medida/process.php?act=update"
                         method="POST">
                         <div class="card-body">
                             <div class="mb-3">

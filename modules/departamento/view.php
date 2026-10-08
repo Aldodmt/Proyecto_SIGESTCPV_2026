@@ -1,22 +1,22 @@
-<section class="content-header">
+<section class="app-content-header">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="?module=start"><i class="cil-home"></i>Inicio</a></li>
+            <li class="breadcrumb-item"><a href="?module=start"><i class="bi bi-house-door"></i>Inicio</a></li>
             <li class="breadcrumb-item active" aria-current="page">Departamento</a></li>
         </ol>
     </nav>
     <hr>
     <h1>
-        <i class=" fa fa-folder icon-title"></i>Datos de Departamento
-        <a class="btn btn-primary btn-social pull-right" href="?module=form_departamento&form=add" title="Agregar"
-            data_toggle="tooltip">
-            <i class="fa fa-plus"></i>Agregar
+        <i class="bi bi-folder me-1"></i>Datos de Departamento
+        <a class="btn btn-primary float-end" href="?module=form_departamento&form=add" title="Agregar"
+            data-bs-toggle="tooltip">
+            <i class="bi bi-plus-lg"></i>Agregar
         </a>
     </h1>
 
 </section>
 
-<section class="content">
+<section class="app-content">
     <div class="row">
         <div class="col-md-12">
             <?php
@@ -24,33 +24,33 @@
                 echo "";
             } elseif ($_GET["alert"] == 1) {
                 echo "<div class='alert alert-success alert-dismissible fade show'>
-                    <button type='button' class='btn-close' data-coreui-dismiss='alert' aria-label='Close'>&times;</button>
-                    <h4> <i class='cil-check-circle'></i> Exitoso!</h4>
+                    <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+                    <h4> <i class='bi bi-check-circle'></i> Exitoso!</h4>
                     Datos registrados correctamente
                 </div>";
             } elseif ($_GET["alert"] == 2) {
                 echo "<div class='alert alert-success alert-dismissible fade show'>
-                    <button type='button' class='btn-close' data-coreui-dismiss='alert' aria-label='Close'>&times;</button>
-                    <h4> <i class='cil-check-circle'></i> Exitoso!</h4>
+                    <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+                    <h4> <i class='bi bi-check-circle'></i> Exitoso!</h4>
                     Datos modificados correctamente
                 </div>";
             } elseif ($_GET["alert"] == 3) {
                 echo "<div class='alert alert-success alert-dismissible fade show'>
-                    <button type='button' class='btn-close' data-coreui-dismiss='alert' aria-label='Close'>&times;</button>
-                    <h4> <i class='cil-check-circle'></i> Exitoso!</h4>
+                    <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+                    <h4> <i class='bi bi-check-circle'></i> Exitoso!</h4>
                     Datos eliminados correctamente
                 </div>";
             } elseif ($_GET["alert"] == 4) {
                 echo "<div class='alert alert-danger alert-dismissible fade show'>
-                    <button type='button' class='btn-close' data-coreui-dismiss='alert' aria-label='Close'>&times;</button>
-                    <h4> <i class='cil-x-circle'></i> Error!</h4>
+                    <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+                    <h4> <i class='bi bi-x-circle'></i> Error!</h4>
                     No se pudo realizar la operación
                 </div>";
             }
             ?>
 
-            <div class="box box-primary">
-                <div class="box-body">
+            <div class="card card-primary">
+                <div class="card-body">
                     <table id="dataTables1" class="table table-bordered table-striped table-hover">
                         <h2>Lista de departamentos</h2>
                         <thead>
@@ -76,13 +76,13 @@
                                             <a class='btn btn-primary btn-sm me-2' 
                                                 href='?module=form_departamento&form=edit&id=$id_departamento' 
                                                 title='Modificar datos de Departamento' data-bs-toggle='tooltip'>
-                                                <i class='cil-pencil'></i>
+                                                <i class='bi bi-pencil-square'></i>
                                             </a>
                                             <a class='btn btn-danger btn-sm' 
                                             href='modules/departamento/proses.php?act=delete&id_departamento=$id_departamento' 
                                             title='Eliminar datos' data-bs-toggle='tooltip'
                                             onclick=\"return confirm('¿Estás seguro/a de eliminar " . htmlspecialchars(addslashes($dep_descripcion)) . "?');\">
-                                            <i class='cil-trash'></i>
+                                            <i class='bi bi-trash'></i>
                                             </a>
                                         </td>
                                       </tr>";

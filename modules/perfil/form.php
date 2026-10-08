@@ -6,20 +6,20 @@ if (isset($_POST['id_user'])) {
 }
 ?>
 
-<section class="content-header">
+<section class="app-content-header">
     <h1>
-        <i class="cil-pencil icon-title"></i> Modificar perfil de usuario
+        <i class="bi bi-pencil-square me-1"></i> Modificar perfil de usuario
     </h1>
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="?module=start"><i class="cil-home"></i> Inicio</a></li>
+            <li class="breadcrumb-item"><a href="?module=start"><i class="bi bi-house-door"></i> Inicio</a></li>
             <li class="breadcrumb-item"><a href="?module=perfil">Perfil de usuario</a></li>
             <li class="breadcrumb-item active" aria-current="page">Modificar perfil de usuario</li>
         </ol>
     </nav>
 </section>
 
-<section class="content">
+<section class="app-content">
     <div class="row">
         <div class="col-md-12">
             <div class="card">

@@ -1,20 +1,20 @@
-<section class="content-header">
+<section class="app-content-header">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="?module=start"><i class="cil-home"></i>Inicio</a></li>
+        <li class="breadcrumb-item"><a href="?module=start"><i class="bi bi-house-door"></i>Inicio</a></li>
         <li class="breadcrumb-item active"><a href="?module=proveedor">Proveedor</a></li>
     </ol>
     <br>
     <hr>
     <h1>
-        <i class="cil-folder icon-title"></i>Datos de proveedores
-        <a class="btn btn-primary btn-icon pull-right" href="?module=form_proveedor&form=add" title="Agregar"
-            data-toggle="tooltip">
-            <i class="cil-plus"></i>Agregar
+        <i class="bi bi-folder me-1"></i>Datos de proveedores
+        <a class="btn btn-primary btn-icon float-end" href="?module=form_proveedor&form=add" title="Agregar"
+            data-bs-toggle="tooltip">
+            <i class="bi bi-plus-lg"></i>Agregar
         </a>
     </h1>
 </section>
 
-<section class="content">
+<section class="app-content">
     <div class="row">
         <div class="col-12">
             <?php
@@ -22,23 +22,23 @@
                 echo "";
             } elseif ($_GET['alert'] == 1) {
                 echo "<div class='alert alert-success alert-dismissible fade-show' role='alert'>
-                    <button type='button' class='btn-close' data-coreui-dismiss='alert' aria-hidden='true'></button>
-                    <h4><i class='cil-check-circle'></i>Exitoso!!!</h4>
+                    <button type='button' class='btn-close' data-bs-dismiss='alert' aria-hidden='true'></button>
+                    <h4><i class='bi bi-check-circle'></i>Exitoso!!!</h4>
                     Datos registrados correctamente </div>";
             } elseif ($_GET['alert'] == 2) {
                 echo "<div class='alert alert-success alert-dismissible fade-show' role='alert'>
-                    <button type='button' class='btn-close' data-coreui-dismiss='alert' aria-hidden='true'></button>
-                    <h4><i class='cil-check-circle'></i>Exitoso!!!</h4>
+                    <button type='button' class='btn-close' data-bs-dismiss='alert' aria-hidden='true'></button>
+                    <h4><i class='bi bi-check-circle'></i>Exitoso!!!</h4>
                     Datos modificados correctamente </div>";
             } elseif ($_GET['alert'] == 3) {
                 echo "<div class='alert alert-success alert-dismissible fade-show' role='alert'>
-                    <button type='button' class='btn-close' data-coreui-dismiss='alert' aria-hidden='true'></button>
-                    <h4><i class='cil-check-circle'></i>Exitoso!!!</h4>
+                    <button type='button' class='btn-close' data-bs-dismiss='alert' aria-hidden='true'></button>
+                    <h4><i class='bi bi-check-circle'></i>Exitoso!!!</h4>
                     Datos eliminados correctamente </div>";
             } elseif ($_GET['alert'] == 4) {
                 echo "<div class='alert alert-danger alert-dismissible fade-show' role='alert'>
-                    <button type='button' class='btn-close' data-coreui-dismiss='alert' aria-hidden='true'></button>
-                    <h4><i class='cil-x-circle'></i>Error!!!</h4>
+                    <button type='button' class='btn-close' data-bs-dismiss='alert' aria-hidden='true'></button>
+                    <h4><i class='bi bi-x-circle'></i>Error!!!</h4>
                     No se pudo realizar la operación </div>";
             }
             ?>
@@ -80,13 +80,13 @@
                                         <a class='btn btn-primary btn-sm me-2' 
                                         href='?module=form_proveedor&form=edit&id=$cod_proveedor' 
                                         title='Modificar datos de Unidad de medida' data-bs-toggle='tooltip'>
-                                        <i class='cil-pencil'></i>
+                                        <i class='bi bi-pencil-square'></i>
                                         </a>
                                         <a class='btn btn-danger btn-sm' 
                                         href='modules/proveedor/process.php?act=delete&cod_proveedor=$cod_proveedor' 
                                         title='Eliminar datos' data-bs-toggle='tooltip'
                                         onclick=\"return confirm('¿Estás seguro/a de eliminar " . htmlspecialchars(addslashes($razon_social)) . "?');\">
-                                        <i class='cil-trash'></i>
+                                        <i class='bi bi-trash'></i>
                                         </a>
                                     </td>
                                 </tr>";

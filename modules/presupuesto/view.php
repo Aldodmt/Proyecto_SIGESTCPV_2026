@@ -1,21 +1,21 @@
-<section class="content-header">
+<section class="app-content-header">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="?module=start"><i class="cil-home"></i>Inicio</a></li>
+            <li class="breadcrumb-item"><a href="?module=start"><i class="bi bi-house-door"></i>Inicio</a></li>
             <li class="breadcrumb-item active" aria-current="page">Presupuestos</li>
         </ol>
     </nav>
     <hr>
     <h1>
-        <i class="fa fa-folder icon-title"></i> Datos de Presupuestos
+        <i class="bi bi-folder me-1"></i> Datos de Presupuestos
         <a class="btn btn-primary btn-sm float-end" href="?module=form_presupuesto&form=add" title="Agregar"
-            data-coreui-toggle="tooltip">
-            <i class="cil-plus"></i> Agregar
+            data-bs-toggle="tooltip">
+            <i class="bi bi-plus-lg"></i> Agregar
         </a>
     </h1>
 </section>
 
-<section class="content">
+<section class="app-content">
     <div class="row">
         <div class="col-md-12">
             <?php
@@ -31,17 +31,14 @@
                 if (isset($alerts[$_GET['alert']])) {
                     [$type, $msg] = $alerts[$_GET['alert']];
                     echo "<div class='alert alert-$type alert-dismissible fade show' role='alert'>
-                            <button type='button' class='btn-close' data-coreui-dismiss='alert' aria-label='Close'></button>
+                            <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
                             $msg
                           </div>";
                 }
             }
             ?>
 
-            <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-            <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-            <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-
+                                    
             <div class="card">
                 <div class="card-body">
                     <h2>Lista de Presupuestos</h2>
@@ -97,10 +94,10 @@
                                     <td class='text-center'>$estado</td>
                                     <td class='text-center' width='80'>
                                         <div class='btn-group' role='group'>
-                                            <a data-coreui-toggle='tooltip' title='Detalle de Presupuesto' class='btn btn-success btn-sm'
+                                            <a data-bs-toggle='tooltip' title='Detalle de Presupuesto' class='btn btn-success btn-sm'
                                                 href='?module=form_presupuesto&form=detalle&id_presupuesto=$cod
                                                 onclick='return confirm(\"¿Estás seguro/a de ver los detalles del presupuesto $cod?\");'>
-                                                <i class='cil-description'></i>
+                                                <i class='bi bi-file-text'></i>
                                             </a>
                                         </div>
                                     </td>

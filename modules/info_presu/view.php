@@ -6,7 +6,7 @@ $user_gua = $_SESSION['username'] ?? 'Desconocido';
     <div class="row mb-3">
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
-                <a href="?module=start"><i class="cil-home"></i> Inicio</a>
+                <a href="?module=start"><i class="bi bi-house-door"></i> Inicio</a>
             </li>
             <li class="breadcrumb-item">
                 <a>Filtrar presupuestos</a>
@@ -17,7 +17,7 @@ $user_gua = $_SESSION['username'] ?? 'Desconocido';
     <div class="row">
         <div class="col">
             <h1 class="display-12">
-                <i class="cil-filter"></i> Filtrar presupuestos
+                <i class="bi bi-funnel"></i> Filtrar presupuestos
             </h1>
             <hr>
         </div>
@@ -82,10 +82,10 @@ $user_gua = $_SESSION['username'] ?? 'Desconocido';
 
                         <div class="col-md-12 text-end mt-2">
                             <button type="submit" class="btn btn-primary">
-                                <i class="cil-magnifying-glass"></i> Filtrar
+                                <i class="bi bi-search"></i> Filtrar
                             </button>
                             <button type="button" class="btn btn-success" id="btnImprimir">
-                                <i class="cil-print"></i> Imprimir PDF
+                                <i class="bi bi-printer"></i> Imprimir PDF
                             </button>
                         </div>
                     </form>

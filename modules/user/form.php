@@ -4,7 +4,7 @@ if ($_GET['form'] == "add") { ?>
         <div class="row">
             <div class="col">
                 <h2 class="text-primary">
-                    <i class="cil-user-plus"></i> Agregar usuario
+                    <i class="bi bi-person-plus"></i> Agregar usuario
                 </h2>
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb">
@@ -63,7 +63,7 @@ if ($_GET['form'] == "add") { ?>
         <div class="row">
             <div class="col">
                 <h2 class="text-primary">
-                    <i class="cil-pencil"></i> Modificar usuario
+                    <i class="bi bi-pencil-square"></i> Modificar usuario
                 </h2>
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb">

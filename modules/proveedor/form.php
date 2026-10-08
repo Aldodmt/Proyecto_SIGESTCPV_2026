@@ -1,19 +1,19 @@
 <?php
 if ($_GET['form'] == 'add') { ?>
-    <section class="content-header">
-        <h1><i class="cil-pencil icon-title"></i> Agregar proveedor</h1>
+    <section class="app-content-header">
+        <h1><i class="bi bi-pencil-square me-1"></i> Agregar proveedor</h1>
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="?module=start"><i class="cil-home"></i> Inicio</a></li>
+            <li class="breadcrumb-item"><a href="?module=start"><i class="bi bi-house-door"></i> Inicio</a></li>
             <li class="breadcrumb-item"><a href="?module=proveedor">Proveedores</a></li>
             <li class="breadcrumb-item active">Agregar</li>
         </ol>
     </section>
 
-    <section class="content">
+    <section class="app-content">
         <div class="row">
             <div class="col-12">
                 <div class="card">
-                    <form role="form" class="form-horizontal" action="modules/proveedor/process.php?act=insert"
+                    <form role="form" action="modules/proveedor/process.php?act=insert"
                         method="POST">
                         <div class="card-body">
                             <?php
@@ -22,7 +22,7 @@ if ($_GET['form'] == 'add') { ?>
                             $count = mysqli_num_rows($query_id);
                             $codigo = ($count != 0) ? mysqli_fetch_assoc($query_id)['id'] + 1 : 1;
                             ?>
-                            <div class="form-group">
+                            <div class="row mb-3">
                                 <label class="col-form-label">Código</label>
                                 <div class="col-sm-5">
                                     <input type="text" class="form-control" name="codigo" value="<?php echo $codigo; ?>"
@@ -30,7 +30,7 @@ if ($_GET['form'] == 'add') { ?>
                                 </div>
                             </div>
 
-                            <div class="form-group">
+                            <div class="row mb-3">
                                 <label class="col-form-label">Razón Social</label>
                                 <div class="col-sm-5">
                                     <input type="text" class="form-control" name="razon_social"
@@ -38,7 +38,7 @@ if ($_GET['form'] == 'add') { ?>
                                 </div>
                             </div>
 
-                            <div class="form-group">
+                            <div class="row mb-3">
                                 <label class="col-form-label">RUC</label>
                                 <div class="col-sm-5">
                                     <input type="text" class="form-control" name="ruc" id="ruc" placeholder="00000000-0"
@@ -47,7 +47,7 @@ if ($_GET['form'] == 'add') { ?>
                                 </div>
                             </div>
 
-                            <div class="form-group">
+                            <div class="row mb-3">
                                 <label class="col-form-label">Dirección</label>
                                 <div class="col-sm-5">
                                     <input type="text" class="form-control" name="direccion"
@@ -55,7 +55,7 @@ if ($_GET['form'] == 'add') { ?>
                                 </div>
                             </div>
 
-                            <div class="form-group">
+                            <div class="row mb-3">
                                 <label class="col-form-label">Teléfono</label>
                                 <div class="col-sm-5">
                                     <input type="text" class="form-control" name="telefono"
@@ -65,8 +65,8 @@ if ($_GET['form'] == 'add') { ?>
                             </div>
 
                             <div class="card-footer">
-                                <div class="form-group">
-                                    <div class="col-sm-offset-2 col-sm-10">
+                                <div class="row mb-3">
+                                    <div class="offset-sm-2 col-sm-10">
                                         <input type="submit" class="btn btn-primary" name="Guardar" value="Guardar">
                                         <a href="?module=proveedor" class="btn btn-secondary">Cancelar</a>
                                     </div>
@@ -84,23 +84,23 @@ if ($_GET['form'] == 'add') { ?>
         $query = mysqli_query($mysqli, "SELECT * FROM proveedor WHERE cod_proveedor = '$_GET[id]'") or die('error' . mysqli_error($mysqli));
         $data = mysqli_fetch_assoc($query);
     } ?>
-    <section class="content-header">
-        <h1><i class="cil-pencil icon-title"></i> Modificar proveedor</h1>
+    <section class="app-content-header">
+        <h1><i class="bi bi-pencil-square me-1"></i> Modificar proveedor</h1>
         <ol class="breadcrumb">
-            <li><a href="?module=start"><i class="cil-home"></i> Inicio</a></li>
+            <li><a href="?module=start"><i class="bi bi-house-door"></i> Inicio</a></li>
             <li><a href="?module=proveedor">Proveedores</a></li>
             <li class="active">Modificar</li>
         </ol>
     </section>
 
-    <section class="content">
+    <section class="app-content">
         <div class="row">
             <div class="col-12">
                 <div class="card">
-                    <form role="form" class="form-horizontal" action="modules/proveedor/process.php?act=update"
+                    <form role="form" action="modules/proveedor/process.php?act=update"
                         method="POST">
                         <div class="card-body">
-                            <div class="form-group">
+                            <div class="row mb-3">
                                 <label class="col-form-label">Código</label>
                                 <div class="col-sm-5">
                                     <input type="text" class="form-control" name="codigo"
@@ -108,7 +108,7 @@ if ($_GET['form'] == 'add') { ?>
                                 </div>
                             </div>
 
-                            <div class="form-group">
+                            <div class="row mb-3">
                                 <label class="col-form-label">Razón Social</label>
                                 <div class="col-sm-5">
                                     <input type="text" class="form-control" name="razon_social"
@@ -116,7 +116,7 @@ if ($_GET['form'] == 'add') { ?>
                                 </div>
                             </div>
 
-                            <div class="form-group">
+                            <div class="row mb-3">
                                 <label class="col-form-label">RUC</label>
                                 <div class="col-sm-5">
                                     <input type="text" class="form-control" name="ruc" id="ruc" placeholder="00000000-0"
@@ -125,7 +125,7 @@ if ($_GET['form'] == 'add') { ?>
                                 </div>
                             </div>
 
-                            <div class="form-group">
+                            <div class="row mb-3">
                                 <label class="col-form-label">Dirección</label>
                                 <div class="col-sm-5">
                                     <input type="text" class="form-control" name="direccion"
@@ -133,7 +133,7 @@ if ($_GET['form'] == 'add') { ?>
                                 </div>
                             </div>
 
-                            <div class="form-group">
+                            <div class="row mb-3">
                                 <label class="col-form-label">Teléfono</label>
                                 <div class="col-sm-5">
                                     <input type="text" class="form-control" name="telefono"
@@ -143,8 +143,8 @@ if ($_GET['form'] == 'add') { ?>
                             </div>
 
                             <div class="card-footer">
-                                <div class="form-group">
-                                    <div class="col-sm-offset-2 col-sm-10">
+                                <div class="row mb-3">
+                                    <div class="offset-sm-2 col-sm-10">
                                         <input type="submit" class="btn btn-primary" name="Guardar" value="Guardar">
                                         <a href="?module=proveedor" class="btn btn-secondary">Cancelar</a>
                                     </div>
@@ -158,7 +158,6 @@ if ($_GET['form'] == 'add') { ?>
     </section>
 <?php } ?>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     // Permite solo números
     function soloNumeros(e) {

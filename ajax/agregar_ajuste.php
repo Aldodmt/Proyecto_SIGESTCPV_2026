@@ -41,7 +41,7 @@ if ($cantidad_final < 0)
     <td class="cantidad_final"><?= $cantidad_final ?></td>
     <td class="text-center">
         <button type="button" class="btn btn-danger btn-sm" onclick="eliminarProducto(<?= $id_producto ?>)">
-            <i class="cil-trash"></i>
+            <i class="bi bi-trash"></i>
         </button>
     </td>
 </tr>

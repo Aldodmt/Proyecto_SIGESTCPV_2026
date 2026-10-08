@@ -1,24 +1,24 @@
 <?php
 if ($_GET['form'] == 'add') { ?>
-    <section class="content-header">
+    <section class="app-content-header">
         <h1>
-            <i class="cil-pencil icon-title"></i>Agregar Ciudad
+            <i class="bi bi-pencil-square me-1"></i>Agregar Ciudad
         </h1>
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="?module=start"><i class="cil-home"></i>Inicio</a></li>
+            <li class="breadcrumb-item"><a href="?module=start"><i class="bi bi-house-door"></i>Inicio</a></li>
             <li class="breadcrumb-item"><a href="?module=ciudad">Ciudad</a></li>
             <li class="breadcrumb-item active">Agregar</li>
         </ol>
     </section>
 
-    <section class="content">
+    <section class="app-content">
         <div class="row">
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-body">
-                        <form role="form" class="form-horizontal" action="modules/ciudad/proses.php?act=insert"
+                        <form role="form" action="modules/ciudad/proses.php?act=insert"
                             method="POST">
-                            <div class="form-group">
+                            <div class="row mb-3">
                                 <?php
                                 // Método para generar código
                                 $query_id = mysqli_query($mysqli, "SELECT MAX(cod_ciudad) as id FROM ciudad")
@@ -34,16 +34,16 @@ if ($_GET['form'] == 'add') { ?>
                             </div>
 
                             <!-- Combo para seleccionar departamento -->
-                            <div class="form-group">
+                            <div class="row mb-3">
                                 <label for="departamento" class="col-sm-2 col-form-label">Departamento</label>
                                 <div class="col-sm-5">
-                                    <select name="departamento" class="form-control">
+                                    <select name="departamento" class="form-select">
                                         <option value=""></option>
                                         <?php
                                         $query = mysqli_query($mysqli, 'SELECT * FROM departamento')
                                             or die('Error: ' . mysqli_error($mysqli));
                                         while ($data = mysqli_fetch_assoc($query)) {
-                                            $selected = ($_POST['departamento'] == $data['id_departamento']) ? 'selected' : '';
+                                            $selected = (($_POST['departamento'] ?? '') == $data['id_departamento']) ? 'selected' : '';
                                             echo "<option value='" . $data['id_departamento'] . "' $selected>" . htmlspecialchars($data['dep_descripcion']) . "</option>";
                                         }
                                         ?>
@@ -51,7 +51,7 @@ if ($_GET['form'] == 'add') { ?>
                                 </div>
                             </div>
 
-                            <div class="form-group">
+                            <div class="row mb-3">
                                 <label for="descrip_ciudad" class="col-sm-2 col-form-label">Descripción</label>
                                 <div class="col-sm-5">
                                     <input type="text" class="form-control" name="descrip_ciudad"
@@ -60,8 +60,8 @@ if ($_GET['form'] == 'add') { ?>
                             </div>
 
                             <div class="card-footer">
-                                <div class="form-group">
-                                    <div class="col-sm-offset-2 col-sm-10">
+                                <div class="row mb-3">
+                                    <div class="offset-sm-2 col-sm-10">
                                         <button type="submit" class="btn btn-primary" name="Guardar">Guardar</button>
                                         <a href="?module=ciudad" class="btn btn-secondary">Cancelar</a>
                                     </div>
@@ -87,25 +87,25 @@ if ($_GET['form'] == 'add') { ?>
             exit;
         }
     } ?>
-    <section class="content-header">
+    <section class="app-content-header">
         <h1>
-            <i class="cil-pencil icon-title"></i>Modificar Ciudad
+            <i class="bi bi-pencil-square me-1"></i>Modificar Ciudad
         </h1>
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="?module=start"><i class="cil-home"></i>Inicio</a></li>
+            <li class="breadcrumb-item"><a href="?module=start"><i class="bi bi-house-door"></i>Inicio</a></li>
             <li class="breadcrumb-item"><a href="?module=ciudad">Ciudad</a></li>
             <li class="breadcrumb-item active">Modificar</li>
         </ol>
     </section>
 
-    <section class="content">
+    <section class="app-content">
         <div class="row">
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-body">
-                        <form role="form" class="form-horizontal" action="modules/ciudad/proses.php?act=update"
+                        <form role="form" action="modules/ciudad/proses.php?act=update"
                             method="POST">
-                            <div class="form-group">
+                            <div class="row mb-3">
                                 <label for="codigo" class="col-sm-2 col-form-label">Código</label>
                                 <div class="col-sm-5">
                                     <input type="text" class="form-control" name="codigo"
@@ -114,10 +114,10 @@ if ($_GET['form'] == 'add') { ?>
                             </div>
 
                             <!-- Combo para seleccionar departamento -->
-                            <div class="form-group">
+                            <div class="row mb-3">
                                 <label for="departamento" class="col-sm-2 col-form-label">Departamento</label>
                                 <div class="col-sm-5">
-                                    <select name="departamento" class="form-control">
+                                    <select name="departamento" class="form-select">
                                         <option value="<?php echo $data['id_departamento']; ?>">
                                             <?php echo htmlspecialchars($data['dep_descripcion']); ?>
                                         </option>
@@ -133,7 +133,7 @@ if ($_GET['form'] == 'add') { ?>
                                 </div>
                             </div>
 
-                            <div class="form-group">
+                            <div class="row mb-3">
                                 <label for="descrip_ciudad" class="col-sm-2 col-form-label">Descripción</label>
                                 <div class="col-sm-5">
                                     <input type="text" class="form-control" name="descrip_ciudad"
@@ -142,8 +142,8 @@ if ($_GET['form'] == 'add') { ?>
                             </div>
 
                             <div class="card-footer">
-                                <div class="form-group">
-                                    <div class="col-sm-offset-2 col-sm-10">
+                                <div class="row mb-3">
+                                    <div class="offset-sm-2 col-sm-10">
                                         <button type="submit" class="btn btn-primary" name="Guardar">Guardar</button>
                                         <a href="?module=ciudad" class="btn btn-secondary">Cancelar</a>
                                     </div>
