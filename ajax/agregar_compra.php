@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../config/permisos.php';
+guard_endpoint('compra', 'cualquiera', 'fragmento');   // control de acceso por rol (config/permisos.php)
 require_once '../config/database.php';
 
 if (!isset($_POST['id_orden_comp']))

@@ -2,6 +2,8 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+require_once __DIR__ . '/../../config/permisos.php';
+guard_endpoint('nota_remision', null, 'json');   // control de acceso por rol (config/permisos.php)
 require_once "../../config/database.php";
 header('Content-Type: application/json');
 

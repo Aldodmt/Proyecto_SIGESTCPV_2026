@@ -1,5 +1,7 @@
 <?php
 session_start();
+require_once __DIR__ . '/../config/permisos.php';
+guard_endpoint(['pedido', 'presupuesto', 'orden_c', 'compra'], 'cualquiera', 'fragmento');   // control de acceso por rol (config/permisos.php)
 require_once '../config/database.php';
 
 $session_id = session_id();

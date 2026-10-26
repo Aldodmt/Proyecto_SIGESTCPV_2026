@@ -2,7 +2,8 @@
 // Utilidades de autenticación compartidas: login, recuperación y cambio de contraseña.
 
 const AUTH_MAX_INTENTOS = 3;
-const AUTH_TOKEN_MINUTOS = 30;
+// Vigencia del enlace de recuperación de contraseña. Indicación del docente: entre 10 y 15 minutos.
+const AUTH_TOKEN_MINUTOS = 15;
 const AUTH_MIN_PASSWORD = 12;
 
 function auth_ip(): string
@@ -95,6 +96,8 @@ function auth_mensaje(int $code, int $left = 0): array
             return ['danger', 'Tu cuenta está bloqueada por exceder los ' . AUTH_MAX_INTENTOS . ' intentos fallidos. Contacta al administrador para desbloquearla.'];
         case 7:
             return ['danger', 'El usuario ingresado no está registrado.'];
+        case 9:
+            return ['danger', 'Tu usuario no tiene un rol activo asignado. Contacta al administrador.'];
         case 8:
             $txt = $left === 1 ? 'Te queda 1 intento' : "Te quedan $left intentos";
             return ['danger', "Contraseña incorrecta. $txt antes de que la cuenta se bloquee."];

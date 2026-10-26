@@ -424,67 +424,16 @@ if ($_SESSION['permisos_acceso'] == 'Super Admin') { ?>
         <?php } ?>
 
         <?php
-} elseif ($_SESSION['permisos_acceso'] == 'Ventas') { ?>
-        <section class="app-content-header">
-            <h1>
-                <i class="bi bi-house-door me-1"></i>Inicio
-            </h1>
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="?module=start"><i class="bi bi-house-door"></i></a></li>
-            </ol>
-        </section>
-        <!--<section class="app-content">
-            <div class="row">
-                <div class="col-lg-12 col-12">
-                    <div class="alert alert-info alert-dismissible fade show" role="alert">
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        <p style="font-size: 15px;">
-                            <i class="bi bi-person"></i> Bienvenido/a <strong><?php echo $_SESSION['name_user']; ?></strong>
-                        </p>
-                    </div>
-                </div>
-            </div> -->
-
-        <!-- <h2>Formulario de movimiento</h2>
-            <div class="row"> -->
-        <!-- bloque Ventas -->
-        <!-- <div class="col-lg-4 col-6">
-                    <div class="card text-white bg-secondary mb-3">
-                        <div class="card-body">
-                            <h5 class="card-title"><strong>Ventas</strong></h5>
-                            <ul>
-                                <li>Registrar</li>
-                                <li>Ventas de</li>
-                                <li>Productos</li>
-                            </ul>
-                        </div>
-                        <div class="card-footer">
-                            <a href="?module=compras" class="btn btn-light" title="Registrar compras"
-                                data-bs-toggle="tooltip"><i class="bi bi-plus-lg"></i></a>
-                        </div>
-                    </div>
-                </div>
--->
-        <!-- fin bloque Ventas -->
-
-        <!-- bloque Stock -->
-        <div class="col-lg-4 col-6">
-            <div class="card text-white bg-success mb-3">
-                <div class="card-body">
-                    <h5 class="card-title"><strong>Stock de productos</strong></h5>
-                    <ul>
-                        <li>Visualizar</li>
-                        <li>Stock</li>
-                        <li>Productos</li>
-                    </ul>
-                </div>
-                <div class="card-footer">
-                    <a href="?module=stock" class="btn btn-light" title="Ver stock de productos" data-bs-toggle="tooltip"><i
-                            class="bi bi-plus-lg"></i></a>
-                </div>
-            </div>
+} else { // Ventas, Produccion y cualquier rol creado desde Seguridad > Roles: bienvenida + accesos rápidos según sus permisos
+    ?>
+    <section class="app-content-header">
+        <h1><i class="bi bi-house-door me-1"></i> Inicio</h1>
+    </section>
+    <section class="app-content">
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+            <i class="bi bi-person"></i> Bienvenido/a <strong><?php echo htmlspecialchars($_SESSION['name_user'] ?? ''); ?></strong>
         </div>
-        <!-- fin bloque Stock -->
-        </div>
+        <?php include __DIR__ . "/_accesos_rapidos.php"; ?>
     </section>
 <?php } ?>

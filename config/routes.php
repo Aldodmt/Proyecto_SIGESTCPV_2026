@@ -1,81 +1,105 @@
 <?php
 // Registro único de rutas: ?module=<clave> -> archivo a incluir.
-// Para agregar una pantalla nueva basta con añadir una línea aquí (y, si debe verse en el
-// sidebar, una entrada en config/menu.php). No hay que tocar content.php ni main.php.
 //
-//  file   : archivo dentro de modules/
-//  title  : título de la pestaña
-//  roles  : roles que pueden entrar ('*' = cualquier usuario con sesión)
-//  menu   : clave del ítem del sidebar que debe verse activo (por defecto, la propia ruta)
+// Dos tipos de entrada:
+//   PÁGINA  ($p) : listado o pantalla principal. Es lo que se ve en el sidebar y lo que recibe permisos.
+//                  [archivo, título, módulo, acciones aplicables]
+//   FORMULARIO ($f): pantalla de alta/edición/detalle. Cuelga de una página con 'menu' => clave_de_la_página.
+//
+// QUIÉN puede entrar NO se define aquí: lo deciden los permisos de la base de datos
+// (Seguridad > Permisos). Al agregar una pantalla nueva basta con registrarla aquí y pulsar
+// "Sincronizar con el sistema" en Seguridad > Páginas y módulos: queda sin permisos para nadie hasta que se asignen.
+//
+// Acciones: leer, insertar, editar, borrar. Por defecto una página admite las cuatro.
 
-const ROLES_COMPRAS = ['Super Admin', 'Compras'];
-const ROLES_VENTAS = ['Super Admin', 'Ventas'];
-const ROLES_ADMIN = ['Super Admin'];
+$p = fn(string $file, string $title, string $modulo, string $acciones = 'leer,insertar,editar,borrar') =>
+    ['file' => $file, 'title' => $title, 'modulo' => $modulo, 'acciones' => $acciones];
+$f = fn(string $file, string $title, string $pagina) =>
+    ['file' => $file, 'title' => $title, 'menu' => $pagina];
 
 return [
-    // ---- General (todos los usuarios) ----
-    'start' => ['file' => 'start/view.php', 'title' => 'Inicio', 'roles' => '*'],
-    'password' => ['file' => 'password/view.php', 'title' => 'Cambiar contraseña', 'roles' => '*'],
-    'perfil' => ['file' => 'perfil/view.php', 'title' => 'Mi perfil', 'roles' => '*'],
-    'form_perfil' => ['file' => 'perfil/form.php', 'title' => 'Editar perfil', 'roles' => '*', 'menu' => 'perfil'],
-    'departamento' => ['file' => 'departamento/view.php', 'title' => 'Departamentos', 'roles' => '*'],
-    'form_departamento' => ['file' => 'departamento/form.php', 'title' => 'Departamento', 'roles' => '*', 'menu' => 'departamento'],
-    'ciudad' => ['file' => 'ciudad/view.php', 'title' => 'Ciudades', 'roles' => '*'],
-    'form_ciudad' => ['file' => 'ciudad/form.php', 'title' => 'Ciudad', 'roles' => '*', 'menu' => 'ciudad'],
+    // ---- General ----
+    'start' => $p('start/view.php', 'Inicio', 'general', 'leer'),
+    'perfil' => $p('perfil/view.php', 'Mi perfil', 'general', 'leer,editar'),
+    'form_perfil' => $f('perfil/form.php', 'Editar perfil', 'perfil'),
+    'password' => $p('password/view.php', 'Cambiar contraseña', 'general', 'leer,editar'),
 
-    // ---- Administración ----
-    'user' => ['file' => 'user/view.php', 'title' => 'Usuarios', 'roles' => ROLES_ADMIN],
-    'form_user' => ['file' => 'user/form.php', 'title' => 'Usuario', 'roles' => ROLES_ADMIN, 'menu' => 'user'],
-    'accesos' => ['file' => 'accesos/view.php', 'title' => 'Registro de accesos', 'roles' => ROLES_ADMIN],
+    // ---- Referenciales generales ----
+    'departamento' => $p('departamento/view.php', 'Departamentos', 'referenciales'),
+    'form_departamento' => $f('departamento/form.php', 'Departamento', 'departamento'),
+    'ciudad' => $p('ciudad/view.php', 'Ciudades', 'referenciales'),
+    'form_ciudad' => $f('ciudad/form.php', 'Ciudad', 'ciudad'),
+    'nacionalidad' => $p('nacionalidad/view.php', 'Nacionalidades', 'referenciales'),
+    'form_nacionalidad' => $f('nacionalidad/form.php', 'Nacionalidad', 'nacionalidad'),
+    'genero' => $p('genero/view.php', 'Géneros', 'referenciales'),
+    'form_genero' => $f('genero/form.php', 'Género', 'genero'),
 
-    // ---- Módulo de Compras: referenciales ----
-    'deposito' => ['file' => 'deposito/view.php', 'title' => 'Depósitos', 'roles' => ROLES_COMPRAS],
-    'form_deposito' => ['file' => 'deposito/form.php', 'title' => 'Depósito', 'roles' => ROLES_COMPRAS, 'menu' => 'deposito'],
-    'proveedor' => ['file' => 'proveedor/view.php', 'title' => 'Proveedores', 'roles' => ROLES_COMPRAS],
-    'form_proveedor' => ['file' => 'proveedor/form.php', 'title' => 'Proveedor', 'roles' => ROLES_COMPRAS, 'menu' => 'proveedor'],
-    'producto' => ['file' => 'producto/view.php', 'title' => 'Productos', 'roles' => ROLES_COMPRAS],
-    'form_producto' => ['file' => 'producto/form.php', 'title' => 'Producto', 'roles' => ROLES_COMPRAS, 'menu' => 'producto'],
-    'tipo_producto' => ['file' => 'tipo_producto/view.php', 'title' => 'Tipos de producto', 'roles' => ROLES_COMPRAS],
-    'form_tipo_producto' => ['file' => 'tipo_producto/form.php', 'title' => 'Tipo de producto', 'roles' => ROLES_COMPRAS, 'menu' => 'tipo_producto'],
-    'u_medida' => ['file' => 'u_medida/view.php', 'title' => 'Unidades de medida', 'roles' => ROLES_COMPRAS],
-    'form_u_medida' => ['file' => 'u_medida/form.php', 'title' => 'Unidad de medida', 'roles' => ROLES_COMPRAS, 'menu' => 'u_medida'],
+    // ---- Personal ----
+    'persona' => $p('persona/view.php', 'Personas', 'personal'),
+    'form_persona' => $f('persona/form.php', 'Persona', 'persona'),
+    'funcionario' => $p('funcionario/view.php', 'Funcionarios', 'personal'),
+    'form_funcionario' => $f('funcionario/form.php', 'Funcionario', 'funcionario'),
+    'cargo' => $p('cargo/view.php', 'Cargos', 'personal'),
+    'form_cargo' => $f('cargo/form.php', 'Cargo', 'cargo'),
 
-    // ---- Módulo de Compras: movimientos ----
-    'pedido' => ['file' => 'pedido/view.php', 'title' => 'Pedidos', 'roles' => ROLES_COMPRAS],
-    'form_pedido' => ['file' => 'pedido/form.php', 'title' => 'Pedido', 'roles' => ROLES_COMPRAS, 'menu' => 'pedido'],
-    'presupuesto' => ['file' => 'presupuesto/view.php', 'title' => 'Presupuestos', 'roles' => ROLES_COMPRAS],
-    'form_presupuesto' => ['file' => 'presupuesto/form.php', 'title' => 'Presupuesto', 'roles' => ROLES_COMPRAS, 'menu' => 'presupuesto'],
-    'orden_c' => ['file' => 'orden_c/view.php', 'title' => 'Órdenes de compra', 'roles' => ROLES_COMPRAS],
-    'form_orden_c' => ['file' => 'orden_c/form.php', 'title' => 'Orden de compra', 'roles' => ROLES_COMPRAS, 'menu' => 'orden_c'],
-    'compra' => ['file' => 'compras/view.php', 'title' => 'Compras', 'roles' => ROLES_COMPRAS],
-    'form_compra' => ['file' => 'compras/form.php', 'title' => 'Compra', 'roles' => ROLES_COMPRAS, 'menu' => 'compra'],
-    'cuenta' => ['file' => 'cuenta/view.php', 'title' => 'Cuentas a pagar', 'roles' => ROLES_COMPRAS],
-    'nota_c_d' => ['file' => 'nota_c_d/view.php', 'title' => 'Notas de crédito/débito', 'roles' => ROLES_COMPRAS],
-    'form_nota_c_d' => ['file' => 'nota_c_d/form.php', 'title' => 'Nota de crédito/débito', 'roles' => ROLES_COMPRAS, 'menu' => 'nota_c_d'],
-    'ajuste' => ['file' => 'ajuste/view.php', 'title' => 'Ajustes de stock', 'roles' => ROLES_COMPRAS],
-    'form_ajuste' => ['file' => 'ajuste/form.php', 'title' => 'Ajuste de stock', 'roles' => ROLES_COMPRAS, 'menu' => 'ajuste'],
-    'nota_remision' => ['file' => 'nota_remision/view.php', 'title' => 'Notas de remisión', 'roles' => ROLES_COMPRAS],
-    'form_remision' => ['file' => 'nota_remision/form.php', 'title' => 'Nota de remisión', 'roles' => ROLES_COMPRAS, 'menu' => 'nota_remision'],
-    'stock' => ['file' => 'stock/view.php', 'title' => 'Stock', 'roles' => ROLES_COMPRAS],
+    // ---- Compras: referenciales ----
+    'deposito' => $p('deposito/view.php', 'Depósitos', 'compras'),
+    'form_deposito' => $f('deposito/form.php', 'Depósito', 'deposito'),
+    'proveedor' => $p('proveedor/view.php', 'Proveedores', 'compras'),
+    'form_proveedor' => $f('proveedor/form.php', 'Proveedor', 'proveedor'),
+    'producto' => $p('producto/view.php', 'Productos', 'compras'),
+    'form_producto' => $f('producto/form.php', 'Producto', 'producto'),
+    'tipo_producto' => $p('tipo_producto/view.php', 'Tipos de producto', 'compras'),
+    'form_tipo_producto' => $f('tipo_producto/form.php', 'Tipo de producto', 'tipo_producto'),
+    'u_medida' => $p('u_medida/view.php', 'Unidades de medida', 'compras'),
+    'form_u_medida' => $f('u_medida/form.php', 'Unidad de medida', 'u_medida'),
 
-    // ---- Módulo de Compras: informes ----
-    'info_producto' => ['file' => 'info_producto/view.php', 'title' => 'Informe de productos', 'roles' => ROLES_COMPRAS],
-    'info_proveedores' => ['file' => 'info_proveedores/view.php', 'title' => 'Informe de proveedores', 'roles' => ROLES_COMPRAS],
-    'info_u_medida' => ['file' => 'info_u_medida/view.php', 'title' => 'Informe de unidades de medida', 'roles' => ROLES_COMPRAS],
-    'info_pedido' => ['file' => 'info_pedido/view.php', 'title' => 'Informe de pedidos', 'roles' => ROLES_COMPRAS],
-    'info_presu' => ['file' => 'info_presu/view.php', 'title' => 'Informe de presupuestos', 'roles' => ROLES_COMPRAS],
-    'info_orden' => ['file' => 'info_orden/view.php', 'title' => 'Informe de órdenes de compra', 'roles' => ROLES_COMPRAS],
-    'info_facturacion_compra' => ['file' => 'info_facturacion_compra/view.php', 'title' => 'Informe de compras', 'roles' => ROLES_COMPRAS],
-    'info_nota_cd' => ['file' => 'info_nota_cd/view.php', 'title' => 'Informe de notas de crédito/débito', 'roles' => ROLES_COMPRAS],
-    'info_ajuste' => ['file' => 'info_ajuste/view.php', 'title' => 'Informe de ajustes', 'roles' => ROLES_COMPRAS],
-    'info_notaR' => ['file' => 'info_notaR/view.php', 'title' => 'Informe de notas de remisión', 'roles' => ROLES_COMPRAS],
+    // ---- Compras: movimientos ----
+    'pedido' => $p('pedido/view.php', 'Pedidos', 'compras'),
+    'form_pedido' => $f('pedido/form.php', 'Pedido', 'pedido'),
+    'presupuesto' => $p('presupuesto/view.php', 'Presupuestos', 'compras'),
+    'form_presupuesto' => $f('presupuesto/form.php', 'Presupuesto', 'presupuesto'),
+    'orden_c' => $p('orden_c/view.php', 'Órdenes de compra', 'compras'),
+    'form_orden_c' => $f('orden_c/form.php', 'Orden de compra', 'orden_c'),
+    'compra' => $p('compras/view.php', 'Compras', 'compras'),
+    'form_compra' => $f('compras/form.php', 'Compra', 'compra'),
+    'cuenta' => $p('cuenta/view.php', 'Cuentas a pagar', 'compras', 'leer,editar,borrar'),
+    'nota_c_d' => $p('nota_c_d/view.php', 'Notas de crédito/débito', 'compras'),
+    'form_nota_c_d' => $f('nota_c_d/form.php', 'Nota de crédito/débito', 'nota_c_d'),
+    'ajuste' => $p('ajuste/view.php', 'Ajustes de stock', 'compras'),
+    'form_ajuste' => $f('ajuste/form.php', 'Ajuste de stock', 'ajuste'),
+    'nota_remision' => $p('nota_remision/view.php', 'Notas de remisión', 'compras'),
+    'form_remision' => $f('nota_remision/form.php', 'Nota de remisión', 'nota_remision'),
+    'stock' => $p('stock/view.php', 'Stock', 'compras', 'leer'),
 
-    // ---- Módulo de Ventas (implementado a medias; sin entrada visible en el sidebar todavía) ----
-    'clientes' => ['file' => 'clientes/view.php', 'title' => 'Clientes', 'roles' => ROLES_VENTAS],
-    'form_clientes' => ['file' => 'clientes/form.php', 'title' => 'Cliente', 'roles' => ROLES_VENTAS, 'menu' => 'clientes'],
-    'pedido_v' => ['file' => 'pedido_v/view.php', 'title' => 'Pedidos de venta', 'roles' => ROLES_VENTAS],
-    'form_pedido_v' => ['file' => 'pedido_v/form.php', 'title' => 'Pedido de venta', 'roles' => ROLES_VENTAS, 'menu' => 'pedido_v'],
-    'ventas' => ['file' => 'ventas/view.php', 'title' => 'Ventas', 'roles' => ROLES_VENTAS],
-    'form_ventas' => ['file' => 'ventas/form.php', 'title' => 'Venta', 'roles' => ROLES_VENTAS, 'menu' => 'ventas'],
-    'info_pedido_v' => ['file' => 'info_pedido_v/view.php', 'title' => 'Informe de pedidos de venta', 'roles' => ROLES_VENTAS],
+    // ---- Compras: informes (solo lectura) ----
+    'info_producto' => $p('info_producto/view.php', 'Informe de productos', 'compras', 'leer'),
+    'info_proveedores' => $p('info_proveedores/view.php', 'Informe de proveedores', 'compras', 'leer'),
+    'info_u_medida' => $p('info_u_medida/view.php', 'Informe de unidades de medida', 'compras', 'leer'),
+    'info_pedido' => $p('info_pedido/view.php', 'Informe de pedidos', 'compras', 'leer'),
+    'info_presu' => $p('info_presu/view.php', 'Informe de presupuestos', 'compras', 'leer'),
+    'info_orden' => $p('info_orden/view.php', 'Informe de órdenes de compra', 'compras', 'leer'),
+    'info_facturacion_compra' => $p('info_facturacion_compra/view.php', 'Informe de compras', 'compras', 'leer'),
+    'info_nota_cd' => $p('info_nota_cd/view.php', 'Informe de notas de crédito/débito', 'compras', 'leer'),
+    'info_ajuste' => $p('info_ajuste/view.php', 'Informe de ajustes', 'compras', 'leer'),
+    'info_notaR' => $p('info_notaR/view.php', 'Informe de notas de remisión', 'compras', 'leer'),
+
+    // ---- Ventas (implementado a medias; sin entrada visible en el sidebar todavía) ----
+    'clientes' => $p('clientes/view.php', 'Clientes', 'ventas'),
+    'form_clientes' => $f('clientes/form.php', 'Cliente', 'clientes'),
+    'pedido_v' => $p('pedido_v/view.php', 'Pedidos de venta', 'ventas'),
+    'form_pedido_v' => $f('pedido_v/form.php', 'Pedido de venta', 'pedido_v'),
+    'ventas' => $p('ventas/view.php', 'Ventas', 'ventas'),
+    'form_ventas' => $f('ventas/form.php', 'Venta', 'ventas'),
+    'info_pedido_v' => $p('info_pedido_v/view.php', 'Informe de pedidos de venta', 'ventas', 'leer'),
+
+    // ---- Seguridad ----
+    'user' => $p('user/view.php', 'Usuarios', 'seguridad'),
+    'form_user' => $f('user/form.php', 'Usuario', 'user'),
+    'rol' => $p('rol/view.php', 'Roles', 'seguridad'),
+    'form_rol' => $f('rol/form.php', 'Rol', 'rol'),
+    'permiso' => $p('permiso/view.php', 'Permisos por rol', 'seguridad', 'leer,editar'),
+    'pagina' => $p('pagina/view.php', 'Páginas y módulos', 'seguridad', 'leer,editar'),
+    'form_pagina' => $f('pagina/form.php', 'Página', 'pagina'),
+    'accesos' => $p('accesos/view.php', 'Registro de accesos', 'seguridad', 'leer'),
 ];

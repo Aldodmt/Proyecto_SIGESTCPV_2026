@@ -1,3 +1,4 @@
+<?php require_once __DIR__ . '/../config/permisos.php'; guard_endpoint(['pedido', 'presupuesto', 'orden_c', 'compra'], 'cualquiera', 'fragmento'); ?>
 <table class="table table-striped table-hover align-middle" id="tablaProductosManual">
     <thead class="table-primary">
         <tr>

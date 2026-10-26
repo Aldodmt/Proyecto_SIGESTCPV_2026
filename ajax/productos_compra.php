@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../config/permisos.php';
+guard_endpoint('compra', 'leer', 'fragmento');   // control de acceso por rol (config/permisos.php)
 require_once '../config/database.php';
 
 $action = $_REQUEST['action'] ?? '';

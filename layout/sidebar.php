@@ -1,6 +1,6 @@
 <?php
-// Sidebar generado desde config/menu.php, filtrado por el rol de la sesión.
-$menuVisible = menu_filter(require __DIR__ . '/../config/menu.php', $routes, $role);
+// Sidebar generado desde config/menu.php y filtrado por los permisos del usuario (ver config/permisos.php).
+$menuVisible = menu_filter(require __DIR__ . '/../config/menu.php');
 ?>
         <aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
             <div class="sidebar-brand">

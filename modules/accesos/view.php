@@ -1,6 +1,7 @@
 <?php
-// Consulta de intentos de acceso (solo Super Admin)
-if (($_SESSION['permisos_acceso'] ?? '') !== 'Super Admin') {
+// Consulta de intentos de acceso y cambios de seguridad. Quién puede verla lo define el permiso "leer" de la página accesos.
+require_once __DIR__ . "/../../config/permisos.php";
+if (!puede("accesos", "leer")) {
     echo "<div class='alert alert-danger mt-3'>No tienes permiso para ver esta sección.</div>";
     return;
 }
@@ -14,7 +15,7 @@ if (!$fechaOk($hasta)) $hasta = date('Y-m-d');
 if ($desde > $hasta) { [$desde, $hasta] = [$hasta, $desde]; }
 
 $resultado = $_GET['resultado'] ?? '';
-$validos = ['EXITOSO', 'FALLIDO', 'BLOQUEADO', 'RECUPERACION'];
+$validos = ['EXITOSO', 'FALLIDO', 'BLOQUEADO', 'RECUPERACION', 'AUDITORIA'];
 if (!in_array($resultado, $validos, true)) $resultado = '';
 $usuarioFiltro = trim($_GET['usuario'] ?? '');
 
@@ -32,15 +33,15 @@ $stmt->execute();
 $filas = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
-$tot = ['EXITOSO' => 0, 'FALLIDO' => 0, 'BLOQUEADO' => 0, 'RECUPERACION' => 0];
+$tot = ['EXITOSO' => 0, 'FALLIDO' => 0, 'BLOQUEADO' => 0, 'RECUPERACION' => 0, 'AUDITORIA' => 0];
 $sumaMs = 0;
 $nMs = 0;
 foreach ($filas as $f) {
     if (isset($tot[$f['resultado']])) $tot[$f['resultado']]++;
-    if ($f['resultado'] !== 'RECUPERACION') { $sumaMs += (int) $f['tiempo_ms']; $nMs++; }
+    if (!in_array($f['resultado'], ['RECUPERACION', 'AUDITORIA'], true)) { $sumaMs += (int) $f['tiempo_ms']; $nMs++; }
 }
 $promMs = $nMs ? round($sumaMs / $nMs) : 0;
-$colores = ['EXITOSO' => 'success', 'FALLIDO' => 'danger', 'BLOQUEADO' => 'warning', 'RECUPERACION' => 'info'];
+$colores = ['EXITOSO' => 'success', 'FALLIDO' => 'danger', 'BLOQUEADO' => 'warning', 'RECUPERACION' => 'info', 'AUDITORIA' => 'dark'];
 $h = fn($s) => htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8');
 ?>
 <section class="container-fluid">
@@ -92,7 +93,8 @@ $h = fn($s) => htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8');
     <div class="col-6 col-md-2"><div class="card text-center"><div class="card-body py-2"><div class="fs-4 text-danger"><?= $tot['FALLIDO'] ?></div><small>Fallidos</small></div></div></div>
     <div class="col-6 col-md-2"><div class="card text-center"><div class="card-body py-2"><div class="fs-4 text-warning"><?= $tot['BLOQUEADO'] ?></div><small>Sobre cuentas bloqueadas</small></div></div></div>
     <div class="col-6 col-md-2"><div class="card text-center"><div class="card-body py-2"><div class="fs-4 text-info"><?= $tot['RECUPERACION'] ?></div><small>Recuperaciones</small></div></div></div>
-    <div class="col-12 col-md-4"><div class="card text-center"><div class="card-body py-2"><div class="fs-4"><?= $promMs ?> ms</div><small>Tiempo promedio de procesamiento del login</small></div></div></div>
+    <div class="col-6 col-md-2"><div class="card text-center"><div class="card-body py-2"><div class="fs-4"><?= $tot['AUDITORIA'] ?></div><small>Cambios de seguridad</small></div></div></div>
+    <div class="col-12 col-md-2"><div class="card text-center"><div class="card-body py-2"><div class="fs-4"><?= $promMs ?> ms</div><small>Tiempo promedio de procesamiento del login</small></div></div></div>
 </div>
 
 <div class="card">

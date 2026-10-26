@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../../config/permisos.php';
+guard_endpoint('compra', 'leer');   // control de acceso por rol (config/permisos.php)
 require_once "../../assets/plugins/vendor/autoload.php";
 
 use Spipu\Html2Pdf\Html2Pdf;

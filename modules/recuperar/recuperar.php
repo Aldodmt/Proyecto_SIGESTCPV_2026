@@ -1,10 +1,11 @@
 <?php
+require_once "../../config/auth.php";
 $base = '../../';
 $authTitle = 'Recuperar contraseña';
 
 $m = htmlspecialchars($_GET['m'] ?? '', ENT_QUOTES, 'UTF-8');
 $alertas = [
-    1 => ['success', 'bi-check-circle', "Se envió un enlace de recuperación al correo asociado a tu usuario ($m). Vence en 30 minutos."],
+    1 => ['success', 'bi-check-circle', "Se envió un enlace de recuperación al correo asociado a tu usuario ($m). Vence en " . AUTH_TOKEN_MINUTOS . " minutos."],
     2 => ['warning', 'bi-exclamation-triangle', 'Ingresa un nombre de usuario válido.'],
     3 => ['danger', 'bi-x-circle', 'No se pudo enviar el correo. Inténtalo más tarde o contacta al administrador.'],
     4 => ['danger', 'bi-x-circle', 'El usuario ingresado no está registrado.'],

@@ -1,5 +1,7 @@
 <?php
 session_start();
+require_once __DIR__ . '/../../config/permisos.php';
+guard_endpoint('presupuesto', null, 'json');   // control de acceso por rol (config/permisos.php)
 header('Content-Type: application/json'); // Forzar JSON
 require_once '../../config/database.php';
 

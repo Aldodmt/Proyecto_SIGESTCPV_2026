@@ -1,5 +1,7 @@
 <?php
 session_start();
+require_once __DIR__ . '/../config/permisos.php';
+guard_endpoint('pedido_v', 'cualquiera', 'fragmento');   // control de acceso por rol (config/permisos.php)
 $session_id = session_id();
 if (isset($_POST['id'])) {
     $id = $_POST['id'];

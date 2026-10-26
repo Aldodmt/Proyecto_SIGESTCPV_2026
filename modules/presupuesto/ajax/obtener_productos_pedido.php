@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../../../config/permisos.php';
+guard_endpoint('presupuesto', 'leer', 'fragmento');   // control de acceso por rol (config/permisos.php)
 include '../../../config/database.php';
 
 if (isset($_POST['id_pedido'])) {

@@ -1,25 +1,21 @@
 <?php
-// Funciones de apoyo de la plantilla: control de acceso por rol, filtrado y dibujo del sidebar.
+// Funciones de apoyo de la plantilla: resolución de rutas, filtrado del sidebar por permisos y dibujo del menú.
+// Los permisos (quién puede qué) viven en config/permisos.php y en la base de datos.
 
-const ROLES_TODOS = '*';
-
-function route_allows($roles, string $role): bool
-{
-    return $roles === ROLES_TODOS || in_array($role, (array) $roles, true);
-}
-
-// Resuelve ?module= contra config/routes.php. Devuelve [estado, ruta]: ok | notfound | forbidden.
-function route_resolve(string $module, array $routes, string $role): array
+// Resuelve ?module= contra config/routes.php y comprueba el permiso del usuario actual.
+// Devuelve [estado, ruta]: ok | notfound | forbidden.
+function route_resolve(string $module, array $routes, array $get = []): array
 {
     if (!isset($routes[$module]) || !is_file(__DIR__ . '/../modules/' . $routes[$module]['file'])) {
         return ['notfound', null];
     }
     $route = $routes[$module];
-    return route_allows($route['roles'], $role) ? ['ok', $route] : ['forbidden', $route];
+    $ok = puede(route_pagina($module, $route), route_accion($module, $get));
+    return [$ok ? 'ok' : 'forbidden', $route];
 }
 
-// Deja solo lo que el rol puede ver; quita grupos vacíos y títulos sin ítems debajo.
-function menu_filter(array $items, array $routes, string $role): array
+// Deja solo lo que el usuario puede ver; quita grupos vacíos y títulos sin ítems debajo.
+function menu_filter(array $items): array
 {
     $out = [];
     foreach ($items as $item) {
@@ -29,12 +25,12 @@ function menu_filter(array $items, array $routes, string $role): array
         if (isset($item['header'])) {
             $out[] = $item;
         } elseif (isset($item['children'])) {
-            $item['children'] = menu_filter($item['children'], $routes, $role);
+            $item['children'] = menu_filter($item['children']);
             if ($item['children']) {
                 $out[] = $item;
             }
         } elseif (isset($item['module'])) {
-            if (isset($routes[$item['module']]) && route_allows($routes[$item['module']]['roles'], $role)) {
+            if (puede($item['module'], 'leer')) {      // cada ítem del menú es una página con permiso "leer"
                 $out[] = $item;
             }
         } elseif (isset($item['url'])) {

@@ -41,7 +41,7 @@ if (mb_strlen($username) > 150 || mb_strlen($password) > 128) {
     responder(1);
 }
 
-$stmt = $mysqli->prepare("SELECT id_user, username, name_user, password, email, permisos_acceso, status, intentos_fallidos FROM usuarios WHERE username = ?");
+$stmt = $mysqli->prepare("SELECT * FROM usuarios WHERE username = ?");
 $stmt->bind_param('s', $username);
 $stmt->execute();
 $data = $stmt->get_result()->fetch_assoc();
@@ -78,6 +78,22 @@ if (auth_verificar($password, $data['password'])) {
     $up->execute();
     $up->close();
 
+    // Con el modelo de permisos (migración v2) el usuario necesita un rol activo para poder entrar
+    if (array_key_exists('id_rol', $data)) {
+        $rolActivo = false;
+        if ($data['id_rol'] !== null) {
+            $rs = $mysqli->prepare("SELECT 1 FROM rol WHERE id_rol = ? AND rol_estado = 'activo'");
+            $rs->bind_param('i', $data['id_rol']);
+            $rs->execute();
+            $rolActivo = (bool) $rs->get_result()->fetch_row();
+            $rs->close();
+        }
+        if (!$rolActivo) {
+            auth_log($mysqli, $id, $username, $largo, 'FALLIDO', 'Contraseña correcta, pero sin rol activo asignado', $ms());
+            responder(9);
+        }
+    }
+
     ini_set('session.cookie_httponly', '1');
     session_start();
     session_regenerate_id(true);
@@ -85,6 +101,7 @@ if (auth_verificar($password, $data['password'])) {
     $_SESSION['username'] = $data['username'];
     $_SESSION['name_user'] = $data['name_user'];
     $_SESSION['permisos_acceso'] = $data['permisos_acceso'];
+    $_SESSION['id_rol'] = $data['id_rol'] ?? null;
 
     auth_log($mysqli, $id, $username, $largo, 'EXITOSO', 'Inicio de sesión', $ms());
     responder(0, 0, 'main.php?module=start');

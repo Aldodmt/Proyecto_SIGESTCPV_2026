@@ -1,5 +1,7 @@
 <?php
 session_start();
+require_once __DIR__ . '/../../config/permisos.php';
+guard_endpoint('ventas');   // control de acceso por rol (config/permisos.php)
 require_once '../../config/database.php';
 
 if (empty($_SESSION['username']) && empty($_SESSION['password'])) {

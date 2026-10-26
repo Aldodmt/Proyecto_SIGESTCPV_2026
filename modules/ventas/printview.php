@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../../config/permisos.php';
+guard_endpoint('ventas', 'leer');   // control de acceso por rol (config/permisos.php)
 require_once "../../config/database.php";
 if ($_GET['act'] == 'imprimir') {
     if (isset($_GET['cod_venta'])) {

@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../../config/permisos.php';
+guard_endpoint('proveedor', 'leer');   // control de acceso por rol (config/permisos.php)
 require_once "../../config/database.php";
 
 $query = mysqli_query($mysqli, "SELECT *FROM proveedor") or die('error'.mysqli_error($mysqli));

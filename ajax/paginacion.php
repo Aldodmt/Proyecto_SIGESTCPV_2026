@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../config/permisos.php';
+guard_endpoint(['pedido', 'presupuesto', 'orden_c', 'compra'], 'cualquiera', 'fragmento');   // control de acceso por rol (config/permisos.php)
 function paginate($reload, $page, $tpages, $adjacents)
 {
     $prevlabel = "&lsaquo; Anterior";
