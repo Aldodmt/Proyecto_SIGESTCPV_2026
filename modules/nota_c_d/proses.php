@@ -5,6 +5,8 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once __DIR__ . '/../../config/permisos.php';
 guard_endpoint('nota_c_d', null, 'json');   // control de acceso por rol (config/permisos.php)
 require_once "../../config/database.php";
+require_once __DIR__ . '/../../config/compras.php';
+require_once __DIR__ . '/../../config/iva.php';
 header('Content-Type: application/json');
 
 $id_user = $_SESSION['id_user'] ?? null;
@@ -85,6 +87,13 @@ switch ($act) {
             exit;
         }
 
+        // Capa de estado: la nota solo puede emitirse sobre una compra ACTIVO (confirmada y no anulada)
+        $estado_compra = flujo_estado('compra', (int) $cod_compra);
+        if ($estado_compra !== 'ACTIVO') {
+            echo json_encode(['success' => false, 'message' => 'Solo se puede emitir una nota sobre una compra ACTIVO (estado actual: ' . ($estado_compra ?? 'inexistente') . ').']);
+            exit;
+        }
+
         $mysqli->begin_transaction();
 
         // Verificar que no haya cuotas pagadas
@@ -141,6 +150,9 @@ switch ($act) {
             $id_nota = $stmt->insert_id;
             $stmt->close();
 
+            // IVA de la nota: se acumula por línea (ajuste de productos) o se prorratea (ajuste de cuentas, sin productos)
+            $iva_lineas = [];
+
             // Insertar detalle SOLO si es ajuste_p
             if ($causa_nota === 'ajuste_p' && !empty($productos)) {
                 $stmt_det = $mysqli->prepare("
@@ -171,6 +183,8 @@ switch ($act) {
                         $exentas = $subtotal;
                     }
 
+                    $iva_lineas[] = ['iva_5' => $iva5, 'iva_10' => $iva10, 'iva_exentas' => $exentas];
+
                     // Insertar detalle
                     $stmt_det->bind_param('iiididdd', $id_nota, $cod_prod, $cantidad_ajustar, $precio, $tipo_iva, $exentas, $iva5, $iva10);
                     $stmt_det->execute();
@@ -196,6 +210,10 @@ switch ($act) {
                 $stmt_stock_upd->close();
             }
 
+            // Registrar el IVA de la nota (crédito resta, débito suma) con la fecha de emisión de la nota
+            $iva_nota = $causa_nota === 'ajuste_p' ? iva_sumar($iva_lineas) : iva_prorratear((int) $cod_compra, (float) $monto_total);
+            iva_registrar_nota((int) $id_nota, (int) $cod_compra, (string) $tipo_nota, $fecha !== '' ? (string) $fecha : date('Y-m-d'), $iva_nota);
+
             $mysqli->commit();
             echo json_encode(['success' => true, 'message' => 'Nota registrada correctamente']);
 
@@ -207,70 +225,46 @@ switch ($act) {
 
 
     case 'cancel':
-        $codigo = $_POST['codigo'] ?? null;
-        if (!$codigo) {
+        $codigo = (int) ($_POST['codigo'] ?? 0);
+        if ($codigo <= 0) {
             echo json_encode(['success' => false, 'message' => 'No se especificó la nota a anular']);
             exit;
         }
-        $estado = 'ANULADO';
+        // El estado cambia primero, de forma atómica (ACTIVO -> ANULADO): solo un clic gana. El trigger
+        // trg_nota_credito_debito_anulacion recalcula las cuotas en ese mismo UPDATE. El stock se revierte solo
+        // si se ganó el cambio, así una doble anulación ya no lo mueve dos veces (antes se movía antes de comprobar).
+        try {
+            $r = flujo_transicion('nota_c_d', $codigo, 'cancel', function () use ($mysqli, $codigo) {
+                $s = $mysqli->prepare("SELECT tipo FROM nota_credito_debito WHERE id_nota = ?");
+                $s->bind_param('i', $codigo);
+                $s->execute();
+                $tipo = (string) ($s->get_result()->fetch_row()[0] ?? '');
+                $s->close();
 
-        // Buscar la nota
-        $sql = mysqli_query($mysqli, "SELECT tipo FROM nota_credito_debito WHERE id_nota = $codigo");
-        $nota = mysqli_fetch_assoc($sql);
-        if (!$nota) {
-            echo json_encode(['status' => 'error', 'message' => 'Nota no encontrada']);
-            exit;
+                $s = $mysqli->prepare("SELECT cod_producto, cantidad FROM det_nota_credit_debit WHERE id_nota = ?");
+                $s->bind_param('i', $codigo);
+                $s->execute();
+                $detalle = $s->get_result()->fetch_all(MYSQLI_ASSOC);
+                $s->close();
+
+                // CREDITO: al anular vuelve a sumar; DEBITO: al anular resta (misma regla que tenía el sistema)
+                $signo = $tipo === 'CREDITO' ? '+' : ($tipo === 'DEBITO' ? '-' : null);
+                if ($signo !== null) {
+                    $u = $mysqli->prepare("UPDATE stock_prod SET cantidad = cantidad $signo ? WHERE cod_producto = ?");
+                    foreach ($detalle as $d) {
+                        $cant = (float) $d['cantidad'];
+                        $cod = (int) $d['cod_producto'];
+                        $u->bind_param('di', $cant, $cod);
+                        $u->execute();
+                    }
+                    $u->close();
+                }
+                iva_anular(null, $codigo);   // el IVA de la nota deja de contar (queda ANULADO)
+            });
+        } catch (Throwable $e) {
+            $r = ['ok' => false, 'mensaje' => 'Error al anular nota: ' . $e->getMessage(), 'estado' => null];
         }
-
-        $tipo = $nota['tipo']; // 'CREDITO' o 'DEBITO'
-
-        // Verificar si ya está anulada
-        $estadoCheck = mysqli_query($mysqli, "SELECT estado FROM nota_credito_debito WHERE id_nota = $codigo");
-        $estado = mysqli_fetch_assoc($estadoCheck)['estado'];
-        if ($estado == 'ANULADO') {
-            echo json_encode(['status' => 'error', 'message' => 'La nota ya está anulada.']);
-            exit;
-        }
-
-        // Buscar los productos de la nota
-        $detalles = mysqli_query($mysqli, "
-        SELECT cod_producto, cantidad
-        FROM det_nota_credit_debit 
-        WHERE id_nota = $codigo
-    ");
-
-        // Revertir el efecto en el stock según el tipo
-        while ($fila = mysqli_fetch_assoc($detalles)) {
-            $cod_producto = $fila['cod_producto'];
-            $cantidad = $fila['cantidad'];
-
-            if ($tipo == 'CREDITO') {
-                // La nota crédito aumentó stock, por lo tanto al anular se resta
-                $update = mysqli_query($mysqli, "
-                UPDATE stock_prod
-                SET cantidad = cantidad + $cantidad
-                WHERE cod_producto = $cod_producto
-            ");
-            } elseif ($tipo == 'DEBITO') {
-                // La nota débito disminuyó stock, por lo tanto al anular se suma
-                $update = mysqli_query($mysqli, "
-                UPDATE stock_prod
-                SET cantidad = cantidad - $cantidad
-                WHERE cod_producto = $cod_producto
-            ");
-            }
-        }
-
-        // Actualización que dispara el trigger de anulación
-        $stmt = $mysqli->prepare("UPDATE nota_credito_debito SET estado='ANULADO', anulado_por=?, anulado_fecha = CURDATE(), anulado_hora = CURTIME() WHERE id_nota=?");
-        $stmt->bind_param('ii', $id_user, $codigo);
-
-        if ($stmt->execute()) {
-            echo json_encode(['success' => true, 'message' => 'Nota anulada correctamente']);
-        } else {
-            echo json_encode(['success' => false, 'message' => 'Error al anular nota']);
-        }
-        $stmt->close();
+        echo json_encode(['success' => $r['ok'], 'message' => $r['mensaje'], 'estado' => $r['estado']], JSON_UNESCAPED_UNICODE);
         break;
 
     default:

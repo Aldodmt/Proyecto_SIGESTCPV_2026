@@ -4,7 +4,10 @@ $username = "root";
 $password = "";
 $database = "sysweb";
 
-$mysqli = new mysqli($server, $username, $password, $database);
+// El puerto puede cambiarse con la variable de entorno SYSWEB_DB_PORT (sirve para probar contra una instancia de MySQL
+// aislada sin tocar la del panel de XAMPP). Si no está definida se usa el 3306 de siempre.
+$port = (int) (getenv('SYSWEB_DB_PORT') ?: 3306);
+$mysqli = new mysqli($server, $username, $password, $database, $port);
 if ($mysqli->connect_error) {
     die('error' . $mysqli->connect_error);
 }

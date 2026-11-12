@@ -216,6 +216,7 @@ if ($_GET['form'] == 'add') {
     <?php
 }
 if ($_GET['form'] == 'detalle') {
+    require_once __DIR__ . '/../../config/iva.php';
     $id_nota = intval($_GET['id_nota']);
 
     // Obtener los datos principales de la nota
@@ -385,6 +386,7 @@ if ($_GET['form'] == 'detalle') {
                             <input type="text" class="form-control text-end"
                                 value="<?= number_format($monto_total, 0, ',', '.') ?>" readonly style="width:150px;">
                         </div>
+                        <?php iva_render_bloque(iva_filas(null, (int) $id_nota)); ?>
                     </div>
 
                     <!-- Botones -->

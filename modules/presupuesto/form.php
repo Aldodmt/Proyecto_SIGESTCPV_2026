@@ -4,26 +4,21 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 require_once "config/database.php";
+require_once __DIR__ . '/../../config/compras.php';
 
 $id_usuario = $_SESSION['id_user'] ?? null;
 if (!$id_usuario) {
     die("No se detectó usuario logueado.");
 }
 
-// Generar código único para presupuesto
-$query_id = mysqli_query($mysqli, "SELECT MAX(id_presupuesto) as id FROM presupuesto") or die("Error: " . mysqli_error($mysqli));
-$data_id = mysqli_fetch_assoc($query_id);
-$id_presupuesto = ($data_id['id'] ?? 0) + 1;
+$form = $_GET['form'] ?? '';
 
-$fecha_e = date("Y-m-d");
-$fecha_v = date("Y-m-d");
-$estado = 'PENDIENTE'; // Estado inicial
-
-//formulario para agregar
-if ($_GET['form'] == 'add') {
-    $codigo = $id_presupuesto;
+// El presupuesto se genera SIEMPRE a partir de un pedido confirmado (flujo pedido -> presupuesto -> orden -> compra).
+if ($form === 'add') {
+    // Vista previa del código: el definitivo lo reserva el servidor al guardar (flujo_siguiente_codigo)
+    $codigo = (int) mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COALESCE(MAX(id_presupuesto), 0) + 1 AS id FROM presupuesto"))['id'];
     $fecha_e = date("Y-m-d");
-    $fecha_v = date("Y-m-d");
+    $fecha_min = date("Y-m-d", strtotime('+1 day'));
     $estado = 'BORRADOR';
     ?>
     <div class="container-fluid">
@@ -53,7 +48,7 @@ if ($_GET['form'] == 'add') {
                             </div>
                             <label class="col-md-2 col-form-label">Fecha Vencimiento</label>
                             <div class="col-md-2">
-                                <input type="date" class="form-control" name="fecha_v" value="<?= $fecha_v ?>" required>
+                                <input type="date" class="form-control" name="fecha_v" value="<?= $fecha_min ?>" min="<?= $fecha_min ?>" required>
                             </div>
                         </div>
 
@@ -70,38 +65,21 @@ if ($_GET['form'] == 'add') {
                                     <?php
                                     $query_prove = mysqli_query($mysqli, "SELECT cod_proveedor, razon_social FROM proveedor ORDER BY razon_social ASC");
                                     while ($row = mysqli_fetch_assoc($query_prove)) {
-                                        echo "<option value='{$row['cod_proveedor']}'>{$row['razon_social']}</option>";
+                                        echo "<option value='" . (int) $row['cod_proveedor'] . "'>" . h($row['razon_social']) . "</option>";
                                     }
                                     ?>
                                 </select>
                             </div>
                         </div>
 
-                        <div class="row mb-3 row align-items-center">
-                            <label class="col-md-2 col-form-label">Modo de Presupuesto</label>
-                            <div class="col-md-4">
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" id="toggleProductos" />
-                                    <label class="form-check-label" for="toggleProductos">
-                                        Presupuestar productos sin pedido
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-
                         <div class="row mb-3">
+                            <label class="col-md-2 col-form-label">Pedido</label>
                             <div class="col-md-10">
-                                <!-- Botón de pedidos -->
                                 <button type="button" class="btn btn-info" id="btnAgregarPedidos" data-bs-toggle="modal"
                                     data-bs-target="#myModal">
-                                    <i class="bi bi-plus-lg"></i> Agregar Pedidos
+                                    <i class="bi bi-plus-lg"></i> Seleccionar Pedido
                                 </button>
-
-                                <!-- Botón de productos generales -->
-                                <button type="button" class="btn btn-info d-none" id="btnAgregarProductos"
-                                    data-bs-toggle="modal" data-bs-target="#myModalProductos">
-                                    <i class="bi bi-plus-lg"></i> Agregar Productos
-                                </button>
+                                <small class="text-muted ms-2">Solo pedidos CONFIRMADOS que todavía no tengan un presupuesto vigente.</small>
                             </div>
                         </div>
 
@@ -127,28 +105,33 @@ if ($_GET['form'] == 'add') {
         </div>
     </div>
 <?php }
-if ($_GET['form'] == 'detalle') {
+
+if ($form === 'detalle') {
     $id_presupuesto = isset($_GET['id_presupuesto']) ? intval($_GET['id_presupuesto']) : 0;
 
-    if ($id_presupuesto <= 0) {
-        echo "<div class='alert alert-danger'>ID de presupuesto no válido.</div>";
-        exit;
-    }
-
-    // Consulta la cabecera del presupuesto
-    $query = mysqli_query($mysqli, "
-        SELECT p.id_presupuesto, p.fecha_presu, p.fecha_vencimiento, p.estado, pr.razon_social
+    // Cabecera del presupuesto (el detalle de productos se consulta aparte, más abajo)
+    $stmt = $mysqli->prepare("
+        SELECT p.id_presupuesto, p.id_pedido, p.fecha_presu, p.fecha_vencimiento, p.estado, pr.razon_social
         FROM presupuesto p
         JOIN proveedor pr ON p.cod_proveedor = pr.cod_proveedor
-        WHERE p.id_presupuesto = $id_presupuesto
+        WHERE p.id_presupuesto = ?
     ");
-    $data = mysqli_fetch_assoc($query);
+    $stmt->bind_param('i', $id_presupuesto);
+    $stmt->execute();
+    $data = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
 
-    $codigo = $data['id_presupuesto'];
+    if (!$data) {
+        echo "<div class='alert alert-warning'>El presupuesto solicitado no existe. <a href='?module=presupuesto'>Volver</a></div>";
+        return;
+    }
+
+    $codigo = (int) $data['id_presupuesto'];
     $fecha_e = $data['fecha_presu'];
     $fecha_v = $data['fecha_vencimiento'];
-    $estado = $data['estado'];
+    $estado = strtoupper($data['estado']);
     $proveedor = $data['razon_social'];
+    $id_pedido_origen = $data['id_pedido'];
     ?>
     <div class="container-fluid">
         <div class="fade-in">
@@ -175,50 +158,48 @@ if ($_GET['form'] == 'detalle') {
                             </div>
                             <label class="col-md-2 col-form-label">Fecha Emisión</label>
                             <div class="col-md-2">
-                                <input type="date" class="form-control" name="fecha_emision" value="<?= $fecha_e ?>"
-                                    readonly>
+                                <input type="date" class="form-control" name="fecha_emision" value="<?= h($fecha_e) ?>" readonly>
                             </div>
                             <label class="col-md-2 col-form-label">Fecha Vencimiento</label>
                             <div class="col-md-2">
-                                <input type="date" class="form-control" name="fecha_vencimiento" value="<?= $fecha_v ?>"
-                                    readonly>
+                                <input type="date" class="form-control" name="fecha_vencimiento" value="<?= h($fecha_v) ?>" readonly>
                             </div>
                         </div>
 
                         <div class="alert alert-info mt-3" id="estadoActual">
-                            Estado del presupuesto: <strong><?= $estado ?></strong>
+                            Estado del presupuesto: <strong><?= h($estado) ?></strong>
                         </div>
-                        <input type="hidden" id="estado_presupuesto" name="estado" value="<?= $estado ?>">
+                        <input type="hidden" id="estado_presupuesto" name="estado" value="<?= h($estado) ?>">
 
                         <div class="row mb-3">
                             <label class="col-md-2 col-form-label">Proveedor</label>
                             <div class="col-md-4">
-                                <input type="text" class="form-control" value="<?= $proveedor ?>" readonly>
+                                <input type="text" class="form-control" value="<?= h($proveedor) ?>" readonly>
+                            </div>
+                            <label class="col-md-2 col-form-label">Pedido de origen</label>
+                            <div class="col-md-2">
+                                <input type="text" class="form-control" value="<?= h($id_pedido_origen) ?>" readonly>
                             </div>
                         </div>
 
-                        <!-- Tabla de detalle -->
+                        <!-- Tabla de detalle (recién ahora se consultan los productos) -->
                         <?php
-                        $query_detalle = mysqli_query($mysqli, "
-                            SELECT dp.cod_producto, p.p_descrip, dp.cantidad, dp.precio_unit
-                            FROM det_presu dp
-                            JOIN producto p ON dp.cod_producto = p.cod_producto
-                            WHERE dp.id_presupuesto = $codigo
-                        ");
-
-                        if (mysqli_num_rows($query_detalle) > 0) {
+                        $detalle = flujo_detalle_presupuesto($codigo);
+                        if ($detalle) {
+                            $total = 0;
                             echo '<table class="table table-striped mt-3">';
-                            echo '<thead><tr><th>Producto</th><th>Cantidad</th><th>Precio Unitario</th><th>Subtotal</th></tr></thead><tbody>';
-                            while ($row = mysqli_fetch_assoc($query_detalle)) {
+                            echo '<thead><tr><th>Producto</th><th class="text-end">Cantidad</th><th class="text-end">Precio Unitario</th><th class="text-end">Subtotal</th></tr></thead><tbody>';
+                            foreach ($detalle as $row) {
                                 $subtotal = $row['cantidad'] * $row['precio_unit'];
+                                $total += $subtotal;
                                 echo "<tr>
-                                        <td>{$row['p_descrip']}</td>
-                                        <td>{$row['cantidad']}</td>
-                                        <td>{$row['precio_unit']}</td>
-                                        <td>{$subtotal}</td>
+                                        <td>" . h($row['p_descrip']) . "</td>
+                                        <td class='text-end'>" . h($row['cantidad']) . "</td>
+                                        <td class='text-end'>" . flujo_dinero($row['precio_unit']) . "</td>
+                                        <td class='text-end'>" . flujo_dinero($subtotal) . "</td>
                                       </tr>";
                             }
-                            echo '</tbody></table>';
+                            echo '</tbody><tfoot><tr><td colspan="3" class="text-end fw-bold">TOTAL:</td><td class="text-end fw-bold">' . flujo_dinero($total) . '</td></tr></tfoot></table>';
                         } else {
                             echo "<div class='alert alert-warning mt-3'>No hay productos en este presupuesto.</div>";
                         }
@@ -229,10 +210,10 @@ if ($_GET['form'] == 'detalle') {
                             <button type="button" class="btn btn-primary" id="btnGuardar">
                                 <i class="bi bi-save"></i> Guardar
                             </button>
-                            <button type="button" class="btn btn-primary" id="btnConfirmar" disabled>
+                            <button type="button" class="btn btn-primary" id="btnConfirmar">
                                 <i class="bi bi-check-lg"></i> Aprobar
                             </button>
-                            <button type="button" class="btn btn-danger" id="btnAnular" disabled>
+                            <button type="button" class="btn btn-danger" id="btnAnular">
                                 <i class="bi bi-x-lg"></i> Anular
                             </button>
                             <a href="?module=presupuesto" class="btn btn-secondary">
@@ -252,14 +233,14 @@ if ($_GET['form'] == 'detalle') {
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="myModallabel">Buscar Productos</h5>
+                <h5 class="modal-title" id="myModallabel">Buscar Pedidos</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form>
+                <form onsubmit="load(1); return false;">
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <input type="text" class="form-control" id="x">
+                            <input type="text" class="form-control" id="x" placeholder="Buscar por código o usuario">
                         </div>
                         <div class="col-md-3">
                             <button type="button" class="btn btn-primary" onclick="load(1, true)">
@@ -280,435 +261,161 @@ if ($_GET['form'] == 'detalle') {
     </div>
 </div>
 
-<!-- Modal Productos Generales -->
-<div class="modal fade" id="myModalProductos" tabindex="-1" aria-labelledby="myModalProductosLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="myModalProductosLabel">Agregar Productos Generales</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form>
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <input type="text" class="form-control" id="xProductos" placeholder="Buscar productos...">
-                        </div>
-                        <div class="col-md-3">
-                            <button type="button" class="btn btn-primary" onclick="loadProductos(1, true)">
-                                <i class="bi bi-search"></i> Buscar
-                            </button>
-                        </div>
-                    </div>
-                </form>
-                <div id="loaderProductos" class="text-center" style="display:none;">
-                    <img src="./images/ajax-loader.gif" alt="Cargando..." /> Cargando...
-                </div>
-                <div class="outer_div_productos"></div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-            </div>
-        </div>
-    </div>
-</div>
-
+<?= flujo_script_botones('presupuesto') ?>
 <script>
     var productos = [];
-    var id_pedido = null;
+
+    // Lee la tabla (cantidades del pedido y precios tecleados) y arma la lista que se envía al servidor.
+    // El servidor solo toma de aquí los PRECIOS; productos y cantidades los vuelve a leer del pedido.
+    function actualizarProductos() {
+        productos = [];
+        $('#resultados tbody tr[data-cod]').each(function () {
+            productos.push({
+                codigo_producto: $(this).data('cod') || 0,
+                cantidad: parseFloat($(this).find('.cantidad').text()) || 0,
+                precio_unitario: parseFloat($(this).find('.precio_unit').val()) || 0
+            });
+        });
+    }
+
+    function actualizarSubtotales() {
+        let total = 0;
+        $('#resultados tbody tr[data-cod]').each(function () {
+            let subtotal = (parseFloat($(this).find('.cantidad').text()) || 0) * (parseFloat($(this).find('.precio_unit').val()) || 0);
+            $(this).find('.subtotal').text(subtotal.toFixed(2));
+            total += subtotal;
+        });
+        $('#total_general').text(total.toFixed(2));
+        actualizarProductos();
+    }
+    // Los inputs de precio se crean dinámicamente: el evento se delega en el contenedor
+    $('#resultados').on('input', '.precio_unit', actualizarSubtotales);
 
     function validarFormulario() {
-        let proveedor = $('select[name="codigo_proveedor"]').val();
-        if (!proveedor) {
+        if (!$('select[name="codigo_proveedor"]').val()) {
             alert("Debes seleccionar un proveedor.");
             return false;
         }
-
-        if (productos.length === 0) {
-            alert("Debes agregar al menos un producto.");
+        if (!$('#id_pedido').val()) {
+            alert("Debes seleccionar un pedido confirmado.");
             return false;
         }
-
-        let preciosInvalidos = productos.some(p => p.precio_unitario <= 0);
-        if (preciosInvalidos) {
+        actualizarProductos();
+        if (productos.length === 0) {
+            alert("El pedido seleccionado no tiene productos.");
+            return false;
+        }
+        if (productos.some(p => p.precio_unitario <= 0)) {
             alert("Todos los productos deben tener un precio unitario mayor a 0.");
             return false;
         }
-
         return true;
     }
 
     function load(page, mostrarLoader = true) {
-        var x = $("#x").val() || '';
-        if (mostrarLoader) $("#loader").fadeIn('slow');
-        $.ajax({
-            url: './ajax/productos_presu.php?action=ajax&page=' + page + '&x=' + x,
-            beforeSend: function () {
-                if (mostrarLoader) $('#loader').show();
-            },
-            success: function (data) {
-                $(".outer_div").html(data).fadeIn('slow');
-                $('#loader').hide();
-            },
-            error: function (xhr, status, error) {
-                alert("Error en la solicitud AJAX: " + error);
-            }
-        });
+        if (mostrarLoader) $('#loader').show();
+        $.get('./ajax/productos_presu.php', { action: 'ajax', page: page, x: $('#x').val() || '' })
+            .done(function (data) { $('.outer_div').html(data); })
+            .fail(function (xhr, status, error) { alert("Error en la solicitud AJAX: " + error); })
+            .always(function () { $('#loader').hide(); });
     }
 
-    function loadProductos(page, mostrarLoader = true) {
-        var x = $("#xProductos").val() || '';
-        if (mostrarLoader) $("#loaderProductos").fadeIn('slow');
-        $.ajax({
-            url: './ajax/productos_general.php?action=ajax&page=' + page + '&x=' + x,
-            beforeSend: function () {
-                if (mostrarLoader) $('#loaderProductos').show();
-            },
-            success: function (data) {
-                $(".outer_div_productos").html(data).fadeIn('slow');
-                $('#loaderProductos').hide();
-            },
-            error: function (xhr, status, error) {
-                alert("Error en la solicitud AJAX: " + error);
-            }
-        });
+    function generarTabla() {
+        $('#resultados').html(`<table class="table table-striped" data-tipo="pedido">
+            <thead>
+                <tr>
+                    <th>Codigo Pedido</th>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Precio Unitario</th>
+                    <th>Subtotal</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="4" class="text-end fw-bold">TOTAL:</td>
+                    <td id="total_general" class="fw-bold">0.00</td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>`);
     }
 
     function seleccionarPedido(id_pedido) {
-        // Validar si ya hay productos cargados
         if ($('#resultados tbody tr').length > 0) {
-            alert("Ya hay productos cargados. Debes eliminar los productos actuales antes de seleccionar otro pedido.");
-            return; // Salir de la función
+            alert("Ya hay un pedido cargado. Debes quitarlo antes de seleccionar otro.");
+            return;
         }
-        // Generar la tabla (solo si no existe)
-        if ($('#resultados table').length === 0) {
-            generarTabla('pedido');
-        } else {
-            // Limpiar solo el tbody
-            $('#resultados tbody').html('');
-        }
-
+        generarTabla();
+        // El detalle se consulta recién ahora; el servidor vuelve a validar que el pedido siga CONFIRMADO y libre
         $.post("ajax/agregar_presu.php", { id_pedido: id_pedido }, function (data) {
             $("#resultados tbody").html(data);
-
+            if ($('#resultados tbody tr[data-error]').length) {
+                $('#id_pedido').val('');
+                return;
+            }
             $('#id_pedido').val(id_pedido);
-            actualizarProductos();
-            $('.precio_unit').off('input').on('input', actualizarSubtotales);
+            actualizarSubtotales();
         });
-
         bootstrap.Modal.getInstance(document.getElementById('myModal')).hide();
     }
 
-
     function eliminarPedido(id_pedido) {
-        // Eliminar filas del pedido
-        $('tr[data-pedido="' + id_pedido + '"]').remove();
-        actualizarProductos();
-
-        // Verificar si quedó alguna fila de pedido
-        if ($('#resultados tbody tr[data-pedido]').length === 0) {
-            // Reiniciar tabla sin tipo definido
-            $('#resultados').html(''); // limpio toda la tabla
-            $('#id_pedido').val('');   // reseteo el id del pedido
-        }
-    }
-
-    function actualizarProductos() {
+        $('#resultados').html('');
+        $('#id_pedido').val('');
         productos = [];
-        $('#resultados tbody tr').each(function () {
-            var cod = $(this).data('cod') || 0;
-            var cantidad = parseFloat($(this).find('.cantidad').text()) || 0;
-            var precio = parseFloat($(this).find('.precio_unit').val()) || 0;
-            productos.push({ codigo_producto: cod, cantidad: cantidad, precio_unitario: precio });
-        });
     }
 
-    //actualizar subtotal para presupuesto con pedido
-    function actualizarSubtotales() {
-        $('#resultados tbody tr').each(function () {
-            let cantidad = parseFloat($(this).find('.cantidad').text()) || 0;
-            let precio = parseFloat($(this).find('.precio_unit').text()) || 0;
-            $(this).find('.subtotal').text((cantidad * precio).toFixed(2));
-        });
-        actualizarTotalGeneral();
-    }
-    //actualizar subtotal para presupuesto sin pedido
-    function actualizarSubtotalesGeneral() {
-        $('#resultados tbody tr').each(function () {
-            let cantidad = parseFloat($(this).find('.cantidad').text()) || 0;
-            let precio = parseFloat($(this).find('.precio_unit').text()) || 0;
-            $(this).find('.subtotal').text((cantidad * precio).toFixed(2));
-        });
-        actualizarTotalGeneral();
-    }
-    //actualiza el total general 
-    function actualizarTotalGeneral() {
-        let total = 0;
-        $('#resultados tbody tr').each(function () {
-            let subtotal = parseFloat($(this).find('.subtotal').text()) || 0;
-            total += subtotal;
-        });
-        $('#total_general').text(total.toFixed(2));
-    }
-
-    //carga los items del modal cuando se abre
+    // Carga la primera página cuando se abre la ventana
     $('#myModal').on('shown.bs.modal', function () {
         $('#x').val('');
         load(1, false);
         $('#x').focus();
     });
-    //lo mismo que arriba pero 2 
-    $('#myModalProductos').on('shown.bs.modal', function () {
-        $('#xProductos').val('');
-        loadProductos(1, false);
-        $('#xProductos').focus();
-    });
 
-    // --- FUNCION GENÉRICA ---
-    function actualizarEstado(act) {
+    // Acciones de estado del presupuesto ya guardado. El servidor revalida el estado; luego se recarga
+    // para mostrar el estado real y los botones que le corresponden.
+    function accionPresupuesto(act) {
         let codigo = $('input[name="codigo"]').val();
-
-        $.post("./modules/presupuesto/proses.php", { act: act, codigo: codigo }, function (response) {
-            console.log("Respuesta:", response);
-
-            if (response.success) {
-                alert(response.message);
-                setTimeout(function () { location.reload(); }, 500);
-            } else {
-                alert("Error: " + response.message);
-            }
+        $.post("modules/presupuesto/proses.php", { act: act, codigo: codigo }, function (response) {
+            alert(response.message);
+            location.reload();
         }, "json").fail(function () {
             alert("Error en la solicitud AJAX.");
         });
     }
 
-    $(document).on('click', '.agregar_producto', function () {
-        if ($('#resultados table').data('tipo') === 'pedido') {
-            alert("Ya hay un pedido cargado. No se pueden agregar productos generales.");
-            return; // Salir de la función sin agregar
-        }
+    $(document).ready(function () {
+        manejarBotones($('#estado_presupuesto').val());
 
-        if ($('#resultados table').length === 0) {
-            generarTabla('general'); // genero tabla si no existe
-        }
+        $('#btnGuardar').off('click').on('click', function (e) {
+            e.preventDefault();
+            if (!validarFormulario()) return;
+            $('#productos_json').val(JSON.stringify(productos));
 
-        let $fila = $(this).closest('tr');
-        let cod_producto = $fila.data('cod');
-        let descripcion = $fila.find('td:nth-child(4)').text();
-        let cantidad = parseFloat($fila.find('.cantidad_input').val()) || 1;
-        let precio_unitario = parseFloat($fila.find('.precio_input').val()) || 0;
-        let impuesto = $fila.data('impuesto') || null;
-        console.log('Cantidad:', cantidad, 'Precio unitario:', precio_unitario);
-
-
-        // Validaciones
-        if (cantidad <= 0) {
-            alert("La cantidad debe ser mayor a cero.");
-            return;
-        }
-        if (precio_unitario <= 0) {
-            alert("El precio unitario debe ser mayor a cero.");
-            return;
-        }
-        // Evitar duplicados
-        if (productos.some(p => p.codigo_producto == cod_producto)) {
-            alert("Este producto ya fue agregado.");
-            return;
-        }
-
-        // Agregar al array
-        productos.push({
-            codigo_producto: cod_producto,
-            cantidad: cantidad,
-            precio_unitario: precio_unitario,
-            impuesto: impuesto,
-            descripcion: descripcion
-        });
-
-        // Agregar a la tabla principal
-        let subtotal = (cantidad * precio_unitario).toFixed(2);
-        console.log('Subtotal calculado:', subtotal);
-        let filaTabla = `<tr data-cod="${cod_producto}">
-            <td>${descripcion}</td>
-            <td class="cantidad">${cantidad}</td>
-            <td class="precio_unit">${precio_unitario}</td>
-            <td class="subtotal">${subtotal}</td>
-            <td><button type="button" class="btn btn-sm btn-danger btnEliminar"><i class="bi bi-trash"></i></button></td>
-        </tr>`;
-
-        $('#resultados tbody').append(filaTabla);
-
-
-
-        // Actualizar subtotales
-        actualizarSubtotalesGeneral();
-    });
-
-    // Evento eliminar
-    $('#resultados').on('click', '.btnEliminar', function () {
-        let $tr = $(this).closest('tr');
-        let cod_producto = $tr.data('cod');
-        $tr.remove();
-        productos = productos.filter(p => p.codigo_producto != cod_producto);
-
-        if ($('#resultados tbody tr').length === 0) {
-            $('#resultados').html(''); // limpio la tabla completamente
-        } else {
-            actualizarSubtotalesGeneral();
-        }
-    });
-
-    // --- FUNCION PARA MANEJAR BOTONES SEGUN ESTADO ---
-    function manejarBotones(estado) {
-        switch (estado) {
-            case 'BORRADOR':
-                $('#btnGuardar').prop('disabled', false);
-                $('#btnConfirmar, #btnAnular').prop('disabled', true);
-                break;
-            case 'PENDIENTE':
-                $('#btnGuardar').prop('disabled', true);
-                $('#btnConfirmar').prop('disabled', false);
-                $('#btnAnular').prop('disabled', true);
-                break;
-            case 'APROBADO':
-            case 'CONFIRMADO':
-                $('#btnGuardar, #btnConfirmar').prop('disabled', true);
-                $('#btnAnular').prop('disabled', false);
-                break;
-            case 'ANULADO':
-                $('#btnGuardar, #btnConfirmar, #btnModificar, #btnAnular').prop('disabled', true);
-                break;
-            default:
-                $('#btnGuardar').prop('disabled', false);
-                $('#btnConfirmar, #btnAnular').prop('disabled', true);
-        }
-    }
-
-    // --- BOTONES ---
-    $('#btnGuardar').off('click').on('click', function (e) {
-        e.preventDefault();
-        if (!validarFormulario()) return;
-
-        $('#productos_json').val(JSON.stringify(productos));
-        let formData = $('#formPresupuesto').serialize();
-
-        $.post("modules/presupuesto/proses.php?act=insert", formData, function (response) {
-            if (response.success) {
-                alert(response.message);
-                $('#estadoActual').html('Estado del presupuesto: <strong>PENDIENTE</strong>');
-                $('#estado_presupuesto').val('PENDIENTE');
-                manejarBotones('PENDIENTE');
-                window.location.href = "?module=presupuesto";
-            } else {
-                alert("Error al guardar: " + response.message);
-            }
-        }, "json").fail(function () {
-            alert("Error en la solicitud AJAX.");
-        });
-    });
-
-    $('#btnConfirmar').off('click').on('click', function () {
-        let codigo = $('input[name="codigo"]').val();
-
-        $.ajax({
-            url: "modules/presupuesto/proses.php",
-            type: "POST",
-            data: { act: 'confirm', codigo: codigo },
-            dataType: "json",
-            success: function (response) {
-                console.log(response); // <- IMPORTANTE para depurar
+            $.post("modules/presupuesto/proses.php?act=insert", $('#formPresupuesto').serialize(), function (response) {
                 if (response.success) {
                     alert(response.message);
-                    $('#estadoActual').html('Estado del presupuesto: <strong>APROBADO</strong>');
-                    $('#estado_presupuesto').val('APROBADO');
-                    manejarBotones('APROBADO');
+                    window.location.href = "?module=presupuesto";
                 } else {
-                    alert("Error: " + response.message);
+                    alert("Error al guardar: " + response.message);
                 }
-            },
-            error: function (xhr, status, error) {
-                alert("Error en la solicitud AJAX: " + error);
-            }
+            }, "json").fail(function () {
+                alert("Error en la solicitud AJAX.");
+            });
+        });
+
+        $('#btnConfirmar').off('click').on('click', function (e) {
+            e.preventDefault();
+            accionPresupuesto('confirm');
+        });
+
+        $('#btnAnular').off('click').on('click', function (e) {
+            e.preventDefault();
+            if (!confirm("¿Estás seguro que deseas anular este presupuesto?")) return;
+            accionPresupuesto('cancel');
         });
     });
-
-    $('#btnAnular').off('click').on('click', function () {
-        let codigo = $('input[name="codigo"]').val();
-        if (!confirm("¿Estás seguro que deseas anular este presupuesto?")) return;
-
-        $.post("modules/presupuesto/proses.php", { act: 'cancel', codigo }, function (response) {
-            if (response.success) {
-                alert(response.message);
-                $('#estadoActual').html('Estado del presupuesto: <strong>ANULADO</strong>');
-                $('#estado_presupuesto').val('ANULADO');
-                manejarBotones('ANULADO');
-            } else {
-                alert("Error: " + response.message);
-            }
-        }, "json");
-    });
-
-    function generarTabla(tipo) {
-        let html = '';
-        if (tipo === 'pedido') {
-            html = `<table class="table table-striped" data-tipo="pedido">
-                    <thead>
-                        <tr>
-                            <th>Codigo Pedido</th>
-                            <th>Producto</th>
-                            <th>Cantidad</th>
-                            <th>Precio Unitario</th>
-                            <th>Subtotal</th>
-                            <th>Acción</th>
-                        </tr>
-                    </thead>
-                    <tfoot>
-                            <tr>
-                            <td colspan="3" class="text-end fw-bold">TOTAL:</td>
-                            <td id="total_general" class="fw-bold">0.00</td>
-                            <td></td>
-                            </tr>
-                        </tfoot>
-                    <tbody></tbody>
-                </table>`;
-        } else if (tipo === 'general') {
-            html = `<table class="table table-striped" data-tipo="general">
-                    <thead>
-                        <tr>
-                            <th>Producto</th>
-                            <th>Cantidad</th>
-                            <th>Precio Unitario</th>
-                            <th>Subtotal</th>
-                            <th>Acción</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                    <tfoot>
-                        <tr>
-                        <td colspan="3" class="text-end fw-bold">TOTAL:</td>
-                        <td id="total_general" class="fw-bold">0.00</td>
-                        <td></td>
-                        </tr>
-                    </tfoot>
-                </table>`;
-        }
-
-        $('#resultados').html(html);
-    }
-
-    // Toggle switch para cambiar entre Pedidos y Productos generales
-    $('#toggleProductos').on('change', function () {
-        if ($(this).is(':checked')) {
-            // Mostrar productos generales, ocultar pedidos
-            $('#btnAgregarPedidos').addClass('d-none');
-            $('#btnAgregarProductos').removeClass('d-none');
-        } else {
-            // Mostrar pedidos, ocultar productos generales
-            $('#btnAgregarPedidos').removeClass('d-none');
-            $('#btnAgregarProductos').addClass('d-none');
-        }
-    });
-
-    // --- INICIALIZAR BOTONES SEGUN ESTADO ---
-    manejarBotones($('#estado_presupuesto').val());
 </script>

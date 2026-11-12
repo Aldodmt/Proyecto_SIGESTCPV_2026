@@ -1,56 +1,46 @@
 <?php
 require_once __DIR__ . '/../config/permisos.php';
-guard_endpoint('orden_c', 'cualquiera', 'fragmento');   // control de acceso por rol (config/permisos.php)
+guard_endpoint('orden_c', 'cualquiera', 'fragmento');   // 1.ª capa: permiso del rol (config/permisos.php)
 require_once '../config/database.php';
+require_once __DIR__ . '/../config/compras.php';
 
+// Devuelve las filas del detalle de un PRESUPUESTO para armar la orden de compra.
 if (!isset($_POST['id_presupuesto']))
     exit;
 
 $id_presupuesto = intval($_POST['id_presupuesto']);
 
-$sql = mysqli_query($mysqli, "
-    SELECT 
-        dp.id_presupuesto,
-        pr.cod_proveedor,
-        pr.razon_social,
-        dp.cod_producto,
-        p.p_descrip,
-        dp.cantidad,
-        dp.precio_unit
-    FROM det_presu dp
-    JOIN producto p ON dp.cod_producto = p.cod_producto
-    JOIN presupuesto pre ON dp.id_presupuesto = pre.id_presupuesto
-    JOIN proveedor pr ON pre.cod_proveedor = pr.cod_proveedor
-    WHERE dp.id_presupuesto = $id_presupuesto
-");
-
-if (mysqli_num_rows($sql) > 0) {
-    while ($row = mysqli_fetch_assoc($sql)) {
-        $subtotal = $row['cantidad'] * $row['precio_unit'];
-        ?>
-        <tr id="fila_<?= $row['cod_producto'] ?>" data-cod="<?= $row['cod_producto'] ?>" data-presu="<?= $id_presupuesto ?>"
-            data-tipo="presupuesto">
-
-            <td><?= htmlspecialchars($row['id_presupuesto']) ?></td>
-            <td><?= htmlspecialchars($row['razon_social']) ?></td>
-            <td><?= htmlspecialchars($row['p_descrip']) ?></td>
-
-            <!-- Usamos data-* para valores originales -->
-            <td class="cantidad" data-valor="<?= $row['cantidad'] ?>"><?= number_format($row['cantidad'], 2) ?></td>
-            <td class="precio_unit" data-valor="<?= $row['precio_unit'] ?>">
-                <?= number_format($row['precio_unit'], 2) ?>
-            </td>
-            <td class="subtotal" data-valor="<?= $subtotal ?>"><?= number_format($subtotal, 2) ?></td>
-
-            <td class="text-center">
-                <button class="btn btn-danger btn-sm" onclick="eliminarPresupuesto('<?= $id_presupuesto ?>')">
-                    <i class="bi bi-trash"></i>
-                </button>
-            </td>
-        </tr>
-        <?php
-    }
-} else {
-    echo "<tr><td colspan='8' class='text-center'>No hay productos en este presupuesto.</td></tr>";
+// 2.ª capa: solo se puede ordenar un presupuesto APROBADO que no tenga ya una orden vigente.
+if (($error = flujo_validar_origen('presupuesto', $id_presupuesto)) !== null) {
+    echo "<tr data-error='1'><td colspan='7' class='text-danger text-center'>" . h($error) . "</td></tr>";
+    exit;
 }
-?>
+
+$s = $mysqli->prepare("SELECT v.razon_social FROM presupuesto p JOIN proveedor v ON v.cod_proveedor = p.cod_proveedor WHERE p.id_presupuesto = ? LIMIT 1");
+$s->bind_param('i', $id_presupuesto);
+$s->execute();
+$razon = (string) ($s->get_result()->fetch_row()[0] ?? '');
+$s->close();
+
+$items = flujo_detalle_presupuesto($id_presupuesto);
+if (!$items) {
+    echo "<tr data-error='1'><td colspan='7' class='text-center'>No hay productos en este presupuesto.</td></tr>";
+    exit;
+}
+foreach ($items as $row) {
+    $subtotal = $row['cantidad'] * $row['precio_unit']; ?>
+    <tr id="fila_<?= (int) $row['cod_producto'] ?>" data-cod="<?= (int) $row['cod_producto'] ?>" data-presu="<?= $id_presupuesto ?>"
+        data-tipo="presupuesto">
+        <td><?= $id_presupuesto ?></td>
+        <td><?= h($razon) ?></td>
+        <td><?= h($row['p_descrip']) ?></td>
+        <td class="cantidad" data-valor="<?= h($row['cantidad']) ?>"><?= number_format($row['cantidad'], 2) ?></td>
+        <td class="precio_unit" data-valor="<?= h($row['precio_unit']) ?>"><?= number_format($row['precio_unit'], 2) ?></td>
+        <td class="subtotal" data-valor="<?= $subtotal ?>"><?= number_format($subtotal, 2) ?></td>
+        <td class="text-center">
+            <button type="button" class="btn btn-danger btn-sm" onclick="eliminarPresupuesto('<?= $id_presupuesto ?>')">
+                <i class="bi bi-trash"></i>
+            </button>
+        </td>
+    </tr>
+<?php }

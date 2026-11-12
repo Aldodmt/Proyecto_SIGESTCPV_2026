@@ -9,10 +9,14 @@
 1. Clonar o copiar el repositorio en `C:\xampp\htdocs\Proyecto2` (la carpeta define la URL).
 2. Iniciar **Apache** y **MySQL** desde el panel de XAMPP.
 3. Crear la base en versión 2:
-   - Base nueva: `mysql -u root < database/backups/v2_Backup_14_10_2026_personas_permisos.sql`
+   - Base nueva: `mysql -u root < database/backups/v3_Backup_31_10_2026_estados_flujo.sql`
      (crea `sysweb` si no existe y **reemplaza** sus tablas).
    - Base existente en v1: `mysql -u root sysweb < database/migraciones/v1_a_v2_personas_permisos.sql`
      (idempotente, conserva los datos).
+   - Base existente en v3: `mysql -u root sysweb < database/migraciones/v3_a_v4_iva_compra.sql`
+     (crea `iva_compra` y carga el IVA de las compras y notas que ya existían; idempotente).
+   - Base existente en v2: `mysql -u root sysweb < database/migraciones/v2_a_v3_estados_del_flujo.sql`
+     (solo datos, idempotente: marca PRESUPUESTADO / ORDENADO / COMPRADA los documentos que ya tienen un hijo confirmado).
    - También se puede hacer desde phpMyAdmin > Importar.
 4. Conexión: revisar `config/database.php` (servidor, usuario, contraseña y base). Viene preparado para el `root`
    local de XAMPP. **No** subas ahí credenciales reales.
@@ -70,6 +74,10 @@ C:\xampp\mysql\bin\mysqladmin.exe -uroot shutdown
 ```
 
 Si el MySQL del usuario ya está en el puerto 3306, usar otro puerto (ej. `--port=3307`) y conectar a ese.
+Para que la aplicación use esa instancia, definir la variable de entorno `SYSWEB_DB_PORT=3307` antes de arrancar PHP
+(`config/database.php` la lee; sin ella usa 3306). Para probar endpoints sin pasar por el login se puede arrancar
+`php -S 127.0.0.1:8099 -t . router.php` con un `router.php` propio, fuera del repo, que haga `session_start()` y fije
+`$_SESSION['id_user']` y `$_SESSION['username']`. Apagar el servidor PHP y MySQL al terminar.
 Sin `--character-set-server=utf8mb4` las tildes salen mal.
 
 ## Debugging

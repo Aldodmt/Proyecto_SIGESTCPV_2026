@@ -44,6 +44,8 @@ $user_gua = $_SESSION['username'] ?? 'Desconocido';
                                 <option value="" selected>--Todos los estados--</option>
                                 <option value="aprobado" <?= ($_POST['estado'] ?? '') == 'aprobado' ? 'selected' : '' ?>>
                                     Aprobado</option>
+                                <option value="comprada" <?= ($_POST['estado'] ?? '') == 'comprada' ? 'selected' : '' ?>>
+                                    Comprada</option>
                                 <option value="anulado" <?= ($_POST['estado'] ?? '') == 'anulado' ? 'selected' : '' ?>>
                                     Anulado</option>
                                 <option value="pendiente" <?= ($_POST['estado'] ?? '') == 'pendiente' ? 'selected' : '' ?>>

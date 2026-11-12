@@ -35,9 +35,20 @@ try {
                 $actualizadas++;
             }
         }
-        ui_auditar("Catálogo de páginas sincronizado: $nuevas nueva(s), $actualizadas actualizada(s)");
-        proses_volver('pagina', 12, $nuevas || $actualizadas
-            ? "Sincronización lista: $nuevas página(s) nueva(s) y $actualizadas actualizada(s). Las nuevas quedan sin permisos hasta asignarlos en Permisos por rol."
+        // Páginas que ya no existen en routes.php (se fusionaron o se dieron de baja en el código): quedan inactivas.
+        // No se borran: sus permisos y su historial se conservan por si se vuelven a registrar.
+        $vigentes = array_keys(array_filter($routes, fn($r) => isset($r['modulo'])));
+        $desactivadas = 0;
+        $off = $db->prepare("UPDATE pagina SET pag_estado = 'inactivo' WHERE pag_clave = ? AND pag_estado = 'activo'");
+        foreach (array_diff(array_keys($existentes), $vigentes, PAGINAS_BASE) as $clave) {
+            $off->bind_param('s', $clave);
+            $off->execute();
+            $desactivadas += $off->affected_rows;
+        }
+
+        ui_auditar("Catálogo de páginas sincronizado: $nuevas nueva(s), $actualizadas actualizada(s), $desactivadas desactivada(s)");
+        proses_volver('pagina', 12, $nuevas || $actualizadas || $desactivadas
+            ? "Sincronización lista: $nuevas página(s) nueva(s), $actualizadas actualizada(s) y $desactivadas desactivada(s) por ya no existir en el sistema. Las nuevas quedan sin permisos hasta asignarlos en Permisos por rol."
             : 'El catálogo ya estaba al día.');
     }
 

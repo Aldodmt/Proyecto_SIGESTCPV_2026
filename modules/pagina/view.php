@@ -27,7 +27,7 @@ foreach ($routes as $clave => $r) {
     <div class="row"><div class="col-md-12">
         <?php ui_alertas(); ?>
 
-       <!-- <div class="card mb-3">
+     ,   <div class="card mb-3">
             <div class="card-body d-flex flex-wrap justify-content-between align-items-center gap-2">
                 <div>
                     <strong>Catálogo de páginas</strong>
@@ -44,7 +44,7 @@ foreach ($routes as $clave => $r) {
                     <button type="submit" class="btn btn-primary"><i class="bi bi-arrow-repeat"></i> Sincronizar con el sistema</button>
                 </form>
             </div>
-        </div> -->
+        </div> 
 
         <div class="card mb-3">
             <div class="card-header"><strong><i class="bi bi-folder2"></i> Módulos</strong></div>

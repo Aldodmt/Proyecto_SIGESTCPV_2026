@@ -17,15 +17,21 @@ Leyenda:
    convertir, por ejemplo `$codigo = $_POST['codigo']` dentro del `INSERT` en `modules/departamento/proses.php`,
    `modules/ciudad/proses.php`, `modules/clientes/proses.php`, `modules/deposito/process.php`. El resto del código
    heredado usa `intval()` o `mysqli_real_escape_string` de forma irregular. Pasar a `prepare()` módulo por módulo.
-3. **[código] Restos de depuración que exponen la sesión.** `modules/pedido/form.php` imprime el `session_id()` en
-   un `console.log` del navegador; `ajax/limpiar_tmp.php` lo escribe con `error_log` (mensaje "LIMPIAR tmp
-   FEIAIIIIIIIIII"). Además `limpiar_tmp.php` interpola el `session_id` en el SQL. Quitarlos.
+3. ~~Restos de depuración que exponen la sesión~~ — **resuelto** (se quitó el `console.log` de `pedido/form.php` y se
+   eliminó `ajax/limpiar_tmp.php`, que no se usaba).
 4. **[código] Credenciales en `config/database.php` versionadas.** Hoy son las locales de XAMPP; si algún día se
    despliega, mover a un `config/database.local.php` ignorado (mismo patrón que `mail.php` / `mail.example.php`).
 5. **[inferencia] Acceso directo a vistas.** `modules/*/view.php` y `form.php` no se protegen solos (dependen de
    `main.php`). Abrirlos por URL no debería mostrar datos porque `$mysqli` no existe, pero puede mostrar avisos de
    PHP con rutas internas. Por confirmar en el navegador; una salida simple es un `.htaccess` que deniegue
    `modules/*/view.php` y `form.php`, o un `defined('SYSWEB') or exit;` al inicio.
+
+5b. **[código] Datos históricos que se saltan el flujo.** En la base v2 hay registros creados con los modos "sin pedido /
+    sin presupuesto / sin orden" (presupuesto 12, orden 10, compra 9). Siguen visibles pero ya no se pueden crear.
+    Decidir si se dejan como histórico o se regularizan.
+5c. **[código] Reglas de negocio por revisar.** Las compras al contado nacen con la cuota en PAGADO y por la regla
+    "no anular con cuotas pagadas" nunca se pueden anular; hay tablas de compras aún en MyISAM (sin ROLLBACK), por eso
+    los altas se compensan a mano. Valorar pasarlas a InnoDB en una migración v3.
 
 ## Prioridad media (mantenibilidad)
 

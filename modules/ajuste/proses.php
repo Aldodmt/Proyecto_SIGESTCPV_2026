@@ -67,41 +67,33 @@ if ($_GET['act'] === 'insert') {
 if ($_GET['act'] === 'anular' && isset($_GET['id_ajuste'])) {
     $id_ajuste = intval($_GET['id_ajuste']);
 
-    // Verificar si ya está anulado
-    $res = $mysqli->query("SELECT estado FROM ajuste_com WHERE id_ajuste = $id_ajuste");
-    $row = $res->fetch_assoc();
-    if (!$row)
-        header("Location: ../../main.php?module=ajuste&alert=2");
-
-    if ($row['estado'] === 'anulado') {
-        header("Location: ../../main.php?module=ajuste&alert=6");
-        exit;
+    // El estado cambia primero y de forma atómica (ACTIVO -> ANULADO). El stock se devuelve solo si se ganó el cambio.
+    // Antes se comparaba con 'anulado' en minúscula (nunca coincidía con 'ANULADO') y por eso anular dos veces
+    // devolvía el stock dos veces.
+    require_once __DIR__ . '/../../config/compras.php';
+    try {
+        $r = flujo_transicion('ajuste', $id_ajuste, 'cancel', function () use ($mysqli, $id_ajuste) {
+            $q = $mysqli->prepare("SELECT cod_producto, cantidad_ajustada FROM det_ajuste WHERE id_ajuste = ?");
+            $q->bind_param("i", $id_ajuste);
+            $q->execute();
+            $det = $q->get_result()->fetch_all(MYSQLI_ASSOC);
+            $q->close();
+            $u = $mysqli->prepare("UPDATE stock_prod SET cantidad = cantidad + ? WHERE cod_producto = ?");
+            foreach ($det as $d) {
+                $cant = (int) $d['cantidad_ajustada'];
+                $cod = (int) $d['cod_producto'];
+                $u->bind_param("ii", $cant, $cod);
+                $u->execute();
+            }
+            $u->close();
+        });
+    } catch (Throwable $e) {
+        $r = ['ok' => false, 'mensaje' => 'No se pudo anular el ajuste: ' . $e->getMessage()];
     }
 
-    // Marcar como anulado
-    $stmt = $mysqli->prepare("UPDATE ajuste_com SET estado = 'ANULADO', anulado_por = ?, anulado_fecha = CURDATE(), anulado_hora = CURTIME() WHERE id_ajuste = ?");
-    $stmt->bind_param("ii", $id_user, $id_ajuste);
-    $stmt->execute();
-    $stmt->close();
-
-    // Restaurar stock
-    $query_det = $mysqli->prepare("SELECT cod_producto, cantidad_ajustada FROM det_ajuste WHERE id_ajuste = ?");
-    $query_det->bind_param("i", $id_ajuste);
-    $query_det->execute();
-    $res_det = $query_det->get_result();
-    while ($row_det = $res_det->fetch_assoc()) {
-        $cod_producto = $row_det['cod_producto'];
-        $cant_ajustada = $row_det['cantidad_ajustada'];
-
-        // Actualizar stock
-        $stmt_stock = $mysqli->prepare("UPDATE stock_prod SET cantidad = cantidad + ? WHERE cod_producto = ?");
-        $stmt_stock->bind_param("ii", $cant_ajustada, $cod_producto);
-        $stmt_stock->execute();
-        $stmt_stock->close();
-    }
-    $query_det->close();
-
-    header("Location: ../../main.php?module=ajuste&alert=1");
+    // 12 = éxito con mensaje, 9 = error con mensaje (config/ui.php, ui_alertas)
+    $url = '../../main.php?module=ajuste&alert=' . ($r['ok'] ? 12 : 9)
+        . '&msg=' . urlencode($r['ok'] ? "Ajuste $id_ajuste anulado. El stock fue devuelto." : $r['mensaje']);
+    header("Location: $url");
     exit;
 }
-?>

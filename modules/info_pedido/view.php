@@ -43,6 +43,7 @@ $user_gua = $_SESSION['username'] ?? 'Desconocido';
                             <select class="form-select" name="estado" id="estado">
                                 <option value="" selected>--Todos los estados--</option>
                                 <option value="confirmado">Confirmados</option>
+                                <option value="presupuestado">Presupuestados</option>
                                 <option value="anulado">Anulados</option>
                                 <option value="pendiente">Pendiente</option>
                             </select>

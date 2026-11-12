@@ -39,18 +39,7 @@ return [
             ['label' => 'Notas de remisión', 'module' => 'nota_remision'],
             ['label' => 'Stock', 'module' => 'stock'],
         ]],
-        ['label' => 'Informes', 'icon' => 'bi-bar-chart-line', 'children' => [
-            ['label' => 'Productos', 'module' => 'info_producto'],
-            ['label' => 'Proveedores', 'module' => 'info_proveedores'],
-            ['label' => 'Unidades de medida', 'module' => 'info_u_medida'],
-            ['label' => 'Pedidos', 'module' => 'info_pedido'],
-            ['label' => 'Presupuestos', 'module' => 'info_presu'],
-            ['label' => 'Órdenes de compra', 'module' => 'info_orden'],
-            ['label' => 'Compras', 'module' => 'info_facturacion_compra'],
-            ['label' => 'Notas de crédito/débito', 'module' => 'info_nota_cd'],
-            ['label' => 'Ajustes', 'module' => 'info_ajuste'],
-            ['label' => 'Notas de remisión', 'module' => 'info_notaR'],
-        ]],
+        
     ]],
 
     // ===== Módulo de Ventas (oculto hasta que se retome) =====
@@ -66,13 +55,27 @@ return [
         ,
     ]],*/
 
-    ['header' => 'GENERAL'],
+   ['header' => 'GENERAL'],
     ['label' => 'Referenciales generales', 'icon' => 'bi-geo-alt', 'children' => [
         ['label' => 'Departamento', 'module' => 'departamento'],
         ['label' => 'Ciudad', 'module' => 'ciudad'],
         ['label' => 'Nacionalidad', 'module' => 'nacionalidad'],
         ['label' => 'Género', 'module' => 'genero'],
         ['label' => 'Personas', 'module' => 'persona']
+    ]],
+    ['header' => 'INFORMES'],
+    ['label' => 'Informes Referenciales', 'icon' => 'bi-bar-chart-line', 'children' => [
+        ['label' => 'Referenciales', 'module' => 'info_referencial']
+    ]],
+
+    ['label' => 'Informes de Movimiento', 'icon' => 'bi-bar-chart-line', 'children' => [
+        ['label' => 'Pedidos', 'module' => 'info_pedido'],
+        ['label' => 'Presupuestos', 'module' => 'info_presu'],
+        ['label' => 'Órdenes de compra', 'module' => 'info_orden'],
+        ['label' => 'Compras', 'module' => 'info_facturacion_compra'],
+        ['label' => 'Notas de crédito/débito', 'module' => 'info_nota_cd'],
+        ['label' => 'Ajustes', 'module' => 'info_ajuste'],
+        ['label' => 'Notas de remisión', 'module' => 'info_notaR']
     ]],
 
     ['header' => 'SEGURIDAD'],

@@ -79,7 +79,94 @@ if ($_GET['form'] == 'add') { ?>
             </div>
         </div>
     </div>
-<?php } ?>
+<?php }
+
+// DETALLE DE UN AJUSTE (solo lectura): el listado muestra únicamente la cabecera; los productos se ven aquí.
+if (($_GET['form'] ?? '') == 'detalle') {
+    require_once __DIR__ . '/../../config/ui.php';
+    $id_ajuste = intval($_GET['id_ajuste'] ?? 0);
+
+    $stmt = $mysqli->prepare("SELECT a.id_ajuste, a.fecha_ajuste, a.motivo, a.estado, u.name_user
+                                FROM ajuste_com a JOIN usuarios u ON u.id_user = a.id_user WHERE a.id_ajuste = ?");
+    $stmt->bind_param('i', $id_ajuste);
+    $stmt->execute();
+    $aj = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+    if (!$aj) {
+        echo "<div class='alert alert-warning'>El ajuste solicitado no existe. <a href='?module=ajuste'>Volver</a></div>";
+        return;
+    }
+
+    $stmt = $mysqli->prepare("SELECT d.cod_producto, p.p_descrip, um.u_descrip, d.cantidad_anterior, d.cantidad_ajustada
+                                FROM det_ajuste d
+                                JOIN producto p ON p.cod_producto = d.cod_producto
+                                JOIN u_medida um ON um.id_u_medida = p.id_u_medida
+                               WHERE d.id_ajuste = ? ORDER BY d.cod_producto");
+    $stmt->bind_param('i', $id_ajuste);
+    $stmt->execute();
+    $detalle = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    $stmt->close();
+    ?>
+    <div class="container-fluid">
+        <div class="fade-in">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="?module=start"><i class="bi bi-house-door"></i> Inicio</a></li>
+                        <li class="breadcrumb-item"><a href="?module=ajuste">Ajustes</a></li>
+                        <li class="breadcrumb-item active">Detalles</li>
+                    </ol>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <h1><i class="bi bi-eye me-1"></i> Detalles del ajuste</h1>
+            </div>
+            <div class="card">
+                <div class="card-header"><strong>Ajuste de stock N° <?= (int) $aj['id_ajuste'] ?></strong></div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <label class="col-md-2 col-form-label">Fecha</label>
+                        <div class="col-md-2"><input type="text" class="form-control" value="<?= h($aj['fecha_ajuste']) ?>" readonly></div>
+                        <label class="col-md-2 col-form-label">Usuario</label>
+                        <div class="col-md-2"><input type="text" class="form-control" value="<?= h($aj['name_user']) ?>" readonly></div>
+                        <label class="col-md-2 col-form-label">Estado</label>
+                        <div class="col-md-2 pt-2"><?php require_once __DIR__ . '/../../config/compras.php'; echo flujo_estado_badge((string) $aj['estado']); ?></div>
+                    </div>
+                    <div class="row mb-3">
+                        <label class="col-md-2 col-form-label">Motivo</label>
+                        <div class="col-md-10"><input type="text" class="form-control" value="<?= h($aj['motivo']) ?>" readonly></div>
+                    </div>
+                    <table class="table table-striped table-hover align-middle">
+                        <thead class="table-primary">
+                            <tr>
+                                <th>Código</th><th>Producto</th><th>Unidad</th>
+                                <th class="text-end">Cantidad anterior</th><th class="text-end">Cantidad ajustada</th><th class="text-end">Cantidad final</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($detalle as $d) { ?>
+                                <tr>
+                                    <td><?= (int) $d['cod_producto'] ?></td>
+                                    <td><?= h($d['p_descrip']) ?></td>
+                                    <td><?= h($d['u_descrip']) ?></td>
+                                    <td class="text-end"><?= (int) $d['cantidad_anterior'] ?></td>
+                                    <td class="text-end"><?= (int) $d['cantidad_ajustada'] ?></td>
+                                    <td class="text-end"><?= (int) $d['cantidad_anterior'] - (int) $d['cantidad_ajustada'] ?></td>
+                                </tr>
+                            <?php } ?>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-footer">
+                    <a href="?module=ajuste" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Salir</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php
+    return;   // el detalle es de solo lectura: no hace falta el script del formulario de alta
+}
+?>
 
 
 <script>

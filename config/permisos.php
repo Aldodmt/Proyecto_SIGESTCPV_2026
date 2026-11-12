@@ -147,10 +147,11 @@ function route_accion(string $clave, array $get): string
 function accion_desde_act(string $act): string
 {
     $act = strtolower($act);
-    if (in_array($act, ['insert', 'add', 'save', 'create'], true)) {
+    // clear_borrador (descartar el propio borrador con "Salir") forma parte de crear: quien puede insertar puede descartar lo suyo
+    if (in_array($act, ['insert', 'add', 'save', 'create', 'clear_borrador'], true)) {
         return 'insertar';
     }
-    if (in_array($act, ['delete', 'cancel', 'anular', 'anulado', 'off', 'rechazado', 'remove', 'clear_borrador'], true)) {
+    if (in_array($act, ['delete', 'cancel', 'anular', 'anulado', 'off', 'rechazado', 'remove'], true)) {
         return 'borrar';
     }
     if (in_array($act, ['update', 'modify', 'confirm', 'on', 'aprobar', 'edit'], true)) {

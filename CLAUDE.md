@@ -20,7 +20,9 @@ Se desarrolla por etapas siguiendo las observaciones del docente; el README desc
 | Revisar sintaxis de un archivo | `C:\xampp\php\php.exe -l ruta/archivo.php` |
 | Revisar sintaxis de lo modificado | `git diff --name-only -- '*.php' \| xargs -n1 /c/xampp/php/php.exe -l` (Bash) |
 | Migrar v1 → v2 (conserva datos) | `mysql -u root sysweb < database/migraciones/v1_a_v2_personas_permisos.sql` |
-| Base v2 desde cero (reemplaza tablas) | `mysql -u root < database/backups/v2_Backup_14_10_2026_personas_permisos.sql` |
+| Migrar v2 → v3 (solo datos: estados del flujo) | `mysql -u root sysweb < database/migraciones/v2_a_v3_estados_del_flujo.sql` |
+| Migrar v3 → v4 (tabla `iva_compra` + carga del IVA existente) | `mysql -u root sysweb < database/migraciones/v3_a_v4_iva_compra.sql` |
+| Base v3 desde cero (reemplaza tablas; luego aplicar v3→v4) | `mysql -u root < database/backups/v3_Backup_31_10_2026_estados_flujo.sql` |
 | Versión del esquema | `SELECT * FROM esquema_version;` |
 
 - Instalar dependencias: no hace falta, todo está versionado. `composer.json` solo declara `phpmailer/phpmailer`
@@ -52,6 +54,19 @@ Se desarrolla por etapas siguiendo las observaciones del docente; el README desc
 - Denegado por defecto. Super Admin es un rol protegido. `start`, `perfil` y `password` son páginas básicas de todo rol.
 - Los permisos viven solo en la base (`rol`, `modulo`, `pagina`, `permiso`); `routes.php` no define roles.
 - `usuarios.permisos_acceso` (texto) se mantiene sincronizado con el rol por compatibilidad con código viejo.
+- **Flujo de compras** `pedido -> presupuesto -> orden_c -> compra` (+ notas y ajustes): la máquina de estados vive en
+  `COMPRAS_FLUJO` (`config/compras.php`) y la usan el servidor (`flujo_transicion()`, compare-and-set atómico) y los
+  botones del formulario (`flujo_script_botones()`). Un documento solo nace de su origen en el estado correcto
+  (`flujo_validar_origen()`); proveedor, productos, cantidades y precios los lee el servidor de la base, nunca del navegador.
+  No se anula un documento con hijos vigentes. Los listados son de cabecera (`flujo_view()`); el detalle se abre al entrar al registro.
+  Al **confirmar** un documento su origen queda finalizado (pedido `PRESUPUESTADO`, presupuesto `ORDENADO`, orden `COMPRADA`) y no admite
+  acciones; al anularlo vuelve a quedar disponible (`flujo_propagar()`, transiciones `consumir`/`liberar` marcadas `sistema`).
+- **IVA de compras** (`config/iva.php`, tabla `iva_compra` = IVA_compra del DER): al registrar la factura se guarda una fila con IVA 5 %, 10 % y
+  exentas (precios con IVA incluido; fecha = emisión de la factura); las notas de crédito/débito guardan la suya (crédito en negativo, débito en
+  positivo; sin productos se prorratea); al anular el documento la fila queda `ANULADO`.
+- Pedido nuevo = **borrador persistido** en la base (`flujo_borrador_pedido()`, uno por usuario, con `GET_LOCK`); solo "Salir" (con confirmación) lo descarta.
+- Informes de referenciales: una sola pantalla (`info_referencial`) configurada en `config/informes.php`; los informes de
+  movimientos siguen siendo uno por documento.
 - Más detalle: @docs/ARCHITECTURE.md
 
 ## Convenciones de código

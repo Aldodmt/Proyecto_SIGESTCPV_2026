@@ -2,472 +2,227 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-echo "<script>console.log('form.php session_id: " . session_id() . "');</script>";
 
 require_once "config/database.php";
+require_once __DIR__ . '/../../config/compras.php';
 
-$id_usuario = $_SESSION['id_user'] ?? null;
-
+$id_usuario = (int) ($_SESSION['id_user'] ?? 0);
 if (!$id_usuario) {
     die("No se detectó usuario logueado."); // O redirigir a login
 }
 
+$form = $_GET['form'] ?? '';
 
-if ($_GET['form'] == 'add') {
-    $session_id = session_id();
-
-    // Verificar si hay pedido BORRADOR del usuario
-    $query_borrador = mysqli_query($mysqli, "SELECT id_pedido FROM pedido WHERE id_user=$id_usuario AND estado='BORRADOR'");
-
-    if (mysqli_num_rows($query_borrador) > 0) {
-        $pedido = mysqli_fetch_assoc($query_borrador);
-        $id_pedido = $pedido['id_pedido'];
-    } else {
-        mysqli_query($mysqli, "INSERT INTO pedido (fecha, hora, estado, id_user) VALUES (CURDATE(), CURTIME(), 'BORRADOR', $id_usuario)");
-        $id_pedido = mysqli_insert_id($mysqli);
-    }
-
-    // Luego usas $id_pedido como tu código
-    $codigo = $id_pedido;
-    $fecha = date("Y-m-d");
-    $hora = date("H:i:s");
-    $estado = 'BORRADOR';
-    ?>
-    <div class="container-fluid">
-        <div class="fade-in">
-            <div class="row mb-2">
-                <div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="?module=start"><i class="bi bi-house-door"></i> Inicio</a></li>
-                        <li class="breadcrumb-item"><a href="?module=pedido">Pedidos</a></li>
-                        <li class="breadcrumb-item active">Agregar</li>
-                    </ol>
-                </div>
-            </div>
-            <div class="col-sm-6">
-                <h1><i class="bi bi-pencil-square me-1"></i> Agregar Pedido</h1>
-            </div>
-            <div class="card">
-                <div class="card-header"><strong>Formulario de Pedidos</strong></div>
-                <form method="POST" autocomplete="off">
-                    <div class="card-body">
-                        <!--<?php
-                        // Generar código único
-                        /*$query_id = mysqli_query($mysqli, "SELECT MAX(id_pedido) as id FROM pedido")
-                            or die("Error: " . mysqli_error($mysqli));
-                        $data_id = mysqli_fetch_assoc($query_id);
-                        $codigo = $data_id['id'] + 1 ?? 1;*/
-                        ?>-->
-                        <div class="row mb-3 row">
-                            <label class="col-md-2 col-form-label">Código</label>
-                            <div class="col-md-2">
-                                <input type="text" class="form-control" name="codigo" value="<?php echo $codigo; ?>"
-                                    readonly>
-                            </div>
-                            <label class="col-md-2 col-form-label">Fecha</label>
-                            <div class="col-md-2">
-                                <input type="text" class="form-control" name="fecha" value="<?php echo date("Y-m-d"); ?>"
-                                    readonly>
-                            </div>
-                            <label class="col-md-2 col-form-label">Hora</label>
-                            <div class="col-md-2">
-                                <input type="text" class="form-control" name="hora" value="<?php echo date("H:i:s"); ?>"
-                                    readonly>
-                            </div>
-                        </div>
-
-                        <!-- Estado del pedido -->
-                        <div class="alert alert-info mt-3" id="estadoActual">
-                            Estado del pedido: <strong>BORRADOR</strong>
-                        </div>
-                        <input type="hidden" id="estado_pedido" name="estado" value="BORRADOR">
-                        <br>
-                        <!-- Botón Agregar Productos -->
-                        <div class="row mb-3">
-                            <label class="col-md-2 col-form-label">Producto</label>
-                            <div class="col-md-10">
-                                <?php if ($estado !== 'CONFIRMADO' && $estado !== 'ANULADO' && $estado !== 'PENDIENTE') { ?>
-                                    <button type="button" class="btn btn-info" data-bs-toggle="modal"
-                                        data-bs-target="#myModal">
-                                        <i class="bi bi-plus-lg"></i> Agregar Productos
-                                    </button>
-                                <?php } ?>
-                            </div>
-                        </div>
-                        <!-- Tabla de productos -->
-                        <div id="resultados" class="mt-3">
-                            <table class="table table-striped table-hover align-middle">
-                                <thead class="table-primary">
-                                    <tr>
-                                        <th>Código</th>
-                                        <th>Producto</th>
-                                        <th>Cantidad</th>
-                                        <th>Unidad</th>
-                                        <?php if ($estado !== 'CONFIRMADO' && $estado !== 'ANULADO')
-                                            echo '<th>Acciones</th>'; ?>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php
-                                    $sql_detalle = mysqli_query($mysqli, "
-                                    SELECT dp.*, p.p_descrip, u.u_descrip
-                                    FROM det_pedido dp
-                                    JOIN producto p ON dp.cod_producto = p.cod_producto
-                                    JOIN u_medida u ON p.id_u_medida = u.id_u_medida
-                                    WHERE dp.id_pedido = $codigo
-                                ");
-                                    while ($prod = mysqli_fetch_assoc($sql_detalle)) {
-                                        echo "<tr>
-                                        <td>{$prod['cod_producto']}</td>
-                                        <td>{$prod['p_descrip']}</td>
-                                        <td>{$prod['cantidad']}</td>
-                                        <td>{$prod['u_descrip']}</td>";
-                                        if ($estado !== 'CONFIRMADO' && $estado !== 'ANULADO' && $estado !== 'PENDIENTE') {
-                                            echo "<td><button class='btn btn-danger btn-sm' onclick='eliminar({$prod['cod_producto']}, {$codigo})'>Eliminar</button></td>";
-                                        } else {
-                                            echo "<td></td>"; // para mantener la columna vacía si no hay botón
-                                        }
-                                    }
-                                    ?>
-                                </tbody>
-                            </table>
-                        </div>
+/*
+  Un solo dibujo del formulario para el alta y para el detalle.
+  En el ALTA el pedido es un BORRADOR persistido en la base: cada producto que se agrega queda registrado en el
+  momento (ajax/agregar_pedidos.php), de modo que un corte de luz, de internet o un F5 no pierde nada.
+  El borrador solo se elimina con el botón "Salir" (después de confirmar).
+*/
+if (!function_exists('pedido_render_form')) {
+    function pedido_render_form(array $pedido, bool $alta): void
+    {
+        $codigo = (int) $pedido['id_pedido'];
+        $estado = strtoupper(trim((string) $pedido['estado']));
+        // El detalle de productos solo se toca en BORRADOR o MODIFICANDO (la misma regla que valida el servidor)
+        $editable = in_array($estado, COMPRAS_FLUJO['pedido']['editable'], true);
+        ?>
+        <div class="container-fluid">
+            <div class="fade-in">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-right">
+                            <li class="breadcrumb-item"><a href="?module=start"><i class="bi bi-house-door"></i> Inicio</a></li>
+                            <li class="breadcrumb-item"><a href="?module=pedido">Pedidos</a></li>
+                            <li class="breadcrumb-item active"><?= $alta ? 'Agregar' : 'Detalles del Pedido' ?></li>
+                        </ol>
                     </div>
-                    <!-- Botones -->
-                    <div class="card-footer">
-                        <div class="btn-group" role="group">
-                            <button type="button" class="btn btn-primary" id="btnGuardar">
-                                <i class="bi bi-save"></i> Guardar
-                            </button>
-                            <button type="button" class="btn btn-primary" id="btnConfirmar" disabled>
-                                <i class="bi bi-check-lg"></i> Confirmar
-                            </button>
-                            <button type="button" class="btn btn-primary" id="btnModificar" disabled>
-                                <i class="bi bi-pencil-square"></i> Modificar
-                            </button>
-                            <button type="button" class="btn btn-danger" id="btnAnular" disabled>
-                                <i class="bi bi-x-lg"></i> Anular
-                            </button>
-                            <a href="?module=pedido" class="btn btn-secondary" id="btnSalir">
-                                <i class="bi bi-arrow-left"></i> Salir
-                            </a>
-                        </div>
-                    </div>
-                </form>
-                            </div>
-        </div>
-    </div>
-<?php }
-if ($_GET['form'] == 'detalle') {
-    $session_id = session_id();
-    // Consultar datos del pedido
-    $id_pedido = intval($_GET['id_pedido']);
-    $query_pedido = mysqli_query($mysqli, "
-        SELECT p.* 
-        FROM pedido p
-        WHERE p.id_pedido = $id_pedido
-    ") or die("Error: " . mysqli_error($mysqli));
-
-    $pedido = mysqli_fetch_assoc($query_pedido);
-
-    // Guardamos los datos en variables
-    $codigo = $pedido['id_pedido'];
-    $fecha = $pedido['fecha'];
-    $hora = $pedido['hora'];
-    $estado = $pedido['estado'];
-    ?>
-    <div class="container-fluid">
-        <div class="fade-in">
-            <div class="row mb-2">
-                <div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="?module=start"><i class="bi bi-house-door"></i> Inicio</a></li>
-                        <li class="breadcrumb-item"><a href="?module=pedido">Pedidos</a></li>
-                        <li class="breadcrumb-item active">Detalles del Pedido</li>
-                    </ol>
                 </div>
-            </div>
-            <div class="col-sm-6">
-                <h1><i class="bi bi-pencil-square me-1"></i> Detalles del Pedido</h1>
-            </div>
-            <div class="card">
-                <div class="card-header"><strong>Formulario de Pedidos</strong></div>
-                <form id="formPedido" method="POST" autocomplete="off">
-                    <div class="card-body">
-                        <div class="row mb-3 row">
-                            <label class="col-md-2 col-form-label">Código</label>
-                            <div class="col-md-2">
-                                <input type="text" class="form-control" name="codigo" value="<?= $codigo ?>" readonly>
+                <div class="col-sm-6">
+                    <h1><i class="bi bi-pencil-square me-1"></i> <?= $alta ? 'Agregar Pedido' : 'Detalles del Pedido' ?></h1>
+                </div>
+                <div class="card">
+                    <div class="card-header"><strong>Formulario de Pedidos</strong></div>
+                    <form id="formPedido" method="POST" autocomplete="off">
+                        <div class="card-body">
+                            <div class="row mb-3 row">
+                                <label class="col-md-2 col-form-label">Código</label>
+                                <div class="col-md-2">
+                                    <input type="text" class="form-control" name="codigo" value="<?= $codigo ?>" readonly>
+                                </div>
+                                <label class="col-md-2 col-form-label">Fecha</label>
+                                <div class="col-md-2">
+                                    <input type="text" class="form-control" name="fecha" value="<?= h($pedido['fecha']) ?>" readonly>
+                                </div>
+                                <label class="col-md-2 col-form-label">Hora</label>
+                                <div class="col-md-2">
+                                    <input type="text" class="form-control" name="hora" value="<?= h($pedido['hora']) ?>" readonly>
+                                </div>
                             </div>
-                            <label class="col-md-2 col-form-label">Fecha</label>
-                            <div class="col-md-2">
-                                <input type="text" class="form-control" name="fecha" value="<?= $fecha ?>" readonly>
-                            </div>
-                            <label class="col-md-2 col-form-label">Hora</label>
-                            <div class="col-md-2">
-                                <input type="text" class="form-control" name="hora" value="<?= $hora ?>" readonly>
-                            </div>
-                        </div>
 
-                        <!-- Estado del pedido -->
-                        <div class="alert alert-info mt-3" id="estadoActual">
-                            Estado del pedido: <strong><?= strtoupper($estado) ?></strong>
-                        </div>
-                        <input type="hidden" id="estado_pedido" name="estado" value="<?= $estado ?>">
-
-                        <br>
-                        <!-- Tabla de productos -->
-                        <div class="row mb-3">
-                            <label class="col-md-2 col-form-label">Producto</label>
-                            <div class="col-md-10">
-                                <?php if ($estado !== 'CONFIRMADO' && $estado !== 'ANULADO' && $estado !== 'PENDIENTE') { ?>
-                                    <button type="button" class="btn btn-info" data-bs-toggle="modal"
-                                        data-bs-target="#myModal">
-                                        <i class="bi bi-plus-lg"></i> Agregar Productos
-                                    </button>
-                                <?php } ?>
+                            <!-- Estado del pedido -->
+                            <div class="alert alert-info mt-3" id="estadoActual">
+                                Estado del pedido: <strong><?= h($estado) ?></strong>
                             </div>
-                        </div>
-                        <div id="resultados" class="mt-3">
-                            <table class="table table-striped table-hover align-middle">
-                                <thead class="table-primary">
-                                    <tr>
-                                        <th>Código</th>
-                                        <th>Producto</th>
-                                        <th>Cantidad</th>
-                                        <th>Unidad</th>
-                                        <?php if ($estado !== 'CONFIRMADO' && $estado !== 'ANULADO') { ?>
+                            <input type="hidden" id="estado_pedido" name="estado" value="<?= h($estado) ?>">
+                           <?php if ($alta) { ?>
+                                <div class="alert alert-secondary py-2">
+                                    <i class="bi bi-cloud-check"></i> Este pedido es un <strong>borrador</strong>: cada producto que agregas se
+                                    guarda en el sistema al instante. Si se cierra el navegador o se corta la conexión, al volver a
+                                    <em>Agregar</em> continúas desde aquí. Solo el botón <em>Salir</em> lo descarta.
+                                </div>
+                            <?php } ?>
+                            <br>
+                            <!-- Botón Agregar Productos -->
+                            <div class="row mb-3">
+                                <label class="col-md-2 col-form-label">Producto</label>
+                                <div class="col-md-10">
+                                    <?php if ($editable) { ?>
+                                        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#myModal">
+                                            <i class="bi bi-plus-lg"></i> Agregar Productos
+                                        </button>
+                                    <?php } ?>
+                                </div>
+                            </div>
+                            <!-- Tabla de productos (el AJAX la reemplaza con la misma estructura) -->
+                            <div id="resultados" class="mt-3">
+                                <table class="table table-striped table-hover align-middle">
+                                    <thead class="table-primary">
+                                        <tr>
+                                            <th>Código</th>
+                                            <th>Producto</th>
+                                            <th>Cantidad</th>
+                                            <th>Unidad</th>
+                                            <th>Tipo de Impuesto</th>
                                             <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach (flujo_detalle_pedido($codigo) as $prod) { ?>
+                                            <tr>
+                                                <td><?= (int) $prod['cod_producto'] ?></td>
+                                                <td><?= h($prod['p_descrip']) ?></td>
+                                                <td><?= h($prod['cantidad']) ?></td>
+                                                <td><?= h($prod['u_descrip']) ?></td>
+                                                <td><?= h($prod['tipo_impuesto']) ?></td>
+                                                <td>
+                                                    <?php if ($editable) { ?>
+                                                        <button type="button" class="btn btn-danger btn-sm"
+                                                            onclick="eliminar(<?= (int) $prod['cod_producto'] ?>, <?= $codigo ?>)">Eliminar</button>
+                                                    <?php } ?>
+                                                </td>
+                                            </tr>
                                         <?php } ?>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php
-                                    // Productos ya guardados en det_pedido
-                                    $sql_detalle = mysqli_query($mysqli, "
-                                    SELECT dp.*, p.p_descrip, u.u_descrip
-                                    FROM det_pedido dp
-                                    JOIN producto p ON dp.cod_producto = p.cod_producto
-                                    JOIN u_medida u ON p.id_u_medida = u.id_u_medida
-                                    WHERE dp.id_pedido = $codigo
-                                ");
-
-                                    while ($prod = mysqli_fetch_assoc($sql_detalle)) {
-                                        echo "<tr>
-                                        <td>{$prod['cod_producto']}</td>
-                                        <td>{$prod['p_descrip']}</td>
-                                        <td>{$prod['cantidad']}</td>
-                                        <td>{$prod['u_descrip']}</td>";
-                                        if ($estado !== 'CONFIRMADO' && $estado !== 'ANULADO' && $estado !== 'PENDIENTE') {
-                                            echo "<td>
-                                            <button class='btn btn-danger btn-sm' onclick='eliminar({$prod['cod_producto']}, {$codigo})'>Eliminar</button>
-                                        </td>";
-                                        } else {
-                                            echo "<td></td>"; // Mantener la celda vacía si no hay botón
-                                        }
-                                    }
-                                    ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <!-- Botones -->
-                    <div class="card-footer">
-                        <div class="btn-group" role="group">
-                            <button type="button" class="btn btn-primary" id="btnGuardar">
-                                <i class="bi bi-save"></i> Guardar
-                            </button>
-                            <button type="button" class="btn btn-primary" id="btnConfirmar" disabled>
-                                <i class="bi bi-check-lg"></i> Confirmar
-                            </button>
-                            <button type="button" class="btn btn-primary" id="btnModificar" disabled>
-                                <i class="bi bi-pencil-square"></i> Modificar
-                            </button>
-                            <button type="button" class="btn btn-danger" id="btnAnular" disabled>
-                                <i class="bi bi-x-lg"></i> Anular
-                            </button>
-                            <a href="?module=pedido" class="btn btn-secondary">
-                                <i class="bi bi-arrow-left"></i> Salir
-                            </a>
-                        </div>
-                    </div>
-                </form>
+                                    </tbody>
+                                </table>
                             </div>
+                        </div>
+                        <!-- Botones -->
+                        <div class="card-footer">
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-primary" id="btnGuardar">
+                                    <i class="bi bi-save"></i> Guardar
+                                </button>
+                                <button type="button" class="btn btn-primary" id="btnConfirmar" disabled>
+                                    <i class="bi bi-check-lg"></i> Confirmar
+                                </button>
+                                <button type="button" class="btn btn-primary" id="btnModificar" disabled>
+                                    <i class="bi bi-pencil-square"></i> Modificar
+                                </button>
+                                <button type="button" class="btn btn-danger" id="btnAnular" disabled>
+                                    <i class="bi bi-x-lg"></i> Anular
+                                </button>
+                                <a href="?module=pedido" class="btn btn-secondary"<?= $alta ? ' id="btnSalir"' : '' ?>>
+                                    <i class="bi bi-arrow-left"></i> Salir
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
-    </div>
-<?php } ?>
+        <?php
+    }
+}
 
+if ($form === 'add') {
+    // Busca el borrador del usuario o crea uno (una sola vez, aunque abra dos pestañas): ver flujo_borrador_pedido()
+    $id_pedido = flujo_borrador_pedido($id_usuario);
+    $s = $mysqli->prepare("SELECT * FROM pedido WHERE id_pedido = ?");
+    $s->bind_param('i', $id_pedido);
+    $s->execute();
+    $pedido = $s->get_result()->fetch_assoc();
+    $s->close();
+    pedido_render_form($pedido, true);
+} elseif ($form === 'detalle') {
+    $id_pedido = intval($_GET['id_pedido'] ?? 0);
+    $s = $mysqli->prepare("SELECT * FROM pedido WHERE id_pedido = ?");
+    $s->bind_param('i', $id_pedido);
+    $s->execute();
+    $pedido = $s->get_result()->fetch_assoc();
+    $s->close();
 
+    if (!$pedido) {
+        echo "<div class='alert alert-warning'>El pedido solicitado no existe. <a href='?module=pedido'>Volver</a></div>";
+        return;
+    }
+    // Un BORRADOR no es todavía un documento: se continúa desde "Agregar" (y solo lo ve su dueño)
+    if (strtoupper($pedido['estado']) === 'BORRADOR') {
+        echo "<div class='alert alert-warning'>Este pedido es un borrador sin guardar. Continúalo desde <a href='?module=form_pedido&form=add'>Agregar</a>.</div>";
+        return;
+    }
+    pedido_render_form($pedido, false);
+}
+?>
 
 <!-- Gestión de pedidos -->
+<?= flujo_script_botones('pedido') ?>
 <script>
+    // Todas las acciones de estado van al servidor, que vuelve a validar el estado actual (config/compras.php).
+    // Si el servidor responde que no corresponde, se muestra su mensaje y se recarga para reflejar el estado real.
+    function accionPedido(act, extra) {
+        let codigo = $('input[name="codigo"]').val();
+        $.post("./modules/pedido/proses.php", Object.assign({ act: act, codigo: codigo }, extra || {}), function (response) {
+            alert(response.message);
+            if (response.success && response.redirect) {
+                window.location.href = response.redirect;
+            } else {
+                location.reload();
+            }
+        }, "json").fail(function () {
+            alert("Error en la solicitud AJAX.");
+        });
+    }
 
     $(document).ready(function () {
-        // --- FUNCION GENÉRICA ---
-        function actualizarEstado(act) {
-            let codigo = $('input[name="codigo"]').val();
+        // Habilitación de botones según el estado (misma tabla que usa el servidor para validar)
+        manejarBotones($('#estado_pedido').val());
 
-            $.post("./modules/pedido/proses.php", { act: act, codigo: codigo }, function (response) {
-                console.log("Respuesta:", response);
-
-                if (response.success) {
-                    alert(response.message);
-
-                    // Esperar un poquito y refrescar la página
-                    setTimeout(function () {
-                        location.reload();
-                    }, 500);
-                } else {
-                    alert("Error: " + response.message);
-                }
-            }, "json")
-                .fail(function () {
-                    alert("Error en la solicitud AJAX.");
-                });
-        }
-
-        // --- BOTONES ---
-        $('#btnConfirmar').off('click').on('click', function (e) {
-            e.preventDefault();
-            actualizarEstado('confirm');
-        });
-
-        $('#btnModificar').off('click').on('click', function (e) {
-            e.preventDefault();
-            actualizarEstado('modify');
-        });
-
+        $('#btnGuardar').off('click').on('click', function (e) { e.preventDefault(); accionPedido('save'); });
+        $('#btnConfirmar').off('click').on('click', function (e) { e.preventDefault(); accionPedido('confirm'); });
+        $('#btnModificar').off('click').on('click', function (e) { e.preventDefault(); accionPedido('modify'); });
         $('#btnAnular').off('click').on('click', function (e) {
             e.preventDefault();
-            actualizarEstado('cancel');
+            if (!confirm("¿Estás seguro que deseas anular este pedido? Esta acción no se puede deshacer.")) return;
+            accionPedido('cancel', { confirm: true });
         });
 
-        //manejo de la habilitacion de los botones
-        let estado = $('#estado_pedido').val();
-
-        switch (estado) {
-            case 'BORRADOR':
-                $('#btnGuardar').prop('disabled', false);
-                $('#btnConfirmar, #btnModificar, #btnAnular').prop('disabled', true);
-                break;
-
-            case 'PENDIENTE':
-                $('#btnGuardar').prop('disabled', true);
-                $('#btnConfirmar').prop('disabled', false);
-                $('#btnModificar').prop('disabled', false);
-                $('#btnAnular').prop('disabled', true);
-                break;
-
-            case 'CONFIRMADO':
-                $('#btnGuardar, #btnConfirmar').prop('disabled', true);
-                $('#btnModificar').prop('disabled', true);
-                $('#btnAnular').prop('disabled', false);
-                break;
-
-            case 'MODIFICANDO':
-                $('#btnGuardar').prop('disabled', false);
-                $('#btnModificar').prop('disabled', true);
-                $('#btnConfirmar').prop('disabled', true);
-                break;
-
-            case 'ANULADO':
-                $('#btnGuardar, #btnConfirmar, #btnModificar, #btnAnular').prop('disabled', true);
-                break;
-
-            default: // Si por error no hay estado
-                $('#btnGuardar').prop('disabled', false);
-                $('#btnConfirmar, #btnModificar, #btnAnular').prop('disabled', true);
-        }
-    });
-
-    // GUARDAR
-    $('#btnGuardar').off('click').on('click', function (e) {
-        e.preventDefault();
-
-        let codigo = $('input[name="codigo"]').val();
-
-        $.post('./modules/pedido/proses.php', { act: 'save', codigo }, function (response) {
-            if (response.success) {
-                alert(response.message);
-                $('#estadoActual').html('Estado del pedido: <strong>' + response.estado + '</strong>');
-                $('#estado_pedido').val(response.estado);
-                window.location.href = "?module=pedido";
-            } else {
-                alert('Error: ' + response.message);
-            }
-        }, "json");
-    });
-
-    // SALIR
-    $('#btnSalir').off('click').on('click', function (e) {
-        e.preventDefault();
-        $.post("./modules/pedido/proses.php", { act: 'clear_borrador' }, function (response) {
-            if (response.success) {
-                window.location.href = "?module=pedido";
-            } else {
-                alert('Error al limpiar borradores: ' + response.message);
-            }
-        }, "json");
-    });
-
-    // CONFIRMAR
-    $('#btnConfirmar').off('click').on('click', function () {
-        let codigo = $('input[name="codigo"]').val();
-        $.post("./modules/pedido/proses.php", { act: 'confirm', codigo }, function (response) {
-            if (response.success) {
-                alert(response.message);
-                $('#estadoActual').html('Estado del pedido: <strong>' + response.estado + '</strong>');
-                $('#estado_pedido').val(response.estado);
-            } else {
-                alert('Error: ' + response.message);
-            }
-        }, "json");
-    });
-
-    // MODIFICAR
-    $('#btnModificar').off('click').on('click', function () {
-        let codigo = $('input[name="codigo"]').val();
-        $.post("./modules/pedido/proses.php", { act: 'modify', codigo }, function (response) {
-            if (response.success) {
-                alert(response.message);
-                $('#estadoActual').html('Estado del pedido: <strong>' + response.estado + '</strong>');
-                $('#estado_pedido').val(response.estado);
-            } else {
-                alert('Error: ' + response.message);
-            }
-        }, "json");
-    });
-
-    // ANULAR
-    $(document).ready(function () {
-        $('#btnAnular').off('click').on('click', function (e) {
-            e.preventDefault(); // prevenir cualquier acción previa
-
-            let codigo = $('input[name="codigo"]').val();
-
-            // MOSTRAR CONFIRMACIÓN ANTES DE ENVIAR
-            if (!confirm("¿Estás seguro que deseas anular este pedido? Esta acción no se puede deshacer.")) {
-                return; // el usuario canceló
-            }
-
-            // SOLO SI CONFIRMA, enviamos al backend
-            $.post("./modules/pedido/proses.php", { act: 'cancel', codigo: codigo, confirm: true }, function (response) {
+        // SALIR (solo en el alta): es la ÚNICA forma de descartar el borrador. Se pide confirmación porque se pierden
+        // todos los productos cargados. Cerrar el navegador, refrescar o salirse por el menú NO borra nada.
+        $('#btnSalir').off('click').on('click', function (e) {
+            e.preventDefault();
+            if (!confirm("Si sales ahora se eliminará este pedido en borrador y se perderán todos los productos cargados.\n\n¿Deseas salir y descartar el pedido?")) return;
+            $.post("./modules/pedido/proses.php", { act: 'clear_borrador', codigo: $('input[name="codigo"]').val() }, function (response) {
                 if (response.success) {
-                    alert(response.message);
-                    $('#estadoActual').html('Estado del pedido: <strong>' + response.estado + '</strong>');
-                    $('#estado_pedido').val(response.estado);
+                    window.location.href = "?module=pedido";
                 } else {
-                    alert('Error: ' + response.message);
+                    alert('No se pudo descartar el borrador: ' + response.message);
                 }
-            }, "json");
+            }, "json").fail(function () {
+                alert("Error en la solicitud AJAX.");
+            });
         });
     });
-    // --- Limpiar borradores al recargar/cerrar la página ---
-    /*window.addEventListener('beforeunload', function (e) {
-        const data = new FormData();
-        data.append('act', 'clear_borrador');
-        navigator.sendBeacon("./modules/pedido/proses.php", data);
-    });*/
 </script>
 
 

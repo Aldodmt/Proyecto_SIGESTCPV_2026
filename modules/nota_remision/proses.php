@@ -5,6 +5,7 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once __DIR__ . '/../../config/permisos.php';
 guard_endpoint('nota_remision', null, 'json');   // control de acceso por rol (config/permisos.php)
 require_once "../../config/database.php";
+require_once __DIR__ . '/../../config/compras.php';
 header('Content-Type: application/json');
 
 $id_user = $_SESSION['id_user'] ?? null;
@@ -34,6 +35,13 @@ switch ($act) {
 
         if (empty($nro_nota) || empty($tipo_traslado) || empty($motivo_traslado) || empty($nro_nota)) {
             echo json_encode(['success' => false, 'message' => 'Faltan datos obligatorios']);
+            exit;
+        }
+
+        // Capa de estado: la remisión solo puede emitirse sobre una compra ACTIVO
+        $estado_compra = flujo_estado('compra', (int) $cod_compra);
+        if ($estado_compra !== 'ACTIVO') {
+            echo json_encode(['success' => false, 'message' => 'Solo se puede emitir una remisión sobre una compra ACTIVO (estado actual: ' . ($estado_compra ?? 'inexistente') . ').']);
             exit;
         }
 
@@ -88,31 +96,18 @@ switch ($act) {
         break;
 
     case 'cancel':
-        $codigo = $_POST['codigo'] ?? null;
-        if (!$codigo) {
+        $codigo = (int) ($_POST['codigo'] ?? 0);
+        if ($codigo <= 0) {
             echo json_encode(['success' => false, 'message' => 'No se especificó la nota a anular']);
             exit;
         }
-        $estado = 'ANULADO';
-
-        // Verificar si ya está anulada
-        $estadoCheck = mysqli_query($mysqli, "SELECT estado FROM notaR_compra WHERE id_notaR = $codigo");
-        $estado = mysqli_fetch_assoc($estadoCheck)['estado'];
-        if ($estado == 'ANULADO') {
-            echo json_encode(['status' => 'error', 'message' => 'La nota ya está anulada.']);
-            exit;
+        // Cambio de estado atómico ACTIVO -> ANULADO (config/compras.php): una nota ya anulada no se vuelve a anular
+        try {
+            $r = flujo_transicion('nota_remision', $codigo, 'cancel');
+        } catch (Throwable $e) {
+            $r = ['ok' => false, 'mensaje' => 'Error al anular nota: ' . $e->getMessage(), 'estado' => null];
         }
-
-        // Actualización que dispara el trigger de anulación
-        $stmt = $mysqli->prepare("UPDATE notaR_compra SET estado='ANULADO', anulado_por=?, anulado_fecha = CURDATE(), anulado_hora = CURTIME() WHERE id_notaR=?");
-        $stmt->bind_param('ii', $id_user, $codigo);
-
-        if ($stmt->execute()) {
-            echo json_encode(['success' => true, 'message' => 'Nota anulada correctamente']);
-        } else {
-            echo json_encode(['success' => false, 'message' => 'Error al anular nota']);
-        }
-        $stmt->close();
+        echo json_encode(['success' => $r['ok'], 'message' => $r['mensaje'], 'estado' => $r['estado']], JSON_UNESCAPED_UNICODE);
         break;
 
     default:

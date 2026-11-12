@@ -73,9 +73,8 @@ return [
     'stock' => $p('stock/view.php', 'Stock', 'compras', 'leer'),
 
     // ---- Compras: informes (solo lectura) ----
-    'info_producto' => $p('info_producto/view.php', 'Informe de productos', 'compras', 'leer'),
-    'info_proveedores' => $p('info_proveedores/view.php', 'Informe de proveedores', 'compras', 'leer'),
-    'info_u_medida' => $p('info_u_medida/view.php', 'Informe de unidades de medida', 'compras', 'leer'),
+    // Un solo informe para todos los referenciales (departamento, ciudad, producto, proveedor...): ver config/informes.php
+    'info_referencial' => $p('info_referencial/view.php', 'Informe de referenciales', 'referenciales', 'leer'),
     'info_pedido' => $p('info_pedido/view.php', 'Informe de pedidos', 'compras', 'leer'),
     'info_presu' => $p('info_presu/view.php', 'Informe de presupuestos', 'compras', 'leer'),
     'info_orden' => $p('info_orden/view.php', 'Informe de órdenes de compra', 'compras', 'leer'),

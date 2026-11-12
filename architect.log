@@ -1,0 +1,223 @@
+0    [AWT-EventQueue-0] INFO  ca.sqlpower.architect.ArchitectUtils  - Log4J configured successfully
+1011 [AWT-EventQueue-0] INFO  ca.sqlpower.sql.PlDotIni  - Beginning to read/merge new pl.ini data
+1118 [AWT-EventQueue-0] INFO  ca.sqlpower.sql.PlDotIni  - Finished reading file.
+1119 [AWT-EventQueue-0] INFO  ca.sqlpower.sql.PlDotIni  - Beginning to read/merge new pl.ini data
+1180 [AWT-EventQueue-0] INFO  ca.sqlpower.sql.PlDotIni  - Finished reading file.
+1700 [AWT-EventQueue-0] ERROR org.apache.commons.digester.Digester  - End event threw exception
+java.lang.reflect.InvocationTargetException
+	at sun.reflect.GeneratedMethodAccessor12.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
+	at java.lang.reflect.Method.invoke(Unknown Source)
+	at org.apache.commons.beanutils.MethodUtils.invokeMethod(MethodUtils.java:216)
+	at org.apache.commons.digester.SetNextRule.end(SetNextRule.java:256)
+	at org.apache.commons.digester.Rule.end(Rule.java:276)
+	at org.apache.commons.digester.Digester.endElement(Digester.java:1058)
+	at ca.sqlpower.xml.UnescapingDefaultHandler.endElement(UnescapingDefaultHandler.java:151)
+	at org.apache.xerces.parsers.AbstractSAXParser.endElement(Unknown Source)
+	at org.apache.xerces.parsers.AbstractXMLDocumentParser.emptyElement(Unknown Source)
+	at org.apache.xerces.impl.XMLDocumentFragmentScannerImpl.scanStartElement(Unknown Source)
+	at org.apache.xerces.impl.XMLDocumentFragmentScannerImpl$FragmentContentDispatcher.dispatch(Unknown Source)
+	at org.apache.xerces.impl.XMLDocumentFragmentScannerImpl.scanDocument(Unknown Source)
+	at org.apache.xerces.parsers.XML11Configuration.parse(Unknown Source)
+	at org.apache.xerces.parsers.XML11Configuration.parse(Unknown Source)
+	at org.apache.xerces.parsers.XMLParser.parse(Unknown Source)
+	at org.apache.xerces.parsers.AbstractSAXParser.parse(Unknown Source)
+	at org.apache.xerces.jaxp.SAXParserImpl$JAXPSAXParser.parse(Unknown Source)
+	at ca.sqlpower.xml.UnescapingXMLReader.parse(UnescapingXMLReader.java:99)
+	at org.apache.commons.digester.Digester.parse(Digester.java:1567)
+	at ca.sqlpower.architect.ProjectLoader.load(ProjectLoader.java:222)
+	at ca.sqlpower.architect.swingui.SwingUIProjectLoader.load(SwingUIProjectLoader.java:223)
+	at ca.sqlpower.architect.swingui.SwingUIProjectLoader.load(SwingUIProjectLoader.java:185)
+	at ca.sqlpower.architect.swingui.ArchitectSwingSessionContextImpl.createSession(ArchitectSwingSessionContextImpl.java:194)
+	at ca.sqlpower.architect.swingui.ArchitectFrame$25.run(ArchitectFrame.java:1401)
+	at java.awt.event.InvocationEvent.dispatch(Unknown Source)
+	at java.awt.EventQueue.dispatchEventImpl(Unknown Source)
+	at java.awt.EventQueue.access$500(Unknown Source)
+	at java.awt.EventQueue$3.run(Unknown Source)
+	at java.awt.EventQueue$3.run(Unknown Source)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(Unknown Source)
+	at java.awt.EventQueue.dispatchEvent(Unknown Source)
+	at java.awt.EventDispatchThread.pumpOneEventForFilters(Unknown Source)
+	at java.awt.EventDispatchThread.pumpEventsForFilter(Unknown Source)
+	at java.awt.EventDispatchThread.pumpEventsForHierarchy(Unknown Source)
+	at java.awt.EventDispatchThread.pumpEvents(Unknown Source)
+	at java.awt.EventDispatchThread.pumpEvents(Unknown Source)
+	at java.awt.EventDispatchThread.run(Unknown Source)
+Caused by: java.lang.IndexOutOfBoundsException: Index: 1, Size: 0
+	at java.util.ArrayList.rangeCheckForAdd(Unknown Source)
+	at java.util.ArrayList.add(Unknown Source)
+	at ca.sqlpower.sqlobject.SQLIndex.addIndexColumn(SQLIndex.java:1016)
+	at ca.sqlpower.sqlobject.SQLIndex.addChildImpl(SQLIndex.java:673)
+	at ca.sqlpower.object.AbstractSPObject.addChild(AbstractSPObject.java:107)
+	at ca.sqlpower.sqlobject.SQLObject.addChild(SQLObject.java:388)
+	... 39 more
+1704 [AWT-EventQueue-0] ERROR ca.sqlpower.architect.ProjectLoader  - SAX Exception in project file parse!
+org.xml.sax.SAXParseException; lineNumber: 503; columnNumber: 191; Error at (503, 191: Index: 1, Size: 0
+	at org.apache.commons.digester.Digester.createSAXException(Digester.java:2540)
+	at org.apache.commons.digester.Digester.createSAXException(Digester.java:2566)
+	at org.apache.commons.digester.Digester.endElement(Digester.java:1061)
+	at ca.sqlpower.xml.UnescapingDefaultHandler.endElement(UnescapingDefaultHandler.java:151)
+	at org.apache.xerces.parsers.AbstractSAXParser.endElement(Unknown Source)
+	at org.apache.xerces.parsers.AbstractXMLDocumentParser.emptyElement(Unknown Source)
+	at org.apache.xerces.impl.XMLDocumentFragmentScannerImpl.scanStartElement(Unknown Source)
+	at org.apache.xerces.impl.XMLDocumentFragmentScannerImpl$FragmentContentDispatcher.dispatch(Unknown Source)
+	at org.apache.xerces.impl.XMLDocumentFragmentScannerImpl.scanDocument(Unknown Source)
+	at org.apache.xerces.parsers.XML11Configuration.parse(Unknown Source)
+	at org.apache.xerces.parsers.XML11Configuration.parse(Unknown Source)
+	at org.apache.xerces.parsers.XMLParser.parse(Unknown Source)
+	at org.apache.xerces.parsers.AbstractSAXParser.parse(Unknown Source)
+	at org.apache.xerces.jaxp.SAXParserImpl$JAXPSAXParser.parse(Unknown Source)
+	at ca.sqlpower.xml.UnescapingXMLReader.parse(UnescapingXMLReader.java:99)
+	at org.apache.commons.digester.Digester.parse(Digester.java:1567)
+	at ca.sqlpower.architect.ProjectLoader.load(ProjectLoader.java:222)
+	at ca.sqlpower.architect.swingui.SwingUIProjectLoader.load(SwingUIProjectLoader.java:223)
+	at ca.sqlpower.architect.swingui.SwingUIProjectLoader.load(SwingUIProjectLoader.java:185)
+	at ca.sqlpower.architect.swingui.ArchitectSwingSessionContextImpl.createSession(ArchitectSwingSessionContextImpl.java:194)
+	at ca.sqlpower.architect.swingui.ArchitectFrame$25.run(ArchitectFrame.java:1401)
+	at java.awt.event.InvocationEvent.dispatch(Unknown Source)
+	at java.awt.EventQueue.dispatchEventImpl(Unknown Source)
+	at java.awt.EventQueue.access$500(Unknown Source)
+	at java.awt.EventQueue$3.run(Unknown Source)
+	at java.awt.EventQueue$3.run(Unknown Source)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(Unknown Source)
+	at java.awt.EventQueue.dispatchEvent(Unknown Source)
+	at java.awt.EventDispatchThread.pumpOneEventForFilters(Unknown Source)
+	at java.awt.EventDispatchThread.pumpEventsForFilter(Unknown Source)
+	at java.awt.EventDispatchThread.pumpEventsForHierarchy(Unknown Source)
+	at java.awt.EventDispatchThread.pumpEvents(Unknown Source)
+	at java.awt.EventDispatchThread.pumpEvents(Unknown Source)
+	at java.awt.EventDispatchThread.run(Unknown Source)
+Caused by: java.lang.IndexOutOfBoundsException: Index: 1, Size: 0
+	at java.util.ArrayList.rangeCheckForAdd(Unknown Source)
+	at java.util.ArrayList.add(Unknown Source)
+	at ca.sqlpower.sqlobject.SQLIndex.addIndexColumn(SQLIndex.java:1016)
+	at ca.sqlpower.sqlobject.SQLIndex.addChildImpl(SQLIndex.java:673)
+	at ca.sqlpower.object.AbstractSPObject.addChild(AbstractSPObject.java:107)
+	at ca.sqlpower.sqlobject.SQLObject.addChild(SQLObject.java:388)
+	at sun.reflect.GeneratedMethodAccessor12.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
+	at java.lang.reflect.Method.invoke(Unknown Source)
+	at org.apache.commons.beanutils.MethodUtils.invokeMethod(MethodUtils.java:216)
+	at org.apache.commons.digester.SetNextRule.end(SetNextRule.java:256)
+	at org.apache.commons.digester.Rule.end(Rule.java:276)
+	at org.apache.commons.digester.Digester.endElement(Digester.java:1058)
+	... 32 more
+0    [main] INFO  ca.sqlpower.architect.ArchitectUtils  - Log4J configured successfully
+381  [main] INFO  ca.sqlpower.sql.PlDotIni  - Beginning to read/merge new pl.ini data
+438  [main] INFO  ca.sqlpower.sql.PlDotIni  - Finished reading file.
+439  [main] INFO  ca.sqlpower.sql.PlDotIni  - Beginning to read/merge new pl.ini data
+481  [main] INFO  ca.sqlpower.sql.PlDotIni  - Finished reading file.
+591  [main] ERROR org.apache.commons.digester.Digester  - End event threw exception
+java.lang.reflect.InvocationTargetException
+	at sun.reflect.GeneratedMethodAccessor5.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
+	at java.lang.reflect.Method.invoke(Unknown Source)
+	at org.apache.commons.beanutils.MethodUtils.invokeMethod(MethodUtils.java:216)
+	at org.apache.commons.digester.SetNextRule.end(SetNextRule.java:256)
+	at org.apache.commons.digester.Rule.end(Rule.java:276)
+	at org.apache.commons.digester.Digester.endElement(Digester.java:1058)
+	at ca.sqlpower.xml.UnescapingDefaultHandler.endElement(UnescapingDefaultHandler.java:151)
+	at org.apache.xerces.parsers.AbstractSAXParser.endElement(Unknown Source)
+	at org.apache.xerces.parsers.AbstractXMLDocumentParser.emptyElement(Unknown Source)
+	at org.apache.xerces.impl.XMLDocumentFragmentScannerImpl.scanStartElement(Unknown Source)
+	at org.apache.xerces.impl.XMLDocumentFragmentScannerImpl$FragmentContentDispatcher.dispatch(Unknown Source)
+	at org.apache.xerces.impl.XMLDocumentFragmentScannerImpl.scanDocument(Unknown Source)
+	at org.apache.xerces.parsers.XML11Configuration.parse(Unknown Source)
+	at org.apache.xerces.parsers.XML11Configuration.parse(Unknown Source)
+	at org.apache.xerces.parsers.XMLParser.parse(Unknown Source)
+	at org.apache.xerces.parsers.AbstractSAXParser.parse(Unknown Source)
+	at org.apache.xerces.jaxp.SAXParserImpl$JAXPSAXParser.parse(Unknown Source)
+	at ca.sqlpower.xml.UnescapingXMLReader.parse(UnescapingXMLReader.java:99)
+	at org.apache.commons.digester.Digester.parse(Digester.java:1567)
+	at ca.sqlpower.architect.ProjectLoader.load(ProjectLoader.java:222)
+	at ca.sqlpower.architect.ProjectLoader.load(ProjectLoader.java:196)
+	at ca.sqlpower.architect.ArchitectSessionContextImpl.createSession(ArchitectSessionContextImpl.java:146)
+	at jdk.nashorn.internal.scripts.Script$cargar.:program(C:\Users\aldo2\AppData\Local\Temp\claude\c--xampp-htdocs-Proyecto2\7930063a-d922-48bb-9820-c30c9fc3a1f2\scratchpad\cargar.js:9)
+	at jdk.nashorn.internal.runtime.ScriptFunctionData.invoke(ScriptFunctionData.java:637)
+	at jdk.nashorn.internal.runtime.ScriptFunction.invoke(ScriptFunction.java:494)
+	at jdk.nashorn.internal.runtime.ScriptRuntime.apply(ScriptRuntime.java:393)
+	at jdk.nashorn.tools.Shell.apply(Shell.java:471)
+	at jdk.nashorn.tools.Shell.runScripts(Shell.java:400)
+	at jdk.nashorn.tools.Shell.run(Shell.java:179)
+	at jdk.nashorn.tools.Shell.main(Shell.java:143)
+	at jdk.nashorn.tools.Shell.main(Shell.java:119)
+Caused by: java.lang.IndexOutOfBoundsException: Index: 1, Size: 0
+	at java.util.ArrayList.rangeCheckForAdd(Unknown Source)
+	at java.util.ArrayList.add(Unknown Source)
+	at ca.sqlpower.sqlobject.SQLIndex.addIndexColumn(SQLIndex.java:1016)
+	at ca.sqlpower.sqlobject.SQLIndex.addChildImpl(SQLIndex.java:673)
+	at ca.sqlpower.object.AbstractSPObject.addChild(AbstractSPObject.java:107)
+	at ca.sqlpower.sqlobject.SQLObject.addChild(SQLObject.java:388)
+	... 32 more
+594  [main] ERROR ca.sqlpower.architect.ProjectLoader  - SAX Exception in project file parse!
+org.xml.sax.SAXParseException; lineNumber: 503; columnNumber: 191; Error at (503, 191: Index: 1, Size: 0
+	at org.apache.commons.digester.Digester.createSAXException(Digester.java:2540)
+	at org.apache.commons.digester.Digester.createSAXException(Digester.java:2566)
+	at org.apache.commons.digester.Digester.endElement(Digester.java:1061)
+	at ca.sqlpower.xml.UnescapingDefaultHandler.endElement(UnescapingDefaultHandler.java:151)
+	at org.apache.xerces.parsers.AbstractSAXParser.endElement(Unknown Source)
+	at org.apache.xerces.parsers.AbstractXMLDocumentParser.emptyElement(Unknown Source)
+	at org.apache.xerces.impl.XMLDocumentFragmentScannerImpl.scanStartElement(Unknown Source)
+	at org.apache.xerces.impl.XMLDocumentFragmentScannerImpl$FragmentContentDispatcher.dispatch(Unknown Source)
+	at org.apache.xerces.impl.XMLDocumentFragmentScannerImpl.scanDocument(Unknown Source)
+	at org.apache.xerces.parsers.XML11Configuration.parse(Unknown Source)
+	at org.apache.xerces.parsers.XML11Configuration.parse(Unknown Source)
+	at org.apache.xerces.parsers.XMLParser.parse(Unknown Source)
+	at org.apache.xerces.parsers.AbstractSAXParser.parse(Unknown Source)
+	at org.apache.xerces.jaxp.SAXParserImpl$JAXPSAXParser.parse(Unknown Source)
+	at ca.sqlpower.xml.UnescapingXMLReader.parse(UnescapingXMLReader.java:99)
+	at org.apache.commons.digester.Digester.parse(Digester.java:1567)
+	at ca.sqlpower.architect.ProjectLoader.load(ProjectLoader.java:222)
+	at ca.sqlpower.architect.ProjectLoader.load(ProjectLoader.java:196)
+	at ca.sqlpower.architect.ArchitectSessionContextImpl.createSession(ArchitectSessionContextImpl.java:146)
+	at jdk.nashorn.internal.scripts.Script$cargar.:program(C:\Users\aldo2\AppData\Local\Temp\claude\c--xampp-htdocs-Proyecto2\7930063a-d922-48bb-9820-c30c9fc3a1f2\scratchpad\cargar.js:9)
+	at jdk.nashorn.internal.runtime.ScriptFunctionData.invoke(ScriptFunctionData.java:637)
+	at jdk.nashorn.internal.runtime.ScriptFunction.invoke(ScriptFunction.java:494)
+	at jdk.nashorn.internal.runtime.ScriptRuntime.apply(ScriptRuntime.java:393)
+	at jdk.nashorn.tools.Shell.apply(Shell.java:471)
+	at jdk.nashorn.tools.Shell.runScripts(Shell.java:400)
+	at jdk.nashorn.tools.Shell.run(Shell.java:179)
+	at jdk.nashorn.tools.Shell.main(Shell.java:143)
+	at jdk.nashorn.tools.Shell.main(Shell.java:119)
+Caused by: java.lang.IndexOutOfBoundsException: Index: 1, Size: 0
+	at java.util.ArrayList.rangeCheckForAdd(Unknown Source)
+	at java.util.ArrayList.add(Unknown Source)
+	at ca.sqlpower.sqlobject.SQLIndex.addIndexColumn(SQLIndex.java:1016)
+	at ca.sqlpower.sqlobject.SQLIndex.addChildImpl(SQLIndex.java:673)
+	at ca.sqlpower.object.AbstractSPObject.addChild(AbstractSPObject.java:107)
+	at ca.sqlpower.sqlobject.SQLObject.addChild(SQLObject.java:388)
+	at sun.reflect.GeneratedMethodAccessor5.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
+	at java.lang.reflect.Method.invoke(Unknown Source)
+	at org.apache.commons.beanutils.MethodUtils.invokeMethod(MethodUtils.java:216)
+	at org.apache.commons.digester.SetNextRule.end(SetNextRule.java:256)
+	at org.apache.commons.digester.Rule.end(Rule.java:276)
+	at org.apache.commons.digester.Digester.endElement(Digester.java:1058)
+	... 25 more
+0    [main] INFO  ca.sqlpower.architect.ArchitectUtils  - Log4J configured successfully
+509  [main] INFO  ca.sqlpower.sql.PlDotIni  - Beginning to read/merge new pl.ini data
+576  [main] INFO  ca.sqlpower.sql.PlDotIni  - Finished reading file.
+577  [main] INFO  ca.sqlpower.sql.PlDotIni  - Beginning to read/merge new pl.ini data
+629  [main] INFO  ca.sqlpower.sql.PlDotIni  - Finished reading file.
+0    [main] INFO  ca.sqlpower.architect.ArchitectUtils  - Log4J configured successfully
+387  [main] INFO  ca.sqlpower.sql.PlDotIni  - Beginning to read/merge new pl.ini data
+450  [main] INFO  ca.sqlpower.sql.PlDotIni  - Finished reading file.
+451  [main] INFO  ca.sqlpower.sql.PlDotIni  - Beginning to read/merge new pl.ini data
+499  [main] INFO  ca.sqlpower.sql.PlDotIni  - Finished reading file.
+0    [main] INFO  ca.sqlpower.architect.ArchitectUtils  - Log4J configured successfully
+503  [main] INFO  ca.sqlpower.sql.PlDotIni  - Beginning to read/merge new pl.ini data
+580  [main] INFO  ca.sqlpower.sql.PlDotIni  - Finished reading file.
+582  [main] INFO  ca.sqlpower.sql.PlDotIni  - Beginning to read/merge new pl.ini data
+635  [main] INFO  ca.sqlpower.sql.PlDotIni  - Finished reading file.
+0    [main] INFO  ca.sqlpower.architect.ArchitectUtils  - Log4J configured successfully
+620  [main] INFO  ca.sqlpower.sql.PlDotIni  - Beginning to read/merge new pl.ini data
+691  [main] INFO  ca.sqlpower.sql.PlDotIni  - Finished reading file.
+692  [main] INFO  ca.sqlpower.sql.PlDotIni  - Beginning to read/merge new pl.ini data
+728  [main] INFO  ca.sqlpower.sql.PlDotIni  - Finished reading file.
+0    [main] INFO  ca.sqlpower.architect.ArchitectUtils  - Log4J configured successfully
+523  [main] INFO  ca.sqlpower.sql.PlDotIni  - Beginning to read/merge new pl.ini data
+598  [main] INFO  ca.sqlpower.sql.PlDotIni  - Finished reading file.
+599  [main] INFO  ca.sqlpower.sql.PlDotIni  - Beginning to read/merge new pl.ini data
+641  [main] INFO  ca.sqlpower.sql.PlDotIni  - Finished reading file.

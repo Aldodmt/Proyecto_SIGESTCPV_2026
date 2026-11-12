@@ -85,6 +85,21 @@ InnoDB para tener claves foráneas y transacciones.
   no puede usar. Es solo cosmético: la barrera real es `route_resolve()` + `guard_endpoint()`.
 - Los permisos se recargan desde la base **en cada petición**, así que un cambio de rol o un bloqueo rige al instante.
 
+## Flujo de compras y sus estados
+
+`pedido -> presupuesto -> orden_c -> compra` (+ notas de crédito/débito, remisión y ajustes). La tabla de transiciones está en
+`COMPRAS_FLUJO` (`config/compras.php`). Estados: pedido `BORRADOR, PENDIENTE, MODIFICANDO, CONFIRMADO, PRESUPUESTADO, ANULADO`;
+presupuesto `PENDIENTE, APROBADO, ORDENADO, ANULADO`; orden `PENDIENTE, APROBADO, COMPRADA, ANULADO`; compra `PENDIENTE, ACTIVO, ANULADO`.
+`PRESUPUESTADO`, `ORDENADO` y `COMPRADA` son estados **finales mientras el hijo siga vigente**: los fija el sistema al confirmar el hijo
+(`consumir`) y los revierte al anularlo (`liberar`); ningún botón los toca.
+
+## IVA de compras
+
+`config/iva.php` registra en `iva_compra` un resumen de IVA (5 %, 10 %, exentas) por factura de compra y por nota de crédito/débito.
+Los precios traen el IVA incluido (`IVA = importe - importe / 1,10` o `/ 1,05`). La fecha es la del documento (período fiscal); las notas de crédito
+restan (signo negativo) y las de débito suman; anular un documento deja su fila en `ANULADO`. La relación con `compra`/`nota_credito_debito` es
+lógica (esas tablas son MyISAM, sin claves foráneas).
+
 ## Dos generaciones de código
 
 | | Código nuevo (v2, 10/2026) | Código heredado (compras/ventas) |
@@ -98,7 +113,7 @@ Al modificar código heredado, conviene llevar a lo nuevo **la parte que se toca
 
 ## Base de datos y versiones
 
-- Base `sysweb` (MySQL/MariaDB, utf8mb4). Versión actual del esquema: **v2** (`esquema_version`).
+- Base `sysweb` (MySQL/MariaDB, utf8mb4). Versión actual del esquema: **v4** (`esquema_version`; v3 alineó datos de estados, v4 agrega la tabla `iva_compra`).
 - `database/backups/vN_*.sql`: volcado completo por versión (incluye `DROP TABLE IF EXISTS`).
 - `database/migraciones/v(N-1)_a_vN_*.sql`: migración idempotente que registra su versión.
 - Tablas temporales de detalle: `tmp` (por `session_id`, estado `BORRADOR`) para los movimientos de compra.

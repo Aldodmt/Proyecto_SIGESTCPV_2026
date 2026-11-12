@@ -4,8 +4,9 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 require_once __DIR__ . '/../config/permisos.php';
-guard_endpoint('pedido', 'cualquiera', 'fragmento');   // control de acceso por rol (config/permisos.php)
+guard_endpoint('pedido', 'cualquiera', 'fragmento');   // 1.ª capa: permiso del rol (config/permisos.php)
 require_once "../config/database.php";
+require_once __DIR__ . '/../config/compras.php';
 
 // Validar ID de pedido
 if (!isset($_POST['id_pedido']) || !is_numeric($_POST['id_pedido'])) {
@@ -15,6 +16,25 @@ if (!isset($_POST['id_pedido']) || !is_numeric($_POST['id_pedido'])) {
 
 $id_pedido = intval($_POST['id_pedido']);
 $op = $_POST['op'] ?? 'add';
+
+// 2.ª capa: el detalle solo se toca mientras el pedido es BORRADOR o MODIFICANDO.
+// Antes cualquiera podía agregar o quitar productos de un pedido ya CONFIRMADO llamando a este archivo a mano.
+$error = flujo_validar_editable('pedido', $id_pedido);
+if ($error !== null) {
+    echo "<div class='alert alert-danger'>" . h($error) . "</div>";
+    exit;
+}
+
+// Un borrador es la hoja de trabajo de su creador: nadie más puede agregarle ni quitarle productos.
+$s = $mysqli->prepare("SELECT id_user, UPPER(estado) FROM pedido WHERE id_pedido = ?");
+$s->bind_param('i', $id_pedido);
+$s->execute();
+[$duenio, $estado_actual] = $s->get_result()->fetch_row();
+$s->close();
+if ($estado_actual === 'BORRADOR' && (int) $duenio !== (int) ($_SESSION['id_user'] ?? 0)) {
+    echo "<div class='alert alert-danger'>Este pedido es un borrador de otro usuario.</div>";
+    exit;
+}
 
 // -------------------------------------------------------------
 // AGREGAR PRODUCTO AL PEDIDO
@@ -34,45 +54,32 @@ if ($op === 'add') {
     }
 
     // Validar si el producto existe
-    $sql_producto = mysqli_query($mysqli, "SELECT cod_producto FROM producto WHERE cod_producto = $id_producto");
-    if (mysqli_num_rows($sql_producto) === 0) {
+    $s = $mysqli->prepare("SELECT cod_producto FROM producto WHERE cod_producto = ?");
+    $s->bind_param('i', $id_producto);
+    $s->execute();
+    $existe = $s->get_result()->num_rows > 0;
+    $s->close();
+    if (!$existe) {
         echo "<div class='alert alert-danger'>El producto no existe.</div>";
         exit;
     }
 
-    // Validar stock disponible (si aplica)
-    $sql_stock = mysqli_query($mysqli, "SELECT cantidad FROM stock_prod WHERE cod_producto = $id_producto");
-    $row_stock = mysqli_fetch_assoc($sql_stock);
-    $stock_disponible = floatval($row_stock['cantidad'] ?? 0);
+    // Si el producto ya está en el detalle se suma la cantidad; si no, se inserta
+    $s = $mysqli->prepare("SELECT cantidad FROM det_pedido WHERE id_pedido = ? AND cod_producto = ?");
+    $s->bind_param('ii', $id_pedido, $id_producto);
+    $s->execute();
+    $ya = $s->get_result()->num_rows > 0;
+    $s->close();
 
-    /*
-    if ($cantidad > $stock_disponible) {
-        echo "<div class='alert alert-warning'>No puedes pedir más de lo disponible en stock ($stock_disponible).</div>";
-        exit;
-    }
-    */
-
-    // Verificar si el producto ya existe en el detalle
-    $query_check = mysqli_query($mysqli, "
-        SELECT cantidad 
-        FROM det_pedido 
-        WHERE id_pedido = $id_pedido AND cod_producto = $id_producto
-    ");
-
-    if (mysqli_num_rows($query_check) > 0) {
-        // Actualizar cantidad sumando
-        mysqli_query($mysqli, "
-            UPDATE det_pedido 
-            SET cantidad = cantidad + $cantidad 
-            WHERE id_pedido = $id_pedido AND cod_producto = $id_producto
-        ");
+    if ($ya) {
+        $s = $mysqli->prepare("UPDATE det_pedido SET cantidad = cantidad + ? WHERE id_pedido = ? AND cod_producto = ?");
+        $s->bind_param('dii', $cantidad, $id_pedido, $id_producto);
     } else {
-        // Insertar nuevo detalle
-        mysqli_query($mysqli, "
-            INSERT INTO det_pedido (id_pedido, cod_producto, cantidad)
-            VALUES ($id_pedido, $id_producto, $cantidad)
-        ");
+        $s = $mysqli->prepare("INSERT INTO det_pedido (id_pedido, cod_producto, cantidad) VALUES (?, ?, ?)");
+        $s->bind_param('iid', $id_pedido, $id_producto, $cantidad);
     }
+    $s->execute();
+    $s->close();
 }
 
 // -------------------------------------------------------------
@@ -86,20 +93,14 @@ elseif ($op === 'delete') {
         exit;
     }
 
-    mysqli_query($mysqli, "
-        DELETE FROM det_pedido 
-        WHERE id_pedido = $id_pedido AND cod_producto = $id_producto
-    ");
+    $s = $mysqli->prepare("DELETE FROM det_pedido WHERE id_pedido = ? AND cod_producto = ?");
+    $s->bind_param('ii', $id_pedido, $id_producto);
+    $s->execute();
+    $s->close();
 }
 
 // Listar productos del pedido
-$sql_detalle = mysqli_query($mysqli, "
-    SELECT dp.*, p.p_descrip, u.u_descrip, p.tipo_impuesto
-    FROM det_pedido dp
-    JOIN producto p ON dp.cod_producto = p.cod_producto
-    JOIN u_medida u ON p.id_u_medida = u.id_u_medida
-    WHERE dp.id_pedido = $id_pedido
-");
+$detalle = flujo_detalle_pedido($id_pedido);
 
 echo "<table class='table table-striped table-hover align-middle'>
         <thead class='table-primary'>
@@ -114,15 +115,15 @@ echo "<table class='table table-striped table-hover align-middle'>
         </thead>
         <tbody>";
 
-while ($prod = mysqli_fetch_assoc($sql_detalle)) {
+foreach ($detalle as $prod) {
     echo "<tr>
-        <td>{$prod['cod_producto']}</td>
-        <td>{$prod['p_descrip']}</td>
-        <td>{$prod['cantidad']}</td>
-        <td>{$prod['u_descrip']}</td>
-        <td>{$prod['tipo_impuesto']}</td>
+        <td>" . (int) $prod['cod_producto'] . "</td>
+        <td>" . h($prod['p_descrip']) . "</td>
+        <td>" . h($prod['cantidad']) . "</td>
+        <td>" . h($prod['u_descrip']) . "</td>
+        <td>" . h($prod['tipo_impuesto']) . "</td>
         <td>
-            <button class='btn btn-danger btn-sm' onclick='eliminar({$prod['cod_producto']}, {$id_pedido})'>
+            <button class='btn btn-danger btn-sm' onclick='eliminar(" . (int) $prod['cod_producto'] . ", {$id_pedido})'>
                 Eliminar
             </button>
         </td>
@@ -130,4 +131,3 @@ while ($prod = mysqli_fetch_assoc($sql_detalle)) {
 }
 
 echo "</tbody></table>";
-?>

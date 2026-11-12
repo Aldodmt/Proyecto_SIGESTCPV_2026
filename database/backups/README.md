@@ -7,12 +7,14 @@ sobrescriben: cada cambio grande crea una versión nueva y su migración.
 |---|---|---|---|---|---|
 | **v1** | `v1_Backup_06_1_2026.sql` | 06/10/2026 | 37 | 13 | Sistema de compras + seguridad del login (`log_accesos`, `password_resets`, `intentos_fallidos`, `bloqueado_fecha`). Es copia idéntica de `Backup_06_1_2026.sql` (que sigue intacto en la raíz del proyecto). |
 | **v2** | `v2_Backup_14_10_2026_personas_permisos.sql` | 14/10/2026 | 47 | 16 | Todo lo de v1 + **personas** (`persona`, `genero`, `nacionalidad`), **personal** (`funcionario`, `cargo`) y **control de acceso por roles** (`rol`, `modulo`, `pagina`, `permiso`), más `esquema_version` y las vistas `v_persona`, `v_funcionario`, `v_usuarios`. |
+| **v3** | `v3_Backup_31_10_2026_estados_flujo.sql` | 31/10/2026 | 47 | 16 | Igual que v2 (sin cambios de tablas) con los **datos alineados a los estados finalizados del flujo de compras**: pedido `PRESUPUESTADO`, presupuesto `ORDENADO`, orden `COMPRADA`. |
 
 Las migraciones están en `../migraciones/`:
 
 | Migración | Hace |
 |---|---|
 | `v1_a_v2_personas_permisos.sql` | Lleva una base en v1 a v2 **sin perder datos** (agrega tablas, columnas y relaciones y carga los datos iniciales). Se puede ejecutar varias veces. |
+| `v2_a_v3_estados_del_flujo.sql` | Solo datos: marca como `PRESUPUESTADO` / `ORDENADO` / `COMPRADA` los documentos que ya tienen un hijo confirmado (regla nueva del flujo de compras). Idempotente. |
 
 ## Cómo usarlas
 
